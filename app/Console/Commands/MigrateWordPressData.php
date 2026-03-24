@@ -31,7 +31,7 @@ class MigrateWordPressData extends Command
                 ['slug' => $wpCat->slug],
                 [
                     'name' => $wpCat->name,
-                    'parent_id' => 0,
+                    'parent_id' => null,
                 ]
             );
             $categoryMap[$wpCat->term_id] = $category->id;
