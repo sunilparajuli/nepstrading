@@ -329,7 +329,14 @@
             <div class="s-navBar">
                 <div class="s-navInner">
                     <div class="s-navTopRow">
-                        <a href="{{ url('/') }}" class="s-logo">Nepstrading</a>
+                        <a href="{{ url('/') }}" class="s-logo">
+                            @php $siteLogo = \App\Models\SiteSetting::getValue('logo'); @endphp
+                            @if($siteLogo)
+                                <img src="{{ $siteLogo }}" alt="Nepstrading" style="height: 40px; width: auto; object-fit: contain;">
+                            @else
+                                Nepstrading
+                            @endif
+                        </a>
                         <div class="s-searchWrap hidden md:flex" style="position: relative;">
                             <select id="searchCategory" class="s-searchSelect">
                                 <option value="">All</option>
