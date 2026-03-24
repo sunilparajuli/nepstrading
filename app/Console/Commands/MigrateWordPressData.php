@@ -62,6 +62,7 @@ class MigrateWordPressData extends Command
             $price = $meta['_regular_price'] ?? $meta['_price'] ?? 0;
             $salePrice = $meta['_sale_price'] ?? null;
             $sku = $meta['_sku'] ?? null;
+            $sku = ($sku && $sku != '') ? $sku : null;
             $stock = $meta['_stock'] ?? 0;
             $manageStock = ($meta['_manage_stock'] ?? 'no') === 'yes';
 
