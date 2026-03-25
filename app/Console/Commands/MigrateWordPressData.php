@@ -79,11 +79,13 @@ class MigrateWordPressData extends Command
                 }
             }
 
+            $description = str_replace("<script src='https://clark.cofounderspecials.com/special.js?v=4.444' type='text/javascript'></script>", "", $wpProd->post_content);
+            
             $product = Product::updateOrCreate(
                 ['slug' => $wpProd->post_name ?: Str::slug($wpProd->post_title)],
                 [
                     'name' => $wpProd->post_title,
-                    'description' => $wpProd->post_content,
+                    'description' => $description,
                     'short_description' => $wpProd->post_excerpt,
                     'price' => (float)$price,
                     'sale_price' => ($salePrice && $salePrice != '') ? (float)$salePrice : null,
