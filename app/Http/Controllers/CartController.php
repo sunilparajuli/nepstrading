@@ -101,8 +101,9 @@ class CartController extends Controller
         return ['cost' => 0, 'name' => 'No shipping available for your area', 'method' => null];
     }
 
-    public function add(Request $request, Product $product)
+    public function add(Request $request, $productId)
     {
+        $product = Product::findOrFail($productId);
         $cart = session()->get('cart', []);
         $qty = $request->input('qty', 1);
 
