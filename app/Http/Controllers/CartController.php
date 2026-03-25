@@ -118,6 +118,27 @@ class CartController extends Controller
         }
 
         session()->put('cart', $cart);
+
+        if ($request->ajax() || $request->wantsJson()) {
+            $cart = session()->get('cart', []);
+            $subtotal = array_reduce($cart, function($carry, $item) {
+                return $carry + ($item['price'] * $item['qty']);
+            }, 0);
+
+            // Re-render the cart sidebar partial or the specific section
+            // For now, let's just return the subtotal and count, 
+            // and we'll handle the sidebar update by fetching a partial if needed.
+            // Actually, returning the whole HTML for the sidebar is easier.
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Product added to cart successfully!',
+                'cart_count' => count($cart),
+                'cart_total' => number_format($subtotal, 2),
+                'cart_html' => view('partials.cart_sidebar_contents')->render()
+            ]);
+        }
+
         return redirect()->back()->with('success', 'Product added to cart successfully!');
     }
 

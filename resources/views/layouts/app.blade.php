@@ -324,6 +324,41 @@
 
         /* Icons placeholder styles for raw HTML if SVG is inline */
         svg { width: 1em; height: 1em; }
+
+        /* Toast Styles */
+        #toast-container {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .s-toast {
+            background: hsl(var(--fg));
+            color: hsl(var(--bg));
+            padding: 12px 20px;
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            min-width: 280px;
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .s-toast.fade-out {
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+        }
+        .s-toast-success { border-left: 4px solid hsl(var(--primary)); }
     </style>
 </head>
 <body>
@@ -386,9 +421,9 @@
                             @endauth
                             <button type="button" class="s-iconBtn" onclick="toggleCart()">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--fg))" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
-                                @if(session()->has('cart') && count(session('cart')) > 0)
-                                    <span class="s-cartBadge">{{ count(session('cart')) }}</span>
-                                @endif
+                                <span id="cart-badge-count" class="s-cartBadge" style="{{ (session()->has('cart') && count(session('cart')) > 0) ? '' : 'display:none;' }}">
+                                    {{ session()->has('cart') ? count(session('cart')) : 0 }}
+                                </span>
                             </button>
                         </div>
                     </div>
@@ -500,82 +535,8 @@
                     </button>
                 </div>
                 
-                <div style="flex: 1; overflow-y: auto; padding: 16px;">
-                    @php
-                        $cart = session()->get('cart', []);
-                        $subtotal = 0;
-                        $totalItems = 0;
-                        foreach($cart as $item) {
-                            $subtotal += $item['price'] * ($item['qty'] ?? 1);
-                            $totalItems += ($item['qty'] ?? 1);
-                        }
-                        $threshold = 65;
-                        $remaining = max($threshold - $subtotal, 0);
-                        $progress = min(($subtotal / $threshold) * 100, 100);
-                    @endphp
-
-                    <div class="s-cartRow">
-                        <span>Subtotal</span><span style="font-weight: 600;">${{ number_format($subtotal, 2) }}</span>
-                    </div>
-                    
-                    <a href="{{ route('checkout.index') }}" class="s-checkoutBtn">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
-                        Checkout
-                    </a>
-                    
-                    <div style="margin-bottom: 16px;">
-                        <p style="font-size: 12px; color: hsl(var(--muted-fg)); margin-bottom: 8px; margin-top: 0;">
-                            @if($remaining > 0)
-                                Spend ${{ number_format($remaining, 2) }} more for free shipping!
-                            @else
-                                🎉 You qualify for free shipping!
-                            @endif
-                        </p>
-                        <div class="s-progressTrack"><div class="s-progressFill" style="width: {{ $progress }}%;"></div></div>
-                    </div>
-                    
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
-                        <h4 style="font-size: 14px; font-weight: 600; color: hsl(var(--fg)); margin: 0;">Products</h4>
-                        <span style="font-size: 12px; color: hsl(var(--muted-fg));">({{ $totalItems }})</span>
-                    </div>
-                    
-                    @if(count($cart) > 0)
-                        @foreach($cart as $id => $item)
-                            <div class="s-cartItem">
-                                <img src="{{ $item['image'] ?? 'https://placehold.co/100' }}" alt="{{ $item['name'] }}" class="s-cartItemImg" />
-                                <div class="s-cartItemInfo">
-                                    <p class="s-cartItemName">{{ $item['name'] }}</p>
-                                    <div style="display: flex; align-items: center; gap: 4px; margin-top: 2px;">
-                                        <span style="font-size: 14px; font-weight: 700; color: hsl(var(--fg));">${{ number_format($item['price'], 2) }}</span>
-                                    </div>
-                                    <div class="s-qtyRow">
-                                        <form id="cart-update-{{ $id }}" action="{{ route('cart.update', $id) }}" method="POST" style="margin:0; display:flex; align-items:center; gap:6px;">
-                                            @csrf
-                                            @method('PATCH')
-                                            <input type="hidden" name="qty" value="{{ $item['qty'] ?? 1 }}" id="cart-qty-{{ $id }}">
-                                            <button type="button" class="s-qtyBtnRound" onclick="updateCartQty({{ $id }}, -1)">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                                            </button>
-                                            <span class="s-qtyDisplay" id="cart-qty-display-{{ $id }}">{{ $item['qty'] ?? 1 }}</span>
-                                            <button type="button" class="s-qtyBtnRound" onclick="updateCartQty({{ $id }}, 1)">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                                            </button>
-                                        </form>
-                                        
-                                        <form action="{{ route('cart.remove', $id) }}" method="POST" style="margin-left: auto;">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="s-removeBtn">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="hsl(0, 84%, 55%)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
-                                            </button>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        @endforeach
-                    @else
-                        <p style="font-size: 14px; color: hsl(var(--muted-fg)); text-align: center; padding: 32px 0;">Your cart is empty</p>
-                    @endif
+                <div id="cart-sidebar-container" style="flex: 1; overflow-y: auto; padding: 16px;">
+                    @include('partials.cart_sidebar_contents')
                 </div>
             </div>
         </div>
@@ -603,10 +564,73 @@
             document.getElementById('cart-update-' + id).submit();
         }
 
-        // Keep cart open if there were redirect flashes
-        @if(session('success'))
-            toggleCart();
+        // Keep cart open if there were redirect flashes (non-ajax)
+        @if(session('success') && !request()->ajax())
+            // Only auto-toggle if not specifically disabled by user preference
+            // toggleCart(); 
         @endif
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container') || createToastContainer();
+            const toast = document.createElement('div');
+            toast.className = `s-toast s-toast-${type}`;
+            toast.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                <span>${message}</span>
+            `;
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.add('fade-out');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function createToastContainer() {
+            const container = document.createElement('div');
+            container.id = 'toast-container';
+            document.body.appendChild(container);
+            return container;
+        }
+
+        async function addToCart(productId, qty = 1) {
+            try {
+                const response = await fetch(`/cart/add/${productId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({ qty: qty })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    showToast(data.message);
+                    updateCartUI(data);
+                }
+            } catch (error) {
+                console.error('Error adding to cart:', error);
+                showToast('Could not add to cart', 'error');
+            }
+        }
+
+        function updateCartUI(data) {
+            // Update badge
+            const badge = document.getElementById('cart-badge-count');
+            if (badge) {
+                badge.textContent = data.cart_count;
+                badge.style.display = data.cart_count > 0 ? '' : 'none';
+            }
+
+            // Update sidebar content
+            const container = document.getElementById('cart-sidebar-container');
+            if (container && data.cart_html) {
+                container.innerHTML = data.cart_html;
+            }
+        }
 
         // === Live Search ===
         (function() {

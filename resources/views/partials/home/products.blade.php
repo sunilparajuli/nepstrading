@@ -29,12 +29,9 @@
                 @endif
 
                 <div class="absolute inset-x-4 bottom-4 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
-                    <form action="{{ route('cart.add', $product) }}" method="POST">
-                        @csrf
-                        <button type="submit" class="w-full py-3 bg-white text-black text-[10px] font-bold uppercase tracking-widest hover:bg-black hover:text-white transition-all shadow-lg rounded-sm">
-                            Quick Add
-                        </button>
-                    </form>
+                    <button type="button" onclick="addToCart({{ $product->id }})" class="w-full py-3 bg-white text-black text-[10px] font-bold uppercase tracking-widest hover:bg-black hover:text-white transition-all shadow-lg rounded-sm border border-black/10">
+                        Quick Add
+                    </button>
                 </div>
             </div>
 
