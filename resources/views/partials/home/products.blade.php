@@ -10,9 +10,9 @@
         </a>
     </div>
 
-    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-{{ $section->data['columns'] ?? 5 }} gap-px bg-gray-100 border border-gray-100 rounded-xl overflow-hidden shadow-sm">
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-{{ $section->data['columns'] ?? 5 }} gap-4">
         @foreach($section->resolved_data as $product)
-        <div class="group flex flex-col bg-white p-4 h-full transition-all hover:z-10 hover:shadow-[0_20px_50px_rgba(0,0,0,0.1)] relative">
+        <div class="group flex flex-col bg-white p-4 h-full border border-gray-100 hover:border-transparent hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all duration-300 relative rounded-lg">
             <!-- Badges -->
             @if($product->sale_price)
                 <div class="absolute top-4 left-4 z-10 flex flex-col gap-1">
@@ -23,7 +23,7 @@
             @endif
 
             <!-- Image (Square 1:1) -->
-            <div class="relative aspect-square mb-5 bg-gray-50/50 rounded-lg overflow-hidden flex items-center justify-center group-hover:bg-white transition-colors duration-500">
+            <div class="relative aspect-square mb-4 rounded-lg overflow-hidden flex items-center justify-center p-2">
                 <a href="{{ route('products.show', $product) }}" class="block w-full h-full p-6">
                     <img src="{{ $product->image ?: 'https://placehold.co/400x400?text=No+Image' }}" 
                          class="w-full h-full object-contain transition-transform duration-700 ease-out group-hover:scale-110" 
@@ -33,35 +33,44 @@
 
             <!-- Product Info (Left Aligned) -->
             <div class="flex flex-col flex-grow text-left">
-                <span class="text-[10px] font-bold uppercase tracking-wider text-muted-fg mb-1.5">{{ $product->categories->first()->name ?? 'Store' }}</span>
-                <h3 class="font-bold text-[14px] leading-tight text-fg mb-3 h-10 line-clamp-2 hover:text-primary transition-colors duration-200">
+                <h3 class="font-semibold text-[14px] text-gray-800 leading-snug mb-2 line-clamp-2 hover:text-[#1F8A43] transition-colors h-10">
                     <a href="{{ route('products.show', $product) }}">{{ $product->name }}</a>
                 </h3>
                 
-                <!-- Pricing -->
-                <div class="mt-auto pt-2 pb-5 flex items-baseline gap-2">
-                    @if($product->sale_price)
-                        <div class="flex flex-col">
-                            <span class="text-lg font-black text-red-600 leading-none">
-                                ${{ floor($product->sale_price) }}<span class="text-xs align-top mt-1">.{{ substr(number_format($product->sale_price, 2), -2) }}</span>
-                            </span>
-                            <span class="text-[11px] text-muted-fg line-through font-semibold mt-0.5 italic">WAS ${{ number_format($product->price, 2) }}</span>
-                        </div>
+                <!-- Stock status -->
+                <span class="text-[12px] text-gray-500 mb-2 block">
+                    @if($product->manage_stock && $product->stock_quantity <= 0)
+                        <span class="text-red-500 font-medium">Out of stock</span>
                     @else
-                        <span class="text-lg font-black text-fg leading-none">
-                            ${{ floor($product->price) }}<span class="text-xs align-top mt-1">.{{ substr(number_format($product->price, 2), -2) }}</span>
-                        </span>
+                        <span class="text-[#1F8A43] font-medium">In stock</span>
+                    @endif
+                </span>
+                
+                <!-- Pricing -->
+                <div class="mt-auto pt-1 pb-4 flex items-center flex-wrap gap-2">
+                    @if($product->sale_price)
+                        <span class="text-[20px] font-bold text-[#E5222E]">${{ number_format($product->sale_price, 2) }}</span>
+                        <span class="text-[13px] text-gray-500 line-through">${{ number_format($product->price, 2) }}</span>
+                    @else
+                        <span class="text-[20px] font-bold text-gray-900">${{ number_format($product->price, 2) }}</span>
                     @endif
                 </div>
 
                 <!-- Permanent Full-width Cart Button -->
-                <button type="button" onclick="addToCart({{ $product->id }})" 
-                        class="w-full py-3 bg-primary text-primary-fg text-[11px] font-black uppercase tracking-widest rounded-lg shadow-md hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-2 border-b-4 border-black/10">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                    </svg>
-                    Add to Cart
-                </button>
+                @if(!($product->manage_stock && $product->stock_quantity <= 0))
+                    <button type="button" onclick="addToCart({{ $product->id }})" 
+                            class="w-full py-2.5 mt-auto bg-[#1F8A43] text-white text-[13px] font-bold rounded hover:bg-[#176d34] transition-colors flex items-center justify-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                        Add to Cart
+                    </button>
+                @else
+                    <button type="button" disabled 
+                            class="w-full py-2.5 mt-auto bg-gray-200 text-gray-500 text-[13px] font-bold rounded cursor-not-allowed flex items-center justify-center gap-2">
+                        Sold Out
+                    </button>
+                @endif
             </div>
         </div>
         @endforeach

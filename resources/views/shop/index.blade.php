@@ -78,34 +78,36 @@
     @media (max-width: 480px) { .sp-grid { grid-template-columns: 1fr; } }
 
     .sp-card {
-        background: hsl(var(--bg)); border-radius: 12px; border: 1px solid hsl(var(--border));
+        background: white; border-radius: 8px; border: 1px solid #f3f4f6;
         padding: 16px; transition: all 0.3s ease; cursor: pointer; display: flex; flex-direction: column;
     }
-    .sp-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.08); transform: translateY(-2px); }
-    .sp-imgWrap { aspect-ratio: 1; margin-bottom: 16px; overflow: hidden; border-radius: 8px; background: hsl(var(--muted)); position: relative; }
-    .sp-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
+    .sp-card:hover { box-shadow: 0 8px 30px rgba(0,0,0,0.08); border-color: transparent; }
+    .sp-imgWrap { aspect-ratio: 1; margin-bottom: 12px; overflow: hidden; border-radius: 8px; display: flex; justify-content: center; align-items: center; position: relative; padding: 8px; }
+    .sp-img { width: 100%; height: 100%; object-fit: contain; transition: transform 0.4s ease; }
     .sp-card:hover .sp-img { transform: scale(1.05); }
     .sp-badge {
         position: absolute; top: 12px; left: 12px; display: inline-flex; align-items: center; gap: 4px;
-        padding: 4px 12px; border-radius: 999px; font-size: 11px; font-weight: 600;
+        padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;
     }
-    .sp-badge-sale { background: hsl(var(--accent)); color: hsl(var(--accent-fg)); }
-    .sp-badge-sold { background: hsl(var(--fg)); color: hsl(var(--bg)); }
+    .sp-badge-sale { background: #E5222E; color: white; }
+    .sp-badge-sold { background: #111827; color: white; }
 
-    .sp-name { font-size: 15px; font-weight: 600; color: hsl(var(--fg)); margin: 0; text-decoration: none; line-height: 1.4; }
-    .sp-name:hover { color: hsl(var(--primary)); }
-    .sp-stock { font-size: 12px; color: hsl(var(--muted-fg)); margin: 4px 0 0; }
-    .sp-priceRow { display: flex; align-items: center; gap: 8px; margin-top: 12px; }
-    .sp-price { font-size: 16px; font-weight: 700; color: hsl(var(--fg)); }
-    .sp-priceSale { color: hsl(var(--sale)); }
-    .sp-priceOld { text-decoration: line-through; color: hsl(var(--muted-fg)); font-size: 13px; }
+    .sp-name { font-size: 14px; font-weight: 600; color: #1F2937; margin: 0 0 8px; text-decoration: none; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 40px; }
+    .sp-name:hover { color: #1F8A43; }
+    .sp-stock { font-size: 12px; color: #1F8A43; font-weight: 500; margin: 0 0 4px; }
+    .sp-stock.out { color: #E5222E; }
+    .sp-priceRow { display: flex; align-items: center; gap: 8px; margin-top: auto; padding-bottom: 16px; flex-wrap: wrap; }
+    .sp-price { font-size: 20px; font-weight: 700; color: #111827; }
+    .sp-priceSale { color: #E5222E; }
+    .sp-priceOld { text-decoration: line-through; color: #6B7280; font-size: 13px; font-weight: normal; }
     .sp-addBtn {
-        width: 100%; margin-top: 16px; padding: 10px 0; font-size: 13px; font-weight: 600;
-        border-radius: 8px; border: none; cursor: pointer; text-align: center;
-        background: hsl(var(--primary)); color: hsl(var(--primary-fg)); transition: all 0.2s;
+        width: 100%; padding: 10px 0; font-size: 13px; font-weight: 700;
+        border-radius: 4px; border: none; cursor: pointer; text-align: center;
+        background: #1F8A43; color: white; transition: all 0.2s;
+        display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: auto;
     }
-    .sp-addBtn:hover { background: hsl(145 63% 28%); transform: translateY(-1px); box-shadow: 0 2px 8px hsla(145, 63%, 32%, 0.3); }
-    .sp-addBtn:disabled { background: hsl(var(--muted)); color: hsl(var(--muted-fg)); cursor: not-allowed; transform: none; box-shadow: none; }
+    .sp-addBtn:hover { background: #176d34; }
+    .sp-addBtn:disabled { background: #E5E7EB; color: #6B7280; cursor: not-allowed; }
 
     .sp-pagination { margin-top: 40px; padding-top: 24px; border-top: 1px solid hsl(var(--border)); display: flex; justify-content: center; }
 </style>
@@ -249,9 +251,12 @@
                     </div>
                     
                     <a href="{{ route('products.show', $product) }}" class="sp-name" onclick="event.stopPropagation()">{{ $product->name }}</a>
-                    <div class="sp-stock">
-                        @if($product->manage_stock) {{ $product->stock_quantity }} in stock @else In stock @endif
-                    </div>
+                    
+                    @if($product->manage_stock && $product->stock_quantity <= 0)
+                        <div class="sp-stock out">Out of stock</div>
+                    @else
+                        <div class="sp-stock">In stock</div>
+                    @endif
                     
                     <div class="sp-priceRow">
                         @if($product->sale_price)
@@ -266,7 +271,10 @@
                         <form action="{{ route('cart.add', $product) }}" method="POST" style="margin: 0; margin-top: auto;" onclick="event.stopPropagation();">
                             @csrf
                             <input type="hidden" name="qty" value="1">
-                            <button type="submit" class="sp-addBtn">Add to Cart</button>
+                            <button type="submit" class="sp-addBtn">
+                                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                                Add to Cart
+                            </button>
                         </form>
                     @else
                         <button disabled class="sp-addBtn">Sold Out</button>
