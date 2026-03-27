@@ -1,6 +1,29 @@
 @extends('layouts.app')
 
 @section('title', $product->name)
+@section('meta_description', Str::limit(strip_tags($product->description), 150))
+@section('og_type', 'product')
+@section('og_image', $product->image ?: asset('images/default-og.jpg'))
+
+@push('seo_schema')
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org/",
+  "@type": "Product",
+  "name": "{!! addslashes($product->name) !!}",
+  "image": "{{ $product->image ?: asset('images/default-og.jpg') }}",
+  "description": "{!! addslashes(Str::limit(strip_tags($product->description), 150)) !!}",
+  "sku": "{{ $product->sku }}",
+  "offers": {
+    "@type": "Offer",
+    "url": "{{ url()->current() }}",
+    "priceCurrency": "AUD",
+    "price": "{{ $product->sale_price ?: $product->price }}",
+    "availability": "{{ ($product->manage_stock && $product->stock_quantity <= 0) ? 'https://schema.org/OutOfStock' : 'https://schema.org/InStock' }}"
+  }
+}
+</script>
+@endpush
 
 @section('content')
 <style>
