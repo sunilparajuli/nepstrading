@@ -17,6 +17,7 @@ class SettingsApiController extends Controller
             'maintenance_mode' => SiteSetting::getValue('maintenance_mode', '0') == '1',
             'app_version' => SiteSetting::getValue('app_version', '1.0.0'),
             'min_app_version' => SiteSetting::getValue('min_app_version', '1.0.0'),
+            'app_update_url' => SiteSetting::getValue('app_update_url', 'https://play.google.com/store/apps/details?id=com.sunil.nepstrading.ecommerce.app'),
         ]);
     }
 }

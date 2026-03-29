@@ -28,6 +28,9 @@ class SettingsService extends GetxService {
         currencySymbol: '\$',
         primaryColor: '#F15F22',
         maintenanceMode: false,
+        appVersion: '1.0.0',
+        minAppVersion: '1.0.0',
+        appUpdateUrl: 'https://play.google.com/store/apps/details?id=com.sunil.nepstrading.ecommerce.app',
       );
     } finally {
       isLoading.value = false;
@@ -36,4 +39,7 @@ class SettingsService extends GetxService {
 
   bool get isMaintenanceMode => settings.value?.maintenanceMode ?? false;
   String get primaryColorHex => settings.value?.primaryColor ?? '#F15F22';
+  String get appVersion => settings.value?.appVersion ?? '1.0.0';
+  String get minAppVersion => settings.value?.minAppVersion ?? '1.0.0';
+  String get appUpdateUrl => settings.value?.appUpdateUrl ?? '';
 }

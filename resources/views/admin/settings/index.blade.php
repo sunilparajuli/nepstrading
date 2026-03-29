@@ -60,6 +60,11 @@
                         <p class="text-xs text-gray-500">Older versions will be forced to update.</p>
                     </div>
                 </div>
+                <div class="mt-4 space-y-2">
+                    <label for="app_update_url" class="block text-sm font-medium text-gray-700">App Store / Play Store URL</label>
+                    <input type="url" name="app_update_url" id="app_update_url" value="{{ $appUpdateUrl ?? '' }}" placeholder="https://play.google.com/store/apps/details?id=..." class="block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-black focus:border-black sm:text-sm">
+                    <p class="text-xs text-gray-500">The URL users will be redirected to when tapping 'Update'.</p>
+                </div>
             </div>
 
             <div class="pt-4">
