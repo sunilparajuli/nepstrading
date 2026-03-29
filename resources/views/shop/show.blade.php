@@ -13,9 +13,9 @@
 {
   "@context": "https://schema.org/",
   "@type": "Product",
-  "name": "{!! addslashes($product->name) !!}",
+  "name": {!! json_encode($product->name) !!},
   "image": "{{ $product->image ?: asset('images/default-og.jpg') }}",
-  "description": "{!! addslashes(\Illuminate\Support\Str::limit(strip_tags($product->description), 150)) !!}",
+  "description": {!! json_encode(\Illuminate\Support\Str::limit(strip_tags($product->description), 150)) !!},
   "sku": "{{ $product->sku }}",
   "offers": {
     "@type": "Offer",
@@ -298,9 +298,9 @@
                     <div class="pd-attrDetails">
                         @php 
                             $groupedAttributes = $product->attributes->sortBy(function($term) {
-                                return $term->attribute->weight ?? 0;
+                                return optional($term->attribute)->weight ?? 0;
                             })->groupBy(function($term) {
-                                return $term->attribute->name;
+                                return optional($term->attribute)->name ?? 'Other';
                             });
                         @endphp
                         
@@ -310,9 +310,9 @@
                                 <label class="pd-attrKey" style="display: block; margin-bottom: 8px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em;">{{ $attrName }}</label>
                                 <div class="pd-swatches">
                                     @foreach($terms as $term)
-                                        @if($term->attribute->type === 'color')
+                                        @if(optional($term->attribute)->type === 'color')
                                             <div class="pd-swatch color" style="background-color: {{ $term->value }};" title="{{ $term->name }}"></div>
-                                        @elseif($term->attribute->type === 'image')
+                                        @elseif(optional($term->attribute)->type === 'image')
                                             <div class="pd-swatch image" title="{{ $term->name }}">
                                                 <img src="{{ $term->value }}" alt="{{ $term->name }}" style="width: 100%; height: 100%; object-fit: cover;">
                                             </div>
