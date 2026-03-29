@@ -15,8 +15,12 @@ class IsAdmin
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (!auth()->check() || !auth()->user()->is_admin) {
-            return redirect('/login')->with('error', 'You do not have administrative access.');
+        if (!auth()->check()) {
+            return redirect('/login')->with('error', 'Please login to access the admin panel.');
+        }
+
+        if (!auth()->user()->is_admin) {
+            return redirect('/')->with('error', 'You do not have administrative access.');
         }
 
         return $next($request);
