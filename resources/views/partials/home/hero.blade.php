@@ -1,28 +1,31 @@
-<section class="relative h-[80vh] min-h-[600px] flex items-center overflow-hidden bg-black">
-    @if($section->data['bg_image'] ?? '')
-        <div class="absolute inset-0 z-0">
-            <img src="{{ $section->data['bg_image'] }}" class="w-full h-full object-cover" alt="">
-            <div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent"></div>
-        </div>
-    @endif
-    
-    <div class="relative z-10 w-full max-w-7xl mx-auto px-8 md:px-12">
-        <div class="max-w-2xl">
-            <span class="inline-block text-xs font-bold uppercase tracking-[0.3em] text-accent mb-6 animate-fade-in">
-                Premium Selection
+<section class="relative bg-white border-b border-gray-200 overflow-hidden">
+    <div class="max-w-7xl mx-auto px-6 py-12 md:py-20 flex flex-col md:flex-row items-center justify-between gap-12">
+        <div class="w-full md:w-1/2 z-10">
+            <span class="inline-block text-sm font-bold uppercase tracking-[0.2em] text-[#15803D] mb-4">
+                Fresh & Premium
             </span>
-            <h1 class="text-6xl md:text-8xl font-medium text-white mb-8 leading-[0.9] tracking-tighter" style="font-family: 'DM Serif Display', serif;">
+            <h1 class="text-5xl md:text-6xl lg:text-7xl font-medium text-gray-900 mb-6 leading-[1.05] tracking-tight" style="font-family: 'DM Serif Display', serif;">
                 {{ $section->title }}
             </h1>
-            <p class="text-lg md:text-xl text-white/70 mb-12 max-w-lg leading-relaxed font-light">
+            <p class="text-lg text-gray-600 mb-8 max-w-lg leading-relaxed">
                 {{ $section->subtitle }}
             </p>
-            <div class="flex flex-wrap gap-4">
-                <a href="{{ $section->data['button_link'] ?? '/products' }}" class="inline-flex items-center px-8 py-4 bg-white text-black text-sm font-bold uppercase tracking-widest hover:bg-accent hover:text-white transition-all duration-300 rounded-sm">
+            <div class="flex items-center gap-4">
+                <a href="{{ $section->data['button_link'] ?? '/products' }}" class="inline-flex items-center justify-center px-8 py-4 rounded-md bg-[#FACC15] text-black text-sm font-bold transition-colors hover:bg-yellow-500 shadow-sm">
                     {{ $section->data['button_text'] ?? 'Shop Now' }}
-                    <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
                 </a>
             </div>
+        </div>
+        <div class="w-full md:w-1/2 z-10 relative">
+            @if($section->data['bg_image'] ?? '')
+                <!-- Floating decorative element -->
+                <div class="absolute -top-6 -right-6 w-24 h-24 bg-[#002B2B] rounded-full opacity-10"></div>
+                <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-[#15803D] rounded-full opacity-10"></div>
+                
+                <div class="rounded-2xl overflow-hidden shadow-2xl relative aspect-[4/3] bg-white border border-gray-100 p-2">
+                    <img src="{{ $section->data['bg_image'] }}" class="w-full h-full object-cover rounded-xl" alt="Promotional Image">
+                </div>
+            @endif
         </div>
     </div>
 </section>

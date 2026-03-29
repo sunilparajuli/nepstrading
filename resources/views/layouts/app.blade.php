@@ -30,7 +30,7 @@
     @stack('seo_schema')
     <!-- Tailwind CSS (for base utilities if needed, though we will port the exact CSS) -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
     @php
         $sitePrimaryColor = \App\Models\SiteSetting::getValue('primary_color', '#5eba7d');
         
@@ -74,7 +74,8 @@
             --primary: {{ $primaryVar }};
             --primary-fg: 0, 0%, 100%;
             --fg: 220, 15%, 10%;
-            --bg: 0, 0%, 100%;
+            --bg: 210, 20%, 96%; /* #F3F4F6 */
+            --card-bg: 0, 0%, 100%;
             --muted: 210, 20%, 98%;
             --muted-fg: 215, 15%, 45%;
             --border: 214, 20%, 92%;
@@ -91,7 +92,7 @@
             --shadow-lg: 0 25px 50px -12px rgba(0,0,0,0.08);
         }
         body {
-            font-family: 'Outfit', sans-serif;
+            font-family: 'Inter', sans-serif;
             background: hsl(var(--bg));
             color: hsl(var(--fg));
             margin: 0;
@@ -107,9 +108,7 @@
             font-size: 14px; padding: 8px 16px; text-align: center;
         }
         .s-navBar {
-            background: hsla(var(--bg), 0.8); 
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            background: hsl(var(--primary));
             border-bottom: 1px solid hsl(var(--border));
             position: sticky;
             top: 0;
@@ -149,6 +148,7 @@
         .s-iconBtn {
             padding: 8px; border-radius: 50%; background: transparent; border: none;
             cursor: pointer; position: relative; display: flex; align-items: center; justify-content: center;
+            color: hsl(var(--primary-fg));
         }
         .s-cartBadge {
             position: absolute; top: -4px; right: -4px; width: 20px; height: 20px;
@@ -161,11 +161,11 @@
         }
         .s-navLinks::-webkit-scrollbar { display: none; }
         .s-navLink {
-            font-size: 14px; font-weight: 500; padding: 8px 12px; border: none;
+            font-size: 14px; font-weight: 500; padding: 12px 16px; border: none;
             background: transparent; cursor: pointer; white-space: nowrap;
-            color: hsl(var(--fg)); transition: color 0.2s; text-decoration: none; display: flex; align-items: center; gap: 4px;
+            color: hsl(var(--fg)); transition: background 0.2s, color 0.2s; text-decoration: none; display: flex; align-items: center; gap: 4px;
         }
-        .s-navLink:hover { color: hsl(var(--primary)); }
+        .s-navLink:hover { background: hsl(var(--muted)); color: hsl(var(--primary)); }
         .s-navLink.highlight { color: hsl(var(--accent)); }
         
         .s-badgeSeason {
@@ -265,7 +265,7 @@
         .s-priceSale { color: hsl(var(--sale)); }
 
         /* overlay styles */
-        .s-overlay { position: fixed; inset: 0; z-index: 50; display: none; }
+        .s-overlay { position: fixed; inset: 0; z-index: 1050; display: none; }
         .s-overlay.open { display: block; }
         .s-overlayBg { position: absolute; inset: 0; background: hsla(210, 11%, 15%, 0.4); cursor: pointer; }
         .s-overlayPanel {
@@ -451,7 +451,7 @@
                         <button class="s-mobileMenuBtn" onclick="toggleMobileMenu()">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
                         </button>
-                        <a href="{{ url('/') }}" class="s-logo">
+                        <a href="{{ url('/') }}" class="s-logo" style="color: hsl(var(--primary-fg));">
                             @php $siteLogo = \App\Models\SiteSetting::getValue('logo'); @endphp
                             @if($siteLogo)
                                 <img src="{{ $siteLogo }}" alt="Nepstrading" style="height: 40px; width: auto; object-fit: contain;">
@@ -478,29 +478,29 @@
                         <div style="display: flex; align-items: center; gap: 12px; margin-left: auto;">
                             @auth
                                 <a href="{{ route('wishlist.index') }}" class="s-iconBtn" title="Wishlist">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--fg))" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
                                     @php $wishlistCount = auth()->user()->wishlists()->count(); @endphp
                                     @if($wishlistCount > 0)
                                         <span class="s-cartBadge">{{ $wishlistCount }}</span>
                                     @endif
                                 </a>
                                 <a href="{{ route('admin.dashboard') }}" class="s-iconBtn">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--fg))" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                                 </a>
                             @else
                                 <a href="{{ route('login') }}" class="s-iconBtn">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--fg))" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                                 </a>
                             @endauth
                             <button type="button" class="s-iconBtn" onclick="toggleCart()">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--fg))" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
                                 <span id="cart-badge-count" class="s-cartBadge" style="{{ (session()->has('cart') && count(session('cart')) > 0) ? '' : 'display:none;' }}">
                                     {{ session()->has('cart') ? count(session('cart')) : 0 }}
                                 </span>
                             </button>
                         </div>
                     </div>
-                    <div class="s-navLinks">
+                    <div class="s-navLinks" style="background: hsl(var(--card-bg)); box-shadow: var(--shadow-sm); padding: 0 16px; margin: 0;">
                         <a href="{{ url('/') }}" class="s-navLink">Home</a>
                         @php $navCategories = \App\Models\Category::with('children')->whereNull('parent_id')->orderBy('name')->get(); @endphp
                         @foreach($navCategories as $navCat)

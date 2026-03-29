@@ -1,24 +1,22 @@
-<section class="py-24 bg-[#FAFAFA]">
-    <div class="max-w-7xl mx-auto px-8">
-        <div class="text-center mb-20">
-            <h2 class="text-4xl md:text-5xl font-medium tracking-tighter mb-6" style="font-family: 'DM Serif Display', serif;">
-                {{ $section->title ?: 'Shop By Collection' }}
+<section class="py-16">
+    <div class="max-w-7xl mx-auto px-6">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl md:text-4xl font-medium tracking-tight text-[#002B2B] mb-4" style="font-family: 'DM Serif Display', serif;">
+                <span class="italic">{{ $section->title ?: 'Shop By Aisle' }}</span>
             </h2>
-            <p class="text-muted-fg max-w-2xl mx-auto leading-relaxed">{{ $section->subtitle }}</p>
+            @if($section->subtitle)
+            <p class="text-gray-500 max-w-2xl mx-auto">{{ $section->subtitle }}</p>
+            @endif
         </div>
         
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4 md:gap-6">
             @foreach($section->resolved_data as $category)
-            <a href="{{ route('categories.show', $category) }}" class="group relative aspect-square overflow-hidden rounded-md bg-muted shadow-sm hover:shadow-xl transition-all duration-500">
-                <img src="{{ $category->image ? asset($category->image) : 'https://placehold.co/600x600' }}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" alt="{{ $category->name }}">
-                <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-80 group-hover:opacity-100 transition-opacity"></div>
-                
-                <div class="absolute inset-x-0 bottom-0 p-8 text-white">
-                    <h3 class="text-2xl font-medium tracking-tight mb-3" style="font-family: 'DM Serif Display', serif;">{{ $category->name }}</h3>
-                    <div class="flex items-center text-[10px] font-bold uppercase tracking-[0.2em] opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
-                        Explore Collection
-                        <svg class="ml-2 w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
-                    </div>
+            <a href="{{ route('categories.show', $category) }}" class="group block bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 text-center overflow-hidden h-full flex flex-col border border-gray-100">
+                <div class="aspect-square bg-gray-50/50 p-6 flex flex-col items-center justify-center relative overflow-hidden">
+                    <img src="{{ $category->image ? asset($category->image) : 'https://placehold.co/400x400' }}" class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110" alt="{{ $category->name }}">
+                </div>
+                <div class="p-4 mt-auto bg-white">
+                    <h3 class="font-bold text-gray-900 text-[14px] leading-snug group-hover:text-[#15803D] transition-colors uppercase tracking-wide">{{ $category->name }}</h3>
                 </div>
             </a>
             @endforeach
