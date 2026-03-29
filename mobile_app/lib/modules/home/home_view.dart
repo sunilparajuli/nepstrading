@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_nav_bar/google_nav_bar.dart';
 import '../../core/models/product_model.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:badges/badges.dart' as badges;
@@ -397,8 +398,6 @@ class HomeView extends GetView<HomeController> {
       ),
     );
   }
-
-import 'package:google_nav_bar/google_nav_bar.dart';
 
   Widget _buildBottomNav() {
     return Container(
