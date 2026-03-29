@@ -136,6 +136,6 @@ class Product {
   static String? _buildImageUrl(String? path) {
     if (path == null || path.isEmpty) return null;
     if (path.startsWith('http')) return path;
-    return 'http://127.0.0.1:8000$path';
+    return 'https://new.nepstrading.com.au$path';
   }
 }

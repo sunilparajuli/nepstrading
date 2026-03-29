@@ -3,7 +3,31 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>@yield('title') - Nepstrading</title>
+    <!-- Primary Meta Tags -->
+    <title>@yield('meta_title', config('app.name', 'Nepstrading'))</title>
+    <meta name="title" content="@yield('meta_title', config('app.name', 'Nepstrading'))">
+    <meta name="description" content="@yield('meta_description', 'Your neighborhood grocery store, delivering fresh produce and quality goods right to your door.')">
+    <meta name="keywords" content="@yield('meta_keywords', 'grocery, fresh produce, delivery, nepstrading, online shopping')">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="@yield('og_type', 'website')">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:title" content="@yield('og_title', View::getSection('meta_title') ?: config('app.name'))">
+    <meta property="og:description" content="@yield('og_description', View::getSection('meta_description') ?: 'Your neighborhood grocery store.')">
+    <meta property="og:image" content="@yield('og_image', asset('images/og-default.jpg'))">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="{{ url()->current() }}">
+    <meta property="twitter:title" content="@yield('og_title', View::getSection('meta_title') ?: config('app.name'))">
+    <meta property="twitter:description" content="@yield('og_description', View::getSection('meta_description') ?: 'Your neighborhood grocery store.')">
+    <meta property="twitter:image" content="@yield('og_image', asset('images/og-default.jpg'))">
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="{{ url()->current() }}">
+
+    <!-- Schema.org JSON-LD -->
+    @stack('seo_schema')
     <!-- Tailwind CSS (for base utilities if needed, though we will port the exact CSS) -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
@@ -742,5 +766,34 @@
             });
         })();
     </script>
+@push('seo_schema')
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Nepstrading",
+  "url": "{{ url('/') }}",
+  "logo": "{{ \App\Models\SiteSetting::getValue('logo') ?: asset('images/logo.png') }}",
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "telephone": "+61-XXXX-XXXX",
+    "contactType": "customer service"
+  }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Nepstrading",
+  "url": "{{ url('/') }}",
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": "{{ url('/products?search={search_term_string}') }}",
+    "query-input": "required name=search_term_string"
+  }
+}
+</script>
+@endpush
 </body>
 </html>

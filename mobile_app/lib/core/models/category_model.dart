@@ -34,6 +34,6 @@ class Category {
   static String? _buildImageUrl(String? path) {
     if (path == null || path.isEmpty) return null;
     if (path.startsWith('http')) return path;
-    return 'http://127.0.0.1:8000/storage/$path';
+    return 'https://new.nepstrading.com.au/storage/$path';
   }
 }

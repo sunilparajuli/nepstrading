@@ -1,6 +1,12 @@
 @extends('layouts.app')
 
-@section('title', $category->name . ' - Nepstrading')
+@section('meta_title', $category->meta_title ?: $category->name . ' - ' . config('app.name'))
+@section('meta_description', $category->meta_description ?: 'Explore our selection of ' . $category->name . ' at ' . config('app.name') . '.')
+@section('meta_keywords', $category->meta_keywords ?: $category->name . ', grocery, shopping')
+@section('og_type', 'website')
+@section('og_title', $category->og_title ?: $category->meta_title ?: $category->name)
+@section('og_description', $category->og_description ?: $category->meta_description)
+@section('og_image', $category->og_image ? asset($category->og_image) : ($category->image ? asset($category->image) : asset('images/og-default.jpg')))
 
 @section('content')
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

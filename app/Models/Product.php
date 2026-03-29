@@ -18,7 +18,9 @@ class Product extends Model
         'weight', 'dimensions', 'status', 'image',
         'is_seasonal', 'is_popular', 'product_type',
         'deal_ends_at', 'deal_total_stock', 'deal_sales_count',
-        'allow_add_to_cart', 'cart_disabled_message'
+        'allow_add_to_cart', 'cart_disabled_message',
+        'meta_title', 'meta_description', 'meta_keywords',
+        'og_title', 'og_description', 'og_image'
     ];
 
     public function categories()

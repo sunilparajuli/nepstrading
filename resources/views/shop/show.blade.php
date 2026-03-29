@@ -1,9 +1,12 @@
 @extends('layouts.app')
 
-@section('title', $product->name)
-@section('meta_description', Str::limit(strip_tags($product->description), 150))
+@section('meta_title', $product->meta_title ?: $product->name . ' - ' . config('app.name'))
+@section('meta_description', $product->meta_description ?: \Illuminate\Support\Str::limit(strip_tags($product->description), 155))
+@section('meta_keywords', $product->meta_keywords ?: $product->name . ', ' . $product->categories->pluck('name')->join(', '))
 @section('og_type', 'product')
-@section('og_image', $product->image ?: asset('images/default-og.jpg'))
+@section('og_title', $product->og_title ?: $product->meta_title ?: $product->name)
+@section('og_description', $product->og_description ?: $product->meta_description ?: \Illuminate\Support\Str::limit(strip_tags($product->description), 155))
+@section('og_image', $product->og_image ? asset($product->og_image) : ($product->image ? asset($product->image) : asset('images/og-default.jpg')))
 
 @push('seo_schema')
 <script type="application/ld+json">
@@ -12,7 +15,7 @@
   "@type": "Product",
   "name": "{!! addslashes($product->name) !!}",
   "image": "{{ $product->image ?: asset('images/default-og.jpg') }}",
-  "description": "{!! addslashes(Str::limit(strip_tags($product->description), 150)) !!}",
+  "description": "{!! addslashes(\Illuminate\Support\Str::limit(strip_tags($product->description), 150)) !!}",
   "sku": "{{ $product->sku }}",
   "offers": {
     "@type": "Offer",
