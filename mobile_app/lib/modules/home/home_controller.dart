@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../core/models/product_model.dart';
 import '../../core/models/category_model.dart';
@@ -14,11 +15,41 @@ class HomeController extends GetxController {
   final searchQuery = ''.obs;
   final selectedCategoryId = Rxn<int>();
 
+  // Visibility State
+  final isSearchVisible = false.obs;
+  final isProfileInfoVisible = false.obs;
+
+  // Pagination State
+  final currentPage = 1.obs;
+  final lastPage = 1.obs;
+  final totalProducts = 0.obs;
+  final perPage = 12;
+  final isMoreLoading = false.obs;
+  final ScrollController scrollController = ScrollController();
+
   @override
   void onInit() {
     super.onInit();
     fetchHomeData();
-    debounce(searchQuery, (_) => fetchProducts(), time: const Duration(milliseconds: 500));
+    debounce(searchQuery, (_) => resetAndFetch(), time: const Duration(milliseconds: 500));
+    
+    scrollController.addListener(() {
+      if (scrollController.position.pixels >= scrollController.position.maxScrollExtent - 200) {
+        loadMore();
+      }
+    });
+  }
+
+  @override
+  void onClose() {
+    scrollController.dispose();
+    super.onClose();
+  }
+
+  void resetAndFetch() {
+    currentPage.value = 1;
+    products.clear();
+    fetchProducts();
   }
 
   Future<void> fetchHomeData() async {
@@ -43,11 +74,19 @@ class HomeController extends GetxController {
     }
   }
 
-  Future<void> fetchProducts({bool showLoader = true}) async {
-    if (showLoader) isLoading.value = true;
+  Future<void> fetchProducts({bool showLoader = true, bool isLoadMore = false}) async {
+    if (isLoadMore) {
+      isMoreLoading.value = true;
+    } else if (showLoader) {
+      isLoading.value = true;
+    }
+
     try {
       final dio = Get.find<DioClient>().dio;
-      final Map<String, dynamic> queryParams = {};
+      final Map<String, dynamic> queryParams = {
+        'page': currentPage.value,
+        'per_page': perPage,
+      };
       
       if (searchQuery.value.isNotEmpty) {
         queryParams['search'] = searchQuery.value;
@@ -59,18 +98,36 @@ class HomeController extends GetxController {
       final productRes = await dio.get('/products', queryParameters: queryParams);
       if (productRes.statusCode == 200) {
         final List items = productRes.data['data'] ?? [];
-        products.assignAll(items.map((e) => Product.fromJson(e)).toList());
+        final newProducts = items.map((e) => Product.fromJson(e)).toList();
+
+        if (isLoadMore) {
+          products.addAll(newProducts);
+        } else {
+          products.assignAll(newProducts);
+        }
+
+        currentPage.value = productRes.data['current_page'] ?? 1;
+        lastPage.value = productRes.data['last_page'] ?? 1;
+        totalProducts.value = productRes.data['total'] ?? 0;
       }
     } catch (e) {
       print('API Fetch Product Error: $e');
     } finally {
-      if (showLoader) isLoading.value = false;
+      isLoading.value = false;
+      isMoreLoading.value = false;
+    }
+  }
+
+  void loadMore() {
+    if (currentPage.value < lastPage.value && !isMoreLoading.value && !isLoading.value) {
+      currentPage.value++;
+      fetchProducts(isLoadMore: true, showLoader: false);
     }
   }
 
   void onCategorySelected(int? id) {
     selectedCategoryId.value = id;
-    fetchProducts();
+    resetAndFetch();
   }
 
   void toggleWishlist(Product product) async {
@@ -95,5 +152,16 @@ class HomeController extends GetxController {
     } catch (e) {
       Get.snackbar('Error', 'Could not update wishlist.', snackPosition: SnackPosition.BOTTOM);
     }
+  }
+
+  void toggleSearch() {
+    isSearchVisible.value = !isSearchVisible.value;
+    if (!isSearchVisible.value) {
+      searchQuery.value = '';
+    }
+  }
+
+  void toggleProfileInfo() {
+    isProfileInfoVisible.value = !isProfileInfoVisible.value;
   }
 }

@@ -44,6 +44,24 @@
                 <p class="text-gray-500 text-xs mt-1">This color will be applied to the frontend shop's logo, buttons, and accents.</p>
             </div>
 
+            <hr class="border-gray-200">
+
+            <div class="space-y-4">
+                <h3 class="text-sm font-semibold text-gray-900">Mobile App Configuration</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="space-y-2">
+                        <label for="app_version" class="block text-sm font-medium text-gray-700">Current App Version</label>
+                        <input type="text" name="app_version" id="app_version" value="{{ $appVersion }}" placeholder="e.g. 1.0.0" class="block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-black focus:border-black sm:text-sm">
+                        <p class="text-xs text-gray-500">The latest version available in stores.</p>
+                    </div>
+                    <div class="space-y-2">
+                        <label for="min_app_version" class="block text-sm font-medium text-gray-700">Minimum Required Version</label>
+                        <input type="text" name="min_app_version" id="min_app_version" value="{{ $minAppVersion }}" placeholder="e.g. 1.0.0" class="block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-black focus:border-black sm:text-sm">
+                        <p class="text-xs text-gray-500">Older versions will be forced to update.</p>
+                    </div>
+                </div>
+            </div>
+
             <div class="pt-4">
                 <button type="submit" class="px-6 py-2 bg-black text-white rounded-md hover:bg-gray-800 transition-colors">
                     Save Changes

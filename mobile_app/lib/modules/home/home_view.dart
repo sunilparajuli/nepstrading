@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../core/models/product_model.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:badges/badges.dart' as badges;
 import 'package:shimmer/shimmer.dart';
@@ -29,16 +30,57 @@ class HomeView extends GetView<HomeController> {
                 return RefreshIndicator(
                   onRefresh: () => controller.fetchHomeData(),
                   color: AppTheme.primaryColor,
-                  child: SingleChildScrollView(
+                  child: CustomScrollView(
+                    controller: controller.scrollController,
                     physics: const AlwaysScrollableScrollPhysics(),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildSectionTitle('Popular Product', context),
-                        _buildProductGrid(),
-                        const SizedBox(height: 20),
-                      ],
-                    ),
+                    slivers: [
+                      SliverToBoxAdapter(
+                        child: _buildSectionTitle('Popular Product', context),
+                      ),
+                      SliverPadding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        sliver: SliverGrid(
+                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            childAspectRatio: 0.60,
+                            crossAxisSpacing: 16,
+                            mainAxisSpacing: 16,
+                          ),
+                          delegate: SliverChildBuilderDelegate(
+                            (context, index) {
+                              final product = controller.products[index];
+                              return _buildProductCard(product, context);
+                            },
+                            childCount: controller.products.length,
+                          ),
+                        ),
+                      ),
+                      if (controller.isMoreLoading.value)
+                        const SliverToBoxAdapter(
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(vertical: 20),
+                            child: Center(child: CircularProgressIndicator(color: AppTheme.primaryColor)),
+                          ),
+                        ),
+                      if (!controller.isMoreLoading.value && controller.currentPage.value < controller.lastPage.value && controller.products.isNotEmpty)
+                        SliverToBoxAdapter(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 20),
+                            child: Center(
+                              child: OutlinedButton(
+                                onPressed: () => controller.loadMore(),
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: AppTheme.primaryColor,
+                                  side: const BorderSide(color: AppTheme.primaryColor),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                                ),
+                                child: const Text('Load More'),
+                              ),
+                            ),
+                          ),
+                        ),
+                      const SliverToBoxAdapter(child: SizedBox(height: 20)),
+                    ],
                   ),
                 );
               }),
@@ -59,96 +101,119 @@ class HomeView extends GetView<HomeController> {
         children: [
           Row(
             children: [
-              const CircleAvatar(
-                radius: 20,
-                backgroundColor: Color(0xFFF2F2F2),
-                child: Icon(LucideIcons.user, size: 20, color: Colors.grey),
+              GestureDetector(
+                onTap: () => controller.toggleProfileInfo(),
+                child: const CircleAvatar(
+                  radius: 20,
+                  backgroundColor: Color(0xFFF2F2F2),
+                  child: Icon(LucideIcons.user, size: 20, color: Colors.grey),
+                ),
               ),
-              const SizedBox(width: 12),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text('Good Morning!', style: TextStyle(color: Colors.grey, fontSize: 12)),
-                  Obx(() => Text(
-                        authService.isGuest.value ? 'Guest User' : (authService.user.value?.name ?? 'User'),
-                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: AppTheme.textColor,
-                            ),
-                      )),
-                ],
-              ),
+              Obx(() => Visibility(
+                    visible: controller.isProfileInfoVisible.value,
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 12.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('Good Morning!', style: TextStyle(color: Colors.grey, fontSize: 12)),
+                          Text(
+                            authService.isGuest.value ? 'Guest User' : (authService.user.value?.name ?? 'User'),
+                            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: AppTheme.textColor,
+                                ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )),
             ],
           ),
-          Obx(() {
-            final count = Get.find<CartController>().cartItems.length;
-            return badges.Badge(
-              position: badges.BadgePosition.topEnd(top: 0, end: 3),
-              showBadge: count > 0,
-              badgeAnimation: const badges.BadgeAnimation.scale(),
-              badgeContent: Text(
-                count.toString(),
-                style: const TextStyle(color: Colors.white, fontSize: 10),
+          Row(
+            children: [
+              IconButton(
+                icon: Obx(() => Icon(
+                      controller.isSearchVisible.value ? LucideIcons.x : LucideIcons.search,
+                      color: AppTheme.textColor,
+                      size: 20,
+                    )),
+                onPressed: () => controller.toggleSearch(),
               ),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4)),
-                  ],
-                ),
-                child: IconButton(
-                  icon: const Icon(LucideIcons.bell, color: AppTheme.textColor, size: 20),
-                  onPressed: () {},
-                ),
-              ),
-            );
-          }),
+              Obx(() {
+                final count = Get.find<CartController>().cartItems.length;
+                return badges.Badge(
+                  position: badges.BadgePosition.topEnd(top: 0, end: 3),
+                  showBadge: count > 0,
+                  badgeAnimation: const badges.BadgeAnimation.scale(),
+                  badgeContent: Text(
+                    count.toString(),
+                    style: const TextStyle(color: Colors.white, fontSize: 10),
+                  ),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4)),
+                      ],
+                    ),
+                    child: IconButton(
+                      icon: const Icon(LucideIcons.bell, color: AppTheme.textColor, size: 20),
+                      onPressed: () {},
+                    ),
+                  ),
+                );
+              }),
+            ],
+          ),
         ],
       ),
     );
   }
 
   Widget _buildSearchRow() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-      child: Row(
-        children: [
-          Expanded(
-            child: Container(
-              decoration: BoxDecoration(
-                color: const Color(0xFFF2F2F2),
-                borderRadius: BorderRadius.circular(30),
-              ),
-              child: TextField(
-                onChanged: (val) => controller.searchQuery.value = val,
-                decoration: const InputDecoration(
-                  hintText: 'Search something...',
-                  hintStyle: TextStyle(color: Colors.grey, fontSize: 14),
-                  prefixIcon: Icon(LucideIcons.search, color: Colors.grey),
-                  border: InputBorder.none,
-                  enabledBorder: InputBorder.none,
-                  focusedBorder: InputBorder.none,
-                  contentPadding: EdgeInsets.symmetric(vertical: 14),
+    return Obx(() => Visibility(
+          visible: controller.isSearchVisible.value,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF2F2F2),
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    child: TextField(
+                      onChanged: (val) => controller.searchQuery.value = val,
+                      decoration: const InputDecoration(
+                        hintText: 'Search something...',
+                        hintStyle: TextStyle(color: Colors.grey, fontSize: 14),
+                        prefixIcon: Icon(LucideIcons.search, color: Colors.grey),
+                        border: InputBorder.none,
+                        enabledBorder: InputBorder.none,
+                        focusedBorder: InputBorder.none,
+                        contentPadding: EdgeInsets.symmetric(vertical: 14),
+                      ),
+                    ),
+                  ),
                 ),
-              ),
+                const SizedBox(width: 12),
+                Container(
+                  decoration: BoxDecoration(
+                    color: AppTheme.primaryColor,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: IconButton(
+                    icon: const Icon(LucideIcons.sliders, color: Colors.white),
+                    onPressed: () => Get.toNamed('/products'),
+                  ),
+                ),
+              ],
             ),
           ),
-          const SizedBox(width: 12),
-          Container(
-            decoration: BoxDecoration(
-              color: AppTheme.primaryColor,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: IconButton(
-              icon: const Icon(LucideIcons.sliders, color: Colors.white),
-              onPressed: () => Get.toNamed('/products'),
-            ),
-          ),
-        ],
-      ),
-    );
+        ));
   }
 
   Widget _buildCategories() {
@@ -222,136 +287,114 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
-  Widget _buildProductGrid() {
-    if (controller.products.isEmpty) {
-      if (controller.isLoading.value) return const SizedBox.shrink();
-      return const Padding(
-        padding: EdgeInsets.all(32.0),
-        child: Center(child: Text('No products found.', style: TextStyle(color: Colors.grey))),
-      );
-    }
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        childAspectRatio: 0.60,
-        crossAxisSpacing: 16,
-        mainAxisSpacing: 16,
-      ),
-      itemCount: controller.products.length,
-      itemBuilder: (context, index) {
-        final product = controller.products[index];
-        return GestureDetector(
-          onTap: () => Get.toNamed('/product-details', arguments: product),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.02),
-                  blurRadius: 10,
-                  offset: const Offset(0, 5),
-                )
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Stack(
-                    children: [
-                      Container(
-                        width: double.infinity,
+  Widget _buildProductCard(Product product, BuildContext context) {
+    return GestureDetector(
+      onTap: () => Get.toNamed('/product-details', arguments: product),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.02),
+              blurRadius: 10,
+              offset: const Offset(0, 5),
+            )
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Stack(
+                children: [
+                  Container(
+                    width: double.infinity,
+                    decoration: const BoxDecoration(
+                      borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+                      color: Color(0xFFF2F2F2),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                      child: product.image != null
+                          ? Image.network(
+                              product.image!,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) =>
+                                  const Center(child: Icon(LucideIcons.imageOff, size: 40, color: Colors.grey)),
+                            )
+                          : const Center(child: Icon(LucideIcons.image, size: 40, color: Colors.grey)),
+                    ),
+                  ),
+                  Positioned(
+                    top: 8,
+                    right: 8,
+                    child: GestureDetector(
+                      onTap: () => controller.toggleWishlist(product),
+                      child: Container(
+                        padding: const EdgeInsets.all(6),
                         decoration: const BoxDecoration(
-                          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-                          color: Color(0xFFF2F2F2),
+                          color: Colors.white,
+                          shape: BoxShape.circle,
                         ),
-                        child: ClipRRect(
-                          borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                          child: product.image != null
-                              ? Image.network(
-                                  product.image!,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) =>
-                                      const Center(child: Icon(LucideIcons.imageOff, size: 40, color: Colors.grey)),
-                                )
-                              : const Center(child: Icon(LucideIcons.image, size: 40, color: Colors.grey)),
-                        ),
+                        child: const Icon(LucideIcons.heart, size: 16, color: AppTheme.primaryColor),
                       ),
-                      Positioned(
-                        top: 8,
-                        right: 8,
-                        child: GestureDetector(
-                          onTap: () => controller.toggleWishlist(product),
-                          child: Container(
-                            padding: const EdgeInsets.all(6),
-                            decoration: const BoxDecoration(
-                              color: Colors.white,
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(LucideIcons.heart, size: 16, color: AppTheme.primaryColor),
-                          ),
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    product.name,
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppTheme.textColor),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    product.categories?.isNotEmpty == true ? product.categories!.first.name : 'Uncategorized',
+                    style: const TextStyle(color: Colors.grey, fontSize: 12),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        product.name,
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppTheme.textColor),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                        '\$${product.price.toStringAsFixed(2)}',
+                        style: const TextStyle(
+                          color: AppTheme.textColor,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        product.categories?.isNotEmpty == true ? product.categories!.first.name : 'Uncategorized',
-                        style: const TextStyle(color: Colors.grey, fontSize: 12),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                      GestureDetector(
+                        onTap: () {
+                          Get.find<CartController>().addItem(product);
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: AppTheme.primaryColor,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Icon(LucideIcons.shoppingBag, color: Colors.white, size: 16),
+                        ),
                       ),
-                      const SizedBox(height: 12),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            '\$${product.price.toStringAsFixed(2)}',
-                            style: const TextStyle(
-                              color: AppTheme.textColor,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              Get.find<CartController>().addItem(product);
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.all(6),
-                              decoration: BoxDecoration(
-                                color: AppTheme.primaryColor,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: const Icon(LucideIcons.shoppingBag, color: Colors.white, size: 16),
-                            ),
-                          ),
-                        ],
-                      )
                     ],
-                  ),
-                )
-              ],
-            ),
-          ),
-        );
-      },
+                  )
+                ],
+              ),
+            )
+          ],
+        ),
+      ),
     );
   }
 

@@ -57,7 +57,7 @@ Route::middleware('auth')->group(function () {
 });
 
 // Admin Routes
-Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function() {
+Route::middleware(['auth', 'admin'])->prefix('adminpanel')->name('admin.')->group(function() {
     Route::get('/', [App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
     Route::get('orders/{order}/invoice', [App\Http\Controllers\Admin\OrderController::class, 'downloadInvoice'])->name('orders.invoice');
     Route::resource('orders', App\Http\Controllers\Admin\OrderController::class);

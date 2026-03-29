@@ -40,6 +40,12 @@ class OrderApiController extends Controller
 
     public function store(Request $request)
     {
+        if (\App\Models\SiteSetting::getValue('maintenance_mode', '0') == '1') {
+            return response()->json([
+                'message' => 'The store is currently under maintenance. Please try again later.'
+            ], 503);
+        }
+
         $validated = $request->validate([
             'billing_first_name' => 'required|string|max:255',
             'billing_last_name' => 'required|string|max:255',

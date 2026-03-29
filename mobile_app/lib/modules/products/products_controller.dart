@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 import '../../core/models/product_model.dart';
@@ -9,6 +10,15 @@ class ProductsController extends GetxController {
   final products = <Product>[].obs;
   final categories = <Category>[].obs;
   final isLoading = false.obs;
+  final isMoreLoading = false.obs;
+  final isSearchVisible = false.obs;
+  final ScrollController scrollController = ScrollController();
+
+  // Pagination State
+  final currentPage = 1.obs;
+  final lastPage = 1.obs;
+  final totalProducts = 0.obs;
+  final perPage = 12;
 
   // Filter States
   final selectedCategoryId = Rxn<int>();
@@ -27,11 +37,30 @@ class ProductsController extends GetxController {
     }
     fetchInitialData();
     
+    // Setup Scroll Listener
+    scrollController.addListener(() {
+      if (scrollController.position.pixels >= scrollController.position.maxScrollExtent - 200) {
+        loadMore();
+      }
+    });
+
     // Auto-fetch on filter changes
-    debounce(searchQuery, (_) => fetchProducts(), time: const Duration(milliseconds: 500));
-    ever(selectedCategoryId, (_) => fetchProducts());
-    ever(sortBy, (_) => fetchProducts());
-    ever(stockStatus, (_) => fetchProducts());
+    debounce(searchQuery, (_) => resetAndFetch(), time: const Duration(milliseconds: 500));
+    ever(selectedCategoryId, (_) => resetAndFetch());
+    ever(sortBy, (_) => resetAndFetch());
+    ever(stockStatus, (_) => resetAndFetch());
+  }
+
+  @override
+  void onClose() {
+    scrollController.dispose();
+    super.onClose();
+  }
+
+  void resetAndFetch() {
+    currentPage.value = 1;
+    products.clear();
+    fetchProducts();
   }
 
   Future<void> fetchInitialData() async {
@@ -56,11 +85,19 @@ class ProductsController extends GetxController {
     }
   }
 
-  Future<void> fetchProducts() async {
-    isLoading.value = true;
+  Future<void> fetchProducts({bool isLoadMore = false}) async {
+    if (isLoadMore) {
+      isMoreLoading.value = true;
+    } else {
+      isLoading.value = true;
+    }
+
     try {
       final dio = Get.find<DioClient>().dio;
-      final queryParams = <String, dynamic>{};
+      final queryParams = <String, dynamic>{
+        'page': currentPage.value,
+        'per_page': perPage,
+      };
       
       if (selectedCategoryId.value != null) queryParams['category'] = selectedCategoryId.value;
       if (minPrice.value != null) queryParams['min_price'] = minPrice.value;
@@ -72,12 +109,37 @@ class ProductsController extends GetxController {
       final response = await dio.get('/products', queryParameters: queryParams);
       if (response.statusCode == 200) {
         final List data = response.data['data'];
-        products.assignAll(data.map((e) => Product.fromJson(e)).toList());
+        final newProducts = data.map((e) => Product.fromJson(e)).toList();
+        
+        if (isLoadMore) {
+          products.addAll(newProducts);
+        } else {
+          products.assignAll(newProducts);
+        }
+        
+        currentPage.value = response.data['current_page'];
+        lastPage.value = response.data['last_page'];
+        totalProducts.value = response.data['total'];
       }
     } catch (e) {
       print('Error fetching products: $e');
     } finally {
       isLoading.value = false;
+      isMoreLoading.value = false;
+    }
+  }
+
+  void loadMore() {
+    if (currentPage.value < lastPage.value && !isMoreLoading.value && !isLoading.value) {
+      currentPage.value++;
+      fetchProducts(isLoadMore: true);
+    }
+  }
+
+  void toggleSearch() {
+    isSearchVisible.value = !isSearchVisible.value;
+    if (!isSearchVisible.value) {
+      searchQuery.value = '';
     }
   }
 

@@ -11,7 +11,7 @@ class SitemapController extends Controller
 {
     public function index(): Response
     {
-        $products = Product::where('status', 'publish')->get();
+        $products = Product::where('status', 'active')->get();
         $categories = Category::all();
         $pages = Page::where('status', 'published')->get();
 

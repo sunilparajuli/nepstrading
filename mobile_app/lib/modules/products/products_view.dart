@@ -23,6 +23,13 @@ class ProductsView extends GetView<ProductsController> {
           onPressed: () => Get.back(),
         ),
         actions: [
+          Obx(() => IconButton(
+                icon: Icon(
+                  controller.isSearchVisible.value ? LucideIcons.x : LucideIcons.search,
+                  color: AppTheme.textColor,
+                ),
+                onPressed: () => controller.toggleSearch(),
+              )),
           Builder(
             builder: (context) => IconButton(
               icon: const Icon(LucideIcons.sliders, color: AppTheme.textColor),
@@ -34,32 +41,79 @@ class ProductsView extends GetView<ProductsController> {
       endDrawer: _buildFilterDrawer(),
       body: Column(
         children: [
-          _buildSearchField(),
+          Obx(() => Visibility(
+                visible: controller.isSearchVisible.value,
+                child: _buildSearchField(),
+              )),
           _buildSortDropdown(),
           Expanded(
             child: Obx(() {
               if (controller.isLoading.value && controller.products.isEmpty) {
                 return _buildShimmerGrid();
               }
-              if (controller.products.isEmpty) {
+              if (controller.products.isEmpty && !controller.isLoading.value) {
                 return _buildEmptyState();
               }
               return RefreshIndicator(
                 onRefresh: () => controller.fetchProducts(),
                 color: AppTheme.primaryColor,
-                child: GridView.builder(
-                  padding: const EdgeInsets.all(16),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    childAspectRatio: 0.62,
-                    crossAxisSpacing: 16,
-                    mainAxisSpacing: 16,
-                  ),
-                  itemCount: controller.products.length,
-                  itemBuilder: (context, index) {
-                    final product = controller.products[index];
-                    return _buildProductCard(product);
-                  },
+                child: CustomScrollView(
+                  controller: controller.scrollController,
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  slivers: [
+                    SliverPadding(
+                      padding: const EdgeInsets.all(16),
+                      sliver: SliverGrid(
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          childAspectRatio: 0.62,
+                          crossAxisSpacing: 16,
+                          mainAxisSpacing: 16,
+                        ),
+                        delegate: SliverChildBuilderDelegate(
+                          (context, index) {
+                            final product = controller.products[index];
+                            return _buildProductCard(product);
+                          },
+                          childCount: controller.products.length,
+                        ),
+                      ),
+                    ),
+                    if (controller.isMoreLoading.value)
+                      SliverToBoxAdapter(
+                        child: _buildMoreLoadingIndicator(),
+                      ),
+                    if (!controller.isMoreLoading.value && controller.currentPage.value < controller.lastPage.value && controller.products.isNotEmpty)
+                      SliverToBoxAdapter(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 20),
+                          child: Center(
+                            child: OutlinedButton(
+                              onPressed: () => controller.loadMore(),
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: AppTheme.primaryColor,
+                                side: const BorderSide(color: AppTheme.primaryColor),
+                                padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                              ),
+                              child: const Text('Load More Products', style: TextStyle(fontWeight: FontWeight.bold)),
+                            ),
+                          ),
+                        ),
+                      ),
+                    if (controller.currentPage.value >= controller.lastPage.value && controller.products.isNotEmpty)
+                      const SliverToBoxAdapter(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(vertical: 20),
+                          child: Center(
+                            child: Text(
+                              'You have reached the end',
+                              style: TextStyle(color: Colors.grey, fontSize: 13),
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
               );
             }),
@@ -98,7 +152,7 @@ class ProductsView extends GetView<ProductsController> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Obx(() => Text(
-                '${controller.products.length} Products Found',
+                'Showing ${controller.products.length} of ${controller.totalProducts.value} Products',
                 style: const TextStyle(color: Colors.grey, fontSize: 13),
               )),
           Row(
@@ -347,11 +401,61 @@ class ProductsView extends GetView<ProductsController> {
         crossAxisSpacing: 16,
         mainAxisSpacing: 16,
       ),
-      itemCount: 4,
-      itemBuilder: (_, __) => Shimmer.fromColors(
+      itemCount: 6,
+      itemBuilder: (_, __) => _buildSkeletonCard(),
+    );
+  }
+
+  Widget _buildMoreLoadingIndicator() {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      alignment: Alignment.center,
+      child: const SizedBox(
+        height: 24,
+        width: 24,
+        child: CircularProgressIndicator(
+          strokeWidth: 2,
+          valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSkeletonCard() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Shimmer.fromColors(
         baseColor: Colors.grey.shade200,
         highlightColor: Colors.grey.shade50,
-        child: Container(decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16))),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(height: 14, width: double.infinity, color: Colors.white),
+                  const SizedBox(height: 8),
+                  Container(height: 14, width: 60, color: Colors.white),
+                  const SizedBox(height: 12),
+                  Container(height: 36, width: double.infinity, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8))),
+                ],
+              ),
+            )
+          ],
+        ),
       ),
     );
   }
