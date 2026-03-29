@@ -11,7 +11,7 @@
 @push('seo_schema')
 <script type="application/ld+json">
 {
-  "@context": "https://schema.org/",
+  "@@context": "https://schema.org/",
   "@type": "Product",
   "name": {!! json_encode($product->name) !!},
   "image": "{{ $product->image ?: asset('images/default-og.jpg') }}",

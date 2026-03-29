@@ -771,7 +771,7 @@
 @push('seo_schema')
 <script type="application/ld+json">
 {
-  "@context": "https://schema.org",
+  "@@context": "https://schema.org",
   "@type": "Organization",
   "name": "Nepstrading",
   "url": "{{ url('/') }}",
@@ -785,7 +785,7 @@
 </script>
 <script type="application/ld+json">
 {
-  "@context": "https://schema.org",
+  "@@context": "https://schema.org",
   "@type": "WebSite",
   "name": "Nepstrading",
   "url": "{{ url('/') }}",
