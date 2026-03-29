@@ -387,7 +387,7 @@
             <span class="rv-avgScore">{{ number_format($avgRating, 1) }}</span>
             <div>
                 <div class="rv-stars">{{ str_repeat('★', round($avgRating)) }}{{ str_repeat('☆', 5 - round($avgRating)) }}</div>
-                <div class="rv-count">{{ $reviews->count() }} {{ Str::plural('review', $reviews->count()) }}</div>
+                <div class="rv-count">{{ $reviews->count() }} {{ \Illuminate\Support\Str::plural('review', $reviews->count()) }}</div>
             </div>
         </div>
         @endif

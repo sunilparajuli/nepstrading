@@ -29,7 +29,7 @@
 
 <div class="wl-header">
     <h1 class="wl-headerTitle">My Wishlist</h1>
-    <p class="wl-headerDesc">{{ count($items) }} {{ Str::plural('item', count($items)) }} saved</p>
+    <p class="wl-headerDesc">{{ count($items) }} {{ \Illuminate\Support\Str::plural('item', count($items)) }} saved</p>
 </div>
 
 <div class="wl-wrap">
