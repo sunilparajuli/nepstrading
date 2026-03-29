@@ -19,8 +19,8 @@
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="{{ url()->current() }}">
-    <meta property="twitter:title" content="@yield('og_title', View::getSection('meta_title') ?: config('app.name'))">
-    <meta property="twitter:description" content="@yield('og_description', View::getSection('meta_description') ?: 'Your neighborhood grocery store.')">
+    <meta property="twitter:title" content="@yield('og_title', View::getSections()['meta_title'] ?? config('app.name'))">
+    <meta property="twitter:description" content="@yield('og_description', View::getSections()['meta_description'] ?? 'Your neighborhood grocery store.')">
     <meta property="twitter:image" content="@yield('og_image', asset('images/og-default.jpg'))">
 
     <!-- Canonical URL -->
