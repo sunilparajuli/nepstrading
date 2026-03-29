@@ -15,7 +15,7 @@
     @foreach($products as $product)
         <url>
             <loc>{{ route('products.show', $product) }}</loc>
-            <lastmod>{{ $product->updated_at->toAtomString() }}</lastmod>
+            <lastmod>{{ optional($product->updated_at)->toAtomString() ?: now()->toAtomString() }}</lastmod>
             <changefreq>weekly</changefreq>
             <priority>0.8</priority>
         </url>
@@ -23,7 +23,7 @@
     @foreach($categories as $category)
         <url>
             <loc>{{ route('categories.show', $category) }}</loc>
-            <lastmod>{{ $category->updated_at->toAtomString() }}</lastmod>
+            <lastmod>{{ optional($category->updated_at)->toAtomString() ?: now()->toAtomString() }}</lastmod>
             <changefreq>weekly</changefreq>
             <priority>0.7</priority>
         </url>
@@ -31,7 +31,7 @@
     @foreach($pages as $page)
         <url>
             <loc>{{ url('/page/' . $page->slug) }}</loc>
-            <lastmod>{{ $page->updated_at->toAtomString() }}</lastmod>
+            <lastmod>{{ optional($page->updated_at)->toAtomString() ?: now()->toAtomString() }}</lastmod>
             <changefreq>monthly</changefreq>
             <priority>0.5</priority>
         </url>
