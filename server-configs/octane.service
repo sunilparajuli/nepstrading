@@ -1,0 +1,15 @@
+[Unit]
+Description=Laravel Octane Server (RoadRunner)
+After=network.target
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/nepstrading
+ExecStart=/usr/bin/php /var/www/nepstrading/artisan octane:start --server=roadrunner --host=127.0.0.1 --port=8000
+Restart=always
+TimeoutStopSec=5
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
