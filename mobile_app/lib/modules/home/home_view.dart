@@ -398,60 +398,62 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
+import 'package:google_nav_bar/google_nav_bar.dart';
+
   Widget _buildBottomNav() {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
             blurRadius: 20,
-            offset: const Offset(0, -5),
+            color: Colors.black.withOpacity(.1),
           )
         ],
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _buildNavItem(LucideIcons.home, true, () {}),
-              _buildNavItem(LucideIcons.shoppingBag, false, () => Get.toNamed('/cart')),
-              _buildNavItem(LucideIcons.heart, false, () => Get.toNamed('/wishlist')),
-              _buildNavItem(LucideIcons.user, false, () => Get.toNamed('/profile')),
+          padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 8),
+          child: GNav(
+            rippleColor: Colors.grey[300]!,
+            hoverColor: Colors.grey[100]!,
+            gap: 8,
+            activeColor: AppTheme.primaryColor,
+            iconSize: 24,
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            duration: const Duration(milliseconds: 400),
+            tabBackgroundColor: AppTheme.primaryColor.withOpacity(0.1),
+            color: Colors.grey[600],
+            tabs: const [
+              GButton(
+                icon: LucideIcons.home,
+                text: 'Home',
+              ),
+              GButton(
+                icon: LucideIcons.shoppingBag,
+                text: 'Cart',
+              ),
+              GButton(
+                icon: LucideIcons.heart,
+                text: 'Wishlist',
+              ),
+              GButton(
+                icon: LucideIcons.user,
+                text: 'Profile',
+              ),
             ],
+            selectedIndex: 0,
+            onTabChange: (index) {
+              if (index == 1) {
+                Get.toNamed('/cart');
+              } else if (index == 2) {
+                Get.toNamed('/wishlist');
+              } else if (index == 3) {
+                Get.toNamed('/profile');
+              }
+            },
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildNavItem(IconData icon, bool isActive, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            icon,
-            color: isActive ? AppTheme.primaryColor : Colors.grey.shade400,
-            size: 24,
-          ),
-          const SizedBox(height: 4),
-          if (isActive)
-            Container(
-              width: 4,
-              height: 4,
-              decoration: const BoxDecoration(
-                color: AppTheme.primaryColor,
-                shape: BoxShape.circle,
-              ),
-            )
-          else
-            const SizedBox(height: 4),
-        ],
       ),
     );
   }

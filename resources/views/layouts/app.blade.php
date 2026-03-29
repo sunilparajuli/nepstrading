@@ -276,8 +276,34 @@
         }
         .s-overlay.open .s-overlayPanel { transform: translateX(0); }
         .s-overlayHeader { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid hsl(var(--border)); background: hsl(var(--bg)); }
-        .s-closeBtn { padding: 4px; background: transparent; border: none; cursor: pointer; border-radius: 4px; display: flex; align-items: center; justify-content: center; }
+        .s-closeBtn { padding: 4px; background: transparent; border: none; cursor: pointer; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: hsl(var(--fg)); }
         .s-closeBtn:hover { background: hsl(var(--muted)); }
+        
+        /* Mobile Menu */
+        .s-mobileMenuBtn {
+            display: none; padding: 8px; border-radius: 8px; background: transparent; border: none; cursor: pointer; color: hsl(var(--fg)); margin-right: 12px;
+        }
+        .s-mobileMenuBtn:hover { background: hsl(var(--muted)); }
+        @media (max-width: 768px) {
+            .s-mobileMenuBtn { display: flex; align-items: center; justify-content: center; }
+            .s-navLinks { display: none; }
+        }
+        .s-mobileDrawer { position: fixed; inset: 0; z-index: 1050; display: none; }
+        .s-mobileDrawer.open { display: block; }
+        .s-mobileDrawerBg { position: absolute; inset: 0; background: hsla(210, 11%, 15%, 0.5); cursor: pointer; }
+        .s-mobileDrawerPanel {
+            position: absolute; left: 0; top: 0; bottom: 0; width: 300px; max-width: 85%;
+            background: hsl(var(--bg)); border-right: 1px solid hsl(var(--border));
+            transform: translateX(-100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex; flex-direction: column; overflow-y: auto;
+        }
+        .s-mobileDrawer.open .s-mobileDrawerPanel { transform: translateX(0); }
+        .s-mobileDrawerHeader { display: flex; align-items: center; justify-content: space-between; padding: 16px; border-bottom: 1px solid hsl(var(--border)); }
+        .s-mobileDrawerLink {
+            display: flex; align-items: center; gap: 12px; padding: 16px; border-bottom: 1px solid hsl(var(--border));
+            font-size: 15px; font-weight: 500; color: hsl(var(--fg)); text-decoration: none; transition: background 0.2s;
+        }
+        .s-mobileDrawerLink:hover { color: hsl(var(--primary)); background: hsl(var(--muted)); }
 
         /* Nav dropdown */
         .s-navDropdown { position: static; }
@@ -422,6 +448,9 @@
             <div class="s-navBar">
                 <div class="s-navInner">
                     <div class="s-navTopRow">
+                        <button class="s-mobileMenuBtn" onclick="toggleMobileMenu()">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
+                        </button>
                         <a href="{{ url('/') }}" class="s-logo">
                             @php $siteLogo = \App\Models\SiteSetting::getValue('logo'); @endphp
                             @if($siteLogo)
@@ -620,6 +649,39 @@
                 </div>
             </div>
         </div>
+
+        <!-- Mobile Menu Drawer -->
+        <div id="mobileDrawer" class="s-mobileDrawer">
+            <div class="s-mobileDrawerBg" onclick="toggleMobileMenu()"></div>
+            <div class="s-mobileDrawerPanel">
+                <div class="s-mobileDrawerHeader">
+                    <span style="font-family: 'DM Serif Display', serif; font-size: 20px; font-weight: 500; font-style: italic; color: hsl(var(--primary));">Menu</span>
+                    <button class="s-closeBtn" onclick="toggleMobileMenu()">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                    </button>
+                </div>
+                <div style="flex: 1; overflow-y: auto;">
+                    <a href="{{ url('/') }}" class="s-mobileDrawerLink">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                        Home
+                    </a>
+                    <a href="{{ route('products.index') }}" class="s-mobileDrawerLink" style="color: hsl(var(--accent));">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
+                        All Products
+                    </a>
+                    @foreach(\App\Models\Category::whereNull('parent_id')->orderBy('name')->get() as $navCat)
+                        <a href="{{ route('categories.show', $navCat) }}" class="s-mobileDrawerLink">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>
+                            {{ $navCat->name }}
+                        </a>
+                    @endforeach
+                    <a href="{{ route('login') }}" class="s-mobileDrawerLink">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        Profile & Login
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -630,6 +692,17 @@
                 document.body.style.overflow = '';
             } else {
                 overlay.classList.add('open');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function toggleMobileMenu() {
+            const drawer = document.getElementById('mobileDrawer');
+            if (drawer.classList.contains('open')) {
+                drawer.classList.remove('open');
+                document.body.style.overflow = '';
+            } else {
+                drawer.classList.add('open');
                 document.body.style.overflow = 'hidden';
             }
         }
