@@ -31,6 +31,8 @@
     <!-- Tailwind CSS (for base utilities if needed, though we will port the exact CSS) -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+    <!-- Swiper CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
     @php
         $sitePrimaryColor = \App\Models\SiteSetting::getValue('primary_color', '#5eba7d');
         
@@ -333,9 +335,6 @@
             max-width: 1200px; 
             margin: 0 auto; 
             padding: 0 24px; 
-            display: grid; 
-            grid-template-columns: 300px 1fr;
-            gap: 48px; 
         }
         .s-megaTitle { 
             font-size: 15px; 
@@ -368,9 +367,10 @@
         .s-megaLink:hover { color: hsl(var(--primary)); }
         .s-megaImage { 
             width: 100%; 
-            height: 180px; 
+            height: 120px; 
             object-fit: cover; 
-            border-radius: 12px;
+            border-radius: 8px;
+            background: #f8fafc;
         }
 
         /* Search megamenu */
@@ -429,6 +429,29 @@
             transition: all 0.3s ease;
         }
         .s-toast-success { border-left: 4px solid hsl(var(--primary)); }
+
+        /* Swiper Custom Navigation */
+        .swiper-button-next, .swiper-button-prev {
+            width: 44px;
+            height: 44px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            color: #15803D;
+            transition: all 0.3s;
+        }
+        .swiper-button-next:after, .swiper-button-prev:after {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .swiper-button-next:hover, .swiper-button-prev:hover {
+            background: #15803D;
+            color: white;
+            transform: scale(1.1);
+        }
+        .swiper-pagination-bullet-active {
+            background: #15803D !important;
+        }
     </style>
 </head>
 <body>
@@ -461,9 +484,15 @@
                         </a>
                         <div class="s-searchWrap hidden md:flex" style="position: relative;">
                             <select id="searchCategory" class="s-searchSelect">
-                                <option value="">All</option>
-                                @foreach(\App\Models\Category::whereNull('parent_id')->orderBy('name')->get() as $sc)
-                                    <option value="{{ $sc->id }}">{{ $sc->name }}</option>
+                                <option value="">All Categories</option>
+                                @foreach(\App\Models\Category::whereNull('parent_id')->with('children.children')->orderBy('name')->get() as $pCat)
+                                    <option value="{{ $pCat->id }}" class="font-bold">{{ $pCat->name }}</option>
+                                    @foreach($pCat->children as $cCat)
+                                        <option value="{{ $cCat->id }}">&nbsp;&nbsp;— {{ $cCat->name }}</option>
+                                        @foreach($cCat->children as $gcCat)
+                                            <option value="{{ $gcCat->id }}">&nbsp;&nbsp;&nbsp;&nbsp;—— {{ $gcCat->name }}</option>
+                                        @endforeach
+                                    @endforeach
                                 @endforeach
                             </select>
                             <div class="s-searchInputWrap">
@@ -513,32 +542,29 @@
                                 </a>
                                 @if($navCat->children->count() > 0)
                                     <div class="s-megaMenu">
-                                        <div class="s-megaInner">
-                                            <div class="col-span-1">
-                                                <h4 class="s-megaTitle">Explore {{ $navCat->name }}</h4>
-                                                @if($navCat->image)
-                                                    <div class="mb-4 overflow-hidden rounded-xl shadow-lg group">
-                                                        <img src="{{ asset($navCat->image) }}" alt="{{ $navCat->name }}" class="s-megaImage transition-transform duration-500 group-hover:scale-110">
-                                                    </div>
-                                                @endif
-                                                <p class="text-sm text-gray-500 font-medium leading-relaxed">Discover our premium selection of fresh and quality {{ strtolower($navCat->name) }}.</p>
-                                                <a href="{{ route('categories.show', $navCat) }}" class="mt-4 inline-flex items-center text-sm font-bold text-[hsl(var(--primary))] hover:underline">
-                                                    View All {{ $navCat->name }}
-                                                    <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-                                                </a>
-                                            </div>
-                                            <div class="col-span-3 grid grid-cols-3 gap-12">
-                                                @foreach($navCat->children->chunk(ceil($navCat->children->count() / 3)) as $chunk)
-                                                    <div class="space-y-4">
-                                                        @foreach($chunk as $sub)
-                                                            <a href="{{ route('categories.show', $sub) }}" class="s-megaLink flex items-center group">
-                                                                <span class="w-1.5 h-1.5 rounded-full bg-gray-300 mr-3 group-hover:bg-[hsl(var(--primary))] transition-colors"></span>
-                                                                <span class="font-medium group-hover:translate-x-1 transition-transform">{{ $sub->name }}</span>
-                                                            </a>
-                                                        @endforeach
-                                                    </div>
-                                                @endforeach
-                                            </div>
+                                        <div class="s-megaInner py-6 px-8 grid grid-cols-4 gap-8">
+                                            @foreach($navCat->children as $sub)
+                                                <div class="space-y-3">
+                                                    <a href="{{ route('categories.show', $sub) }}" class="font-bold text-gray-900 hover:text-[hsl(var(--primary))] text-[14px] uppercase tracking-wider block border-b border-gray-100 pb-2 mb-2">
+                                                        {{ $sub->name }}
+                                                    </a>
+                                                    @if($sub->children->count() > 0)
+                                                        <div class="space-y-2">
+                                                            @foreach($sub->children->take(8) as $child)
+                                                                <a href="{{ route('categories.show', $child) }}" class="s-megaLink group flex items-center">
+                                                                    <span class="w-1 h-1 rounded-full bg-gray-300 mr-2 group-hover:bg-[hsl(var(--primary))] transition-colors"></span>
+                                                                    <span class="text-[13px] group-hover:translate-x-1 transition-transform">{{ $child->name }}</span>
+                                                                </a>
+                                                            @endforeach
+                                                            @if($sub->children->count() > 8)
+                                                                <a href="{{ route('categories.show', $sub) }}" class="text-[11px] font-bold text-[hsl(var(--primary))] hover:underline pt-1 block">
+                                                                    + {{ $sub->children->count() - 8 }} More...
+                                                                </a>
+                                                            @endif
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                            @endforeach
                                         </div>
                                     </div>
                                 @endif
@@ -870,5 +896,36 @@
 }
 </script>
 @endpush
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Product Carousels
+            const productSwipers = document.querySelectorAll('.product-swiper');
+            productSwipers.forEach((swiperEl, index) => {
+                const nextEl = swiperEl.closest('section').querySelector('.swiper-button-next');
+                const prevEl = swiperEl.closest('section').querySelector('.swiper-button-prev');
+                
+                new Swiper(swiperEl, {
+                    slidesPerView: 2,
+                    spaceBetween: 16,
+                    navigation: {
+                        nextEl: nextEl,
+                        prevEl: prevEl,
+                    },
+                    breakpoints: {
+                        640: { slidesPerView: 2, spaceBetween: 20 },
+                        768: { slidesPerView: 3, spaceBetween: 20 },
+                        1024: { slidesPerView: 4, spaceBetween: 24 },
+                        1280: { slidesPerView: 5, spaceBetween: 24 }
+                    },
+                    on: {
+                        init: function() {
+                            // Ensure buttons are visible if needed
+                        }
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>

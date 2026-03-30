@@ -16,12 +16,19 @@ class SearchController extends Controller
             return response()->json([]);
         }
 
-        $query = Product::where('name', 'like', '%' . $q . '%')
-            ->orWhere('description', 'like', '%' . $q . '%');
+        $query = Product::where(function($qb) use ($q) {
+            $qb->where('name', 'like', '%' . $q . '%')
+               ->orWhere('description', 'like', '%' . $q . '%');
+        });
 
         if ($category) {
-            $query->whereHas('categories', function ($qb) use ($category) {
-                $qb->where('categories.id', $category);
+            // Include children categories in the search
+            $categoryIds = \App\Models\Category::where('id', $category)
+                ->orWhere('parent_id', $category)
+                ->pluck('id');
+                
+            $query->whereHas('categories', function ($qb) use ($categoryIds) {
+                $qb->whereIn('categories.id', $categoryIds);
             });
         }
 
