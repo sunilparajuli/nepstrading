@@ -70,6 +70,9 @@
         // For darker variant (promo bar etc) - just reduce L by 5-10%
         $lVal = (int)str_replace('%', '', $hsl[2]);
         $promoVar = $hsl[0] . ', ' . $hsl[1] . ', ' . max(0, $lVal - 7) . '%';
+        
+        // Footer BG - very dark version of primary or neutral if primary too bright
+        $footerBgVar = $hsl[0] . ', ' . max(10, (int)str_replace('%', '', $hsl[1]) - 20) . '%, 8%';
     @endphp
     <style>
         :root {
@@ -85,6 +88,9 @@
             --accent-fg: 0, 0%, 100%;
             --promo-bg: {{ $promoVar }};
             --promo-fg: 0, 0%, 100%;
+            --footer-bg: {{ $footerBgVar }};
+            --footer-fg: 210, 20%, 98%;
+            --footer-heading: 42, 78%, 61%; /* Warm gold #EBBE4D */
             --sale: 0, 85%, 60%;
             --radius-sm: 6px;
             --radius-md: 12px;
@@ -181,38 +187,75 @@
         }
 
         .m-footer {
-            background: #00332E; color: #FFFFFF; padding: 48px 0 0;
+            background: hsl(var(--footer-bg)); color: hsl(var(--footer-fg)); padding: 64px 0 0;
+            border-top: 1px solid rgba(255,255,255,0.05);
         }
         .m-footerInner {
-            max-width: 1200px; margin: 0 auto; padding: 0 16px 40px;
-            display: grid; grid-template-columns: 1.5fr 1fr 1fr 1.5fr; gap: 32px;
+            max-width: 1200px; margin: 0 auto; padding: 0 24px 48px;
+            display: grid; grid-template-columns: 1.2fr 0.8fr 1fr 1.2fr; gap: 48px;
         }
-        @media (max-width: 768px) { .m-footerInner { grid-template-columns: 1fr; } }
-        .m-footerLogo {
-            font-family: 'DM Serif Display', serif; font-size: 24px; color: #FFFFFF; margin: 0 0 16px;
-        }
-        .m-footerText { font-size: 14px; color: #E5E7EB; line-height: 1.6; margin-bottom: 24px; }
-        .m-footerHeading { font-size: 16px; font-weight: 700; color: #EBBE4D; margin: 0 0 16px; text-transform: uppercase; letter-spacing: 0.5px; }
-        .m-footerLink { color: #E5E7EB; text-decoration: none; display: block; margin-bottom: 12px; font-size: 14px; transition: color 0.2s; }
-        .m-footerLink:hover { color: #EBBE4D; }
+        @media (max-width: 1024px) { .m-footerInner { grid-template-columns: 1fr 1fr; } }
+        @media (max-width: 640px) { .m-footerInner { grid-template-columns: 1fr; gap: 32px; } }
         
-        .m-newsletter p { font-size: 14px; color: #E5E7EB; margin-bottom: 16px; }
-        .m-newsletterForm { display: flex; gap: 8px; margin-bottom: 16px; }
-        .m-newsletterInput { flex: 1; padding: 10px 16px; border-radius: 4px; border: none; font-size: 14px; outline: none; }
-        .m-newsletterBtn { background: #EBBE4D; color: #00332E; border: none; padding: 10px 20px; font-weight: 700; border-radius: 4px; cursor: pointer; transition: opacity 0.2s; }
+        .m-footerLogo {
+            font-family: 'DM Serif Display', serif; font-size: 28px; color: #FFFFFF; margin: 0 0 20px;
+            font-style: italic; letter-spacing: -0.01em;
+        }
+        .m-footerText { font-size: 14px; color: rgba(255,255,255,0.7); line-height: 1.7; margin-bottom: 24px; }
+        .m-footerHeading { 
+            font-size: 15px; font-weight: 700; color: hsl(var(--footer-heading)); 
+            margin: 0 0 24px; text-transform: uppercase; letter-spacing: 0.05em; 
+        }
+        .m-footerLink { 
+            color: rgba(255,255,255,0.7); text-decoration: none; display: flex; align-items: center; gap: 8px;
+            margin-bottom: 14px; font-size: 14px; transition: all 0.2s; 
+        }
+        .m-footerLink:hover { color: hsl(var(--footer-heading)); transform: translateX(4px); }
+        
+        .m-contactItem {
+            display: flex; gap: 12px; margin-bottom: 16px; font-size: 14px; color: rgba(255,255,255,0.7);
+        }
+        .m-contactIcon { color: hsl(var(--footer-heading)); flex-shrink: 0; margin-top: 2px; }
+        
+        .m-socialLinks { display: flex; gap: 12px; }
+        .m-socialBtn {
+            width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.05);
+            display: flex; align-items: center; justify-content: center; color: white;
+            transition: all 0.3s;
+        }
+        .m-socialBtn:hover { background: hsl(var(--primary)); transform: translateY(-3px); }
+        
+        .m-newsletter p { font-size: 14px; color: rgba(255,255,255,0.7); margin-bottom: 20px; line-height: 1.6; }
+        .m-newsletterForm { 
+            background: rgba(255,255,255,0.05); border-radius: 8px; padding: 4px;
+            display: flex; gap: 4px; border: 1px solid rgba(255,255,255,0.1);
+        }
+        .m-newsletterInput { 
+            background: transparent; border: none; color: white; padding: 8px 12px; 
+            font-size: 14px; flex: 1; outline: none;
+        }
+        .m-newsletterInput::placeholder { color: rgba(255,255,255,0.3); }
+        .m-newsletterBtn { 
+            background: hsl(var(--primary)); color: white; border: none; padding: 8px 16px;
+            border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; transition: opacity 0.2s;
+        }
         .m-newsletterBtn:hover { opacity: 0.9; }
 
         .m-footerBottom {
-            background: rgba(0,0,0,0.2); border-top: 1px solid rgba(255,255,255,0.1);
-            padding: 24px 0;
+            background: rgba(0,0,0,0.2); padding: 24px 0;
+            border-top: 1px solid rgba(255,255,255,0.05);
         }
         .m-footerBottomInner {
-            max-width: 1200px; margin: 0 auto; padding: 0 16px;
-            display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;
+            max-width: 1200px; margin: 0 auto; padding: 0 24px;
+            display: flex; justify-content: space-between; align-items: center; gap: 20px;
         }
-        .m-copyright { font-size: 14px; color: #9CA3AF; margin: 0; }
-        .m-paymentIcons { display: flex; gap: 8px; align-items: center; }
-        .m-paymentIcon { height: 24px; opacity: 0.8; filter: brightness(0) invert(1); }
+        @media (max-width: 640px) { 
+            .m-footerBottomInner { flex-direction: column; text-align: center; } 
+        }
+        .m-copyright { font-size: 13px; color: rgba(255,255,255,0.5); margin: 0; }
+        .m-paymentIcons { display: flex; align-items: center; gap: 12px; }
+        .m-paymentIcon { height: 20px; opacity: 0.6; filter: grayscale(1); transition: opacity 0.2s; }
+        .m-paymentIcon:hover { opacity: 1; filter: none; }
 
         /* cart sidebar */
         .s-cartSidebar {
@@ -242,6 +285,18 @@
         
         .s-cartItem { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid hsl(var(--border)); }
         .s-cartItemImg { width: 56px; height: 56px; border-radius: 6px; object-fit: cover; flex-shrink: 0; }
+
+        /* Back to Top */
+        .s-backToTop {
+            position: fixed; bottom: 32px; right: 32px; width: 44px; height: 44px;
+            background: hsl(var(--primary)); color: white; border: none; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; opacity: 0; visibility: hidden; transform: translateY(20px);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); z-index: 999; 
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.2);
+        }
+        .s-backToTop.show { opacity: 1; visibility: visible; transform: translateY(0); }
+        .s-backToTop:hover { transform: translateY(-5px); background: hsl(var(--fg)); }
         .s-cartItemInfo { flex: 1; min-width: 0; }
         .s-cartItemName { font-size: 14px; font-weight: 500; color: hsl(var(--fg)); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin: 0; }
         .s-cartItemWeight { font-size: 12px; color: hsl(var(--muted-fg)); margin: 0; }
@@ -599,63 +654,73 @@
                         <h3 class="m-footerLogo">
                             @php $siteLogo = \App\Models\SiteSetting::getValue('logo'); @endphp
                             @if($siteLogo)
-                                <img src="{{ $siteLogo }}" alt="Nepstrading" style="height: 48px; filter: brightness(0) invert(1); object-fit: contain;">
+                                <img src="{{ $siteLogo }}" alt="Nepstrading" style="height: 42px; filter: brightness(0) invert(1); object-fit: contain;">
                             @else
-                                Nepstrading
+                                <span style="font-style: italic;">Nepstrading</span>
                             @endif
                         </h3>
-                        <p class="m-footerText">Your neighborhood grocery store, delivering fresh produce and quality goods right to your door with unmatched service.</p>
-                        <div style="display: flex; gap: 16px;">
-                            <a href="#" style="color: white; opacity: 0.8; transition: opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.8'">
-                                <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M24 4.56v14.9c0 1.35-1.15 2.5-2.56 2.5H2.56C1.15 21.96 0 20.81 0 19.46V4.56C0 3.2 1.15 2.05 2.56 2.05h18.88C22.85 2.05 24 3.2 24 4.56zM8.5 19v-7.3H6v7.3h2.5zm-1.25-8.3c.87 0 1.42-.58 1.42-1.3 0-.74-.53-1.32-1.38-1.32-.84 0-1.4.58-1.4 1.32 0 .72.55 1.3 1.36 1.3zm12.33 8.3v-4c0-2.14-1.14-3.14-2.67-3.14-1.22 0-1.78.68-2.08 1.16v-.99h-2.5c.03.7 0 7.02 0 7.02h2.5v-3.92c0-.2.02-.42.08-.57.17-.43.56-.88 1.22-.88.86 0 1.2.66 1.2 1.63V19h2.5z"/></svg>
+                        <p class="m-footerText">Premium neighborhood grocery for artisanal produce, daily essentials, and unique global finds. Quality you can trust, delivered to your door.</p>
+                        <div class="m-socialLinks">
+                            <a href="#" class="m-socialBtn">
+                                <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M24 4.56v14.9c0 1.35-1.15 2.5-2.56 2.5H2.56C1.15 21.96 0 20.81 0 19.46V4.56C0 3.2 1.15 2.05 2.56 2.05h18.88C22.85 2.05 24 3.2 24 4.56zM8.5 19v-7.3H6v7.3h2.5zm-1.25-8.3c.87 0 1.42-.58 1.42-1.3 0-.74-.53-1.32-1.38-1.32-.84 0-1.4.58-1.4 1.32 0 .72.55 1.3 1.36 1.3zm12.33 8.3v-4c0-2.14-1.14-3.14-2.67-3.14-1.22 0-1.78.68-2.08 1.16v-.99h-2.5c.03.7 0 7.02 0 7.02h2.5v-3.92c0-.2.02-.42.08-.57.17-.43.56-.88 1.22-.88.86 0 1.2.66 1.2 1.63V19h2.5z"/></svg>
                             </a>
-                            <a href="#" style="color: white; opacity: 0.8; transition: opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.8'">
-                                <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm3.975-9.658a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+                            <a href="#" class="m-socialBtn">
+                                <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm3.975-9.658a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
                             </a>
                         </div>
                     </div>
 
-                    @php
-                        $footerPages = \App\Models\Page::where('status', 'published')
-                            ->where('show_on_footer', true)
-                            ->whereNotNull('footer_section')
-                            ->orderBy('sort_order', 'asc')
-                            ->get()
-                            ->groupBy('footer_section');
-                    @endphp
+                    <div>
+                        <h4 class="m-footerHeading">Shop Categories</h4>
+                        @foreach(\App\Models\Category::whereNull('parent_id')->limit(5)->get() as $fCat)
+                            <a href="{{ route('categories.show', $fCat) }}" class="m-footerLink">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                                {{ $fCat->name }}
+                            </a>
+                        @endforeach
+                    </div>
 
-                    @foreach(['Quick Links', 'Customer Service'] as $section)
-                        <div>
-                            <h4 class="m-footerHeading">{{ $section }}</h4>
-                            @if(isset($footerPages[$section]))
-                                @foreach($footerPages[$section] as $fPage)
-                                    <a href="/page/{{ $fPage->slug }}" class="m-footerLink">{{ $fPage->title }}</a>
-                                @endforeach
-                            @endif
-                        </div>
-                    @endforeach
+                    <div>
+                        <h4 class="m-footerHeading">Useful Links</h4>
+                        <a href="/page/about-us" class="m-footerLink">About Us</a>
+                        <a href="/page/contact-us" class="m-footerLink">Contact Us</a>
+                        <a href="/page/shipping-policy" class="m-footerLink">Shipping Info</a>
+                        <a href="/page/privacy-policy" class="m-footerLink">Privacy Policy</a>
+                    </div>
 
                     <div class="m-newsletter">
-                        <h4 class="m-footerHeading">Join Our Newsletter</h4>
-                        <p>Stay updated on the latest deals, seasonal specials, and newest arrivals directly to your inbox!</p>
-                        <form action="#" method="POST" class="m-newsletterForm" onsubmit="event.preventDefault(); alert('Successfully Subscribed to the Newsletter!');">
+                        <h4 class="m-footerHeading">Contact & Newsletter</h4>
+                        <div class="m-contactItem">
+                            <svg class="m-contactIcon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                            <span>123 Market St, Sydney NSW 2000</span>
+                        </div>
+                        <div class="m-contactItem">
+                            <svg class="m-contactIcon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                            <span>+61 4XX XXX XXX</span>
+                        </div>
+                        <form action="#" method="POST" class="m-newsletterForm" onsubmit="event.preventDefault(); alert('Successfully Subscribed!');">
                             <input type="email" placeholder="Email address" class="m-newsletterInput" required>
-                            <button type="submit" class="m-newsletterBtn">Subscribe</button>
+                            <button type="submit" class="m-newsletterBtn">Join</button>
                         </form>
                     </div>
                 </div>
 
                 <div class="m-footerBottom">
                     <div class="m-footerBottomInner">
-                        <p class="m-copyright">&copy; {{ date('Y') }} Nepstrading. All rights reserved.</p>
+                        <p class="m-copyright">&copy; {{ date('Y') }} Nepstrading. Built for Excellence.</p>
                         <div class="m-paymentIcons">
                             <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/200px-Visa_Inc._logo.svg.png" class="m-paymentIcon" alt="Visa">
                             <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/200px-Mastercard-logo.svg.png" class="m-paymentIcon" alt="Mastercard">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/PayPal.svg/200px-PayPal.svg.png" class="m-paymentIcon" alt="PayPal" style="height: 18px; margin-left: 4px;">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/PayPal.svg/200px-PayPal.svg.png" class="m-paymentIcon" alt="PayPal">
                         </div>
                     </div>
                 </div>
             </footer>
+
+            <!-- Back to Top -->
+            <button id="backToTop" class="s-backToTop" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>
+            </button>
         </div>
 
         <!-- Cart Overlay -->
@@ -924,6 +989,13 @@
                         }
                     }
                 });
+            });
+
+            // Back to Top functionality
+            const backToTop = document.getElementById('backToTop');
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 400) backToTop.classList.add('show');
+                else backToTop.classList.remove('show');
             });
         });
     </script>
