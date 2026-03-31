@@ -67,6 +67,53 @@
                 </div>
             </div>
 
+            <hr class="border-gray-200">
+
+            <div class="space-y-4">
+                <h3 class="text-sm font-semibold text-gray-900">Payment Methods</h3>
+                <p class="text-xs text-gray-500">Enable or disable payment methods shown in the footer and checkout.</p>
+                
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 bg-blue-100 rounded flex items-center justify-center mr-3">
+                                <svg class="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 24 24"><path d="M20.067 8.178c-.652-3.1-3.69-4.116-6.6-4.116H7.135a.611.611 0 0 0-.613.518L4 19.336a.417.417 0 0 0 .411.486h3.193a.611.611 0 0 0 .611-.518l.844-5.343a.611.611 0 0 1 .61-.518h1.613c3.21 0 5.728-1.305 6.467-5.11.23-.974.282-1.851.318-2.655zM17.6 8.527c-.452 2.336-2.107 3.32-4.526 3.32h-1.34a1.222 1.222 0 0 0-1.221 1.036l-.16.945-.443 2.801h-2.5l2.67-16.94c.03-.189.196-.33.388-.33h5.729c1.92 0 3.754.409 4.316 2.842.13.565.178 1.13.15 1.636-.08 1.489-.481 2.946-1.063 4.69z"/></svg>
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-medium text-gray-900">PayPal</h4>
+                                <p class="text-xs text-gray-500">Show PayPal icon in the footer</p>
+                            </div>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" name="payment_paypal_enabled" value="1" {{ $paypalEnabled == '1' ? 'checked' : '' }} class="sr-only peer">
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                        </label>
+                    </div>
+
+                    <div class="p-3 bg-gray-50 rounded-lg border border-gray-100">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 bg-green-100 rounded flex items-center justify-center mr-3">
+                                    <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-900">Bank Transfer</h4>
+                                    <p class="text-xs text-gray-500">Show Bank icon and account details</p>
+                                </div>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" name="payment_bank_enabled" value="1" {{ $bankEnabled == '1' ? 'checked' : '' }} class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+                            </label>
+                        </div>
+                        <div class="mt-2">
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Bank Account / Payment Details</label>
+                            <textarea name="payment_bank_details" rows="2" class="block w-full border border-gray-200 rounded-md shadow-sm p-2 text-xs focus:ring-green-500 focus:border-green-500" placeholder="Bank: Example Bank&#10;AC: 123456789&#10;BSB: 000-000">{{ $bankDetails }}</textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="pt-4">
                 <button type="submit" class="px-6 py-2 bg-black text-white rounded-md hover:bg-gray-800 transition-colors">
                     Save Changes

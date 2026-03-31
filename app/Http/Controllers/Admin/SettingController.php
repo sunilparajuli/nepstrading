@@ -16,7 +16,15 @@ class SettingController extends Controller
         $minAppVersion = SiteSetting::getValue('min_app_version', '1.0.0');
         $appUpdateUrl = SiteSetting::getValue('app_update_url', 'https://play.google.com/store/apps/details?id=com.sunil.nepstrading.ecommerce.app');
         
-        return view('admin.settings.index', compact('maintenanceMode', 'primaryColor', 'appVersion', 'minAppVersion', 'appUpdateUrl'));
+        // Payment Methods
+        $paypalEnabled = SiteSetting::getValue('payment_paypal_enabled', '0');
+        $bankEnabled = SiteSetting::getValue('payment_bank_enabled', '0');
+        $bankDetails = SiteSetting::getValue('payment_bank_details', '');
+
+        return view('admin.settings.index', compact(
+            'maintenanceMode', 'primaryColor', 'appVersion', 'minAppVersion', 'appUpdateUrl',
+            'paypalEnabled', 'bankEnabled', 'bankDetails'
+        ));
     }
 
     public function update(Request $request)
@@ -38,6 +46,11 @@ class SettingController extends Controller
         if ($request->has('app_update_url')) {
             SiteSetting::setValue('app_update_url', $request->app_update_url);
         }
+
+        // Payment Methods
+        SiteSetting::setValue('payment_paypal_enabled', $request->has('payment_paypal_enabled') ? '1' : '0');
+        SiteSetting::setValue('payment_bank_enabled', $request->has('payment_bank_enabled') ? '1' : '0');
+        SiteSetting::setValue('payment_bank_details', $request->payment_bank_details ?? '');
 
         return redirect()->route('admin.settings.index')->with('success', 'Settings updated successfully.');
     }

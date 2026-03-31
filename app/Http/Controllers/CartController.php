@@ -153,16 +153,47 @@ class CartController extends Controller
             session()->put('cart', $cart);
         }
 
+        if ($request->ajax() || $request->wantsJson()) {
+            $cart = session()->get('cart', []);
+            $subtotal = array_reduce($cart, function($carry, $item) {
+                return $carry + ($item['price'] * $item['qty']);
+            }, 0);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Cart updated successfully!',
+                'cart_count' => count($cart),
+                'cart_total' => number_format($subtotal, 2),
+                'cart_html' => view('partials.cart_sidebar_contents')->render()
+            ]);
+        }
+
         return redirect()->back()->with('success', 'Cart updated successfully.');
     }
 
-    public function remove($id)
+    public function remove(Request $request, $id)
     {
         $cart = session()->get('cart', []);
         if(isset($cart[$id])) {
             unset($cart[$id]);
             session()->put('cart', $cart);
         }
+
+        if ($request->ajax() || $request->wantsJson()) {
+            $cart = session()->get('cart', []);
+            $subtotal = array_reduce($cart, function($carry, $item) {
+                return $carry + ($item['price'] * $item['qty']);
+            }, 0);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Product removed successfully!',
+                'cart_count' => count($cart),
+                'cart_total' => number_format($subtotal, 2),
+                'cart_html' => view('partials.cart_sidebar_contents')->render()
+            ]);
+        }
+
         return redirect()->back()->with('success', 'Product removed successfully!');
     }
 }

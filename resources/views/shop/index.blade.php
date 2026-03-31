@@ -103,10 +103,10 @@
     .sp-addBtn {
         width: 100%; padding: 10px 0; font-size: 13px; font-weight: 700;
         border-radius: 4px; border: none; cursor: pointer; text-align: center;
-        background: #1F8A43; color: white; transition: all 0.2s;
+        background: hsl(var(--primary)); color: hsl(var(--primary-fg)); transition: all 0.2s;
         display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: auto;
     }
-    .sp-addBtn:hover { background: #176d34; }
+    .sp-addBtn:hover { opacity: 0.9; transform: translateY(-1px); }
     .sp-addBtn:disabled { background: #E5E7EB; color: #6B7280; cursor: not-allowed; }
 
     .sp-pagination { margin-top: 40px; padding-top: 24px; border-top: 1px solid hsl(var(--border)); display: flex; justify-content: center; }
@@ -267,17 +267,20 @@
                         @endif
                     </div>
 
-                    @if(!($product->manage_stock && $product->stock_quantity <= 0))
-                        <form action="{{ route('cart.add', $product) }}" method="POST" style="margin: 0; margin-top: auto;" onclick="event.stopPropagation();">
-                            @csrf
-                            <input type="hidden" name="qty" value="1">
-                            <button type="submit" class="sp-addBtn">
+                    @if($product->allow_add_to_cart)
+                        @if(!($product->manage_stock && $product->stock_quantity <= 0))
+                            <button type="button" class="sp-addBtn" onclick="event.stopPropagation(); addToCart({{ $product->id }})">
                                 <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                                 Add to Cart
                             </button>
-                        </form>
+                        @else
+                            <button disabled class="sp-addBtn">Sold Out</button>
+                        @endif
                     @else
-                        <button disabled class="sp-addBtn">Sold Out</button>
+                        <button type="button" class="sp-addBtn" style="background: hsl(var(--accent)); color: hsl(var(--accent-fg));" 
+                                onclick="event.stopPropagation(); showCartDisabledMessage('{{ addslashes($product->cart_disabled_message) }}')">
+                            Inquiry
+                        </button>
                     @endif
                 </div>
             @empty

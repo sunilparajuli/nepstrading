@@ -71,8 +71,11 @@
         $lVal = (int)str_replace('%', '', $hsl[2]);
         $promoVar = $hsl[0] . ', ' . $hsl[1] . ', ' . max(0, $lVal - 7) . '%';
         
-        // Footer BG - very dark version of primary or neutral if primary too bright
         $footerBgVar = $hsl[0] . ', ' . max(10, (int)str_replace('%', '', $hsl[1]) - 20) . '%, 8%';
+
+        // Payment Methods
+        $paypalEnabled = \App\Models\SiteSetting::getValue('payment_paypal_enabled', '0');
+        $bankEnabled = \App\Models\SiteSetting::getValue('payment_bank_enabled', '0');
     @endphp
     <style>
         :root {
@@ -187,8 +190,8 @@
         }
 
         .m-footer {
-            background: hsl(var(--footer-bg)); color: hsl(var(--footer-fg)); padding: 64px 0 0;
-            border-top: 1px solid rgba(255,255,255,0.05);
+            background: hsl(var(--primary)); color: white; padding: 64px 0 0;
+            border-top: 1px solid rgba(255,255,255,0.1);
         }
         .m-footerInner {
             max-width: 1200px; margin: 0 auto; padding: 0 24px 48px;
@@ -203,7 +206,7 @@
         }
         .m-footerText { font-size: 14px; color: rgba(255,255,255,0.7); line-height: 1.7; margin-bottom: 24px; }
         .m-footerHeading { 
-            font-size: 15px; font-weight: 700; color: hsl(var(--footer-heading)); 
+            font-size: 15px; font-weight: 700; color: #facc15; 
             margin: 0 0 24px; text-transform: uppercase; letter-spacing: 0.05em; 
         }
         .m-footerLink { 
@@ -242,7 +245,7 @@
         .m-newsletterBtn:hover { opacity: 0.9; }
 
         .m-footerBottom {
-            background: rgba(0,0,0,0.2); padding: 24px 0;
+            background: rgba(0,0,0,0.15); padding: 24px 0;
             border-top: 1px solid rgba(255,255,255,0.05);
         }
         .m-footerBottomInner {
@@ -256,6 +259,13 @@
         .m-paymentIcons { display: flex; align-items: center; gap: 12px; }
         .m-paymentIcon { height: 20px; opacity: 0.6; filter: grayscale(1); transition: opacity 0.2s; }
         .m-paymentIcon:hover { opacity: 1; filter: none; }
+        .m-bankBadge {
+            display: flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 700;
+            text-transform: uppercase; padding: 2px 6px; border-radius: 4px;
+            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+            color: white; height: auto !important; opacity: 0.8;
+        }
+        .m-bankBadge:hover { opacity: 1; background: rgba(255,255,255,0.15); }
 
         /* cart sidebar */
         .s-cartSidebar {
@@ -275,10 +285,14 @@
         .s-checkoutBtn {
             width: 100%; padding: 12px 0; border-radius: 6px; font-weight: 600; font-size: 14px;
             display: flex; align-items: center; justify-content: center; gap: 8px;
-            border: none; cursor: pointer; background: hsl(var(--fg)); color: hsl(var(--bg));
-            transition: opacity 0.2s; margin-bottom: 16px; text-decoration: none;
+            border: none; cursor: pointer; background: hsl(var(--primary)); color: hsl(var(--primary-fg));
+            transition: all 0.2s; margin-bottom: 16px; text-decoration: none;
         }
-        .s-checkoutBtn:hover { opacity: 0.9; }
+        .s-checkoutBtn:hover { 
+            opacity: 0.9; 
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px hsla(var(--primary), 0.2);
+        }
         
         .s-progressTrack { width: 100%; height: 6px; border-radius: 999px; background: hsl(var(--border)); }
         .s-progressFill { height: 6px; border-radius: 999px; background: hsl(var(--fg)); transition: width 0.3s; }
@@ -297,6 +311,49 @@
         }
         .s-backToTop.show { opacity: 1; visibility: visible; transform: translateY(0); }
         .s-backToTop:hover { transform: translateY(-5px); background: hsl(var(--fg)); }
+
+        /* Inquiry Modal */
+        .s-modal {
+            position: fixed; inset: 0; z-index: 2000;
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; visibility: hidden; transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .s-modal.show { opacity: 1; visibility: visible; }
+        .s-modalBg { 
+            position: absolute; inset: 0; background: rgba(15, 23, 42, 0.6); 
+            backdrop-filter: blur(12px); 
+        }
+        .s-modalPanel {
+            position: relative; width: 90%; max-width: 480px;
+            background: white; border-radius: 24px; padding: 40px;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+            transform: translateY(20px) scale(0.95); transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .s-modal.show .s-modalPanel { transform: translateY(0) scale(1); }
+        .s-modalIcon {
+            width: 64px; height: 64px; background: hsl(var(--primary) / 0.1);
+            color: hsl(var(--primary)); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 28px;
+        }
+        .s-modalTitle {
+            font-family: 'DM Serif Display', serif; font-size: 26px;
+            color: hsl(var(--fg)); text-align: center; margin-bottom: 16px;
+        }
+        .s-modalText {
+            font-size: 16px; line-height: 1.7; color: hsl(var(--muted-fg));
+            text-align: center; margin-bottom: 36px;
+        }
+        .s-modalBtn {
+            width: 100%; padding: 16px; background: hsl(var(--primary));
+            color: white; border: none; border-radius: 14px;
+            font-weight: 700; font-size: 15px; cursor: pointer; transition: transform 0.2s, opacity 0.2s;
+        }
+        .s-modalBtn:hover { opacity: 0.95; transform: translateY(-2px); }
+        .s-modalBtn:active { transform: translateY(0); }
+
+        /* Qty Loading State */
+        .s-qtyLoading { opacity: 0.6; pointer-events: none; }
         .s-cartItemInfo { flex: 1; min-width: 0; }
         .s-cartItemName { font-size: 14px; font-weight: 500; color: hsl(var(--fg)); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin: 0; }
         .s-cartItemWeight { font-size: 12px; color: hsl(var(--muted-fg)); margin: 0; }
@@ -683,9 +740,9 @@
                     <div>
                         <h4 class="m-footerHeading">Useful Links</h4>
                         <a href="/page/about-us" class="m-footerLink">About Us</a>
-                        <a href="/page/contact-us" class="m-footerLink">Contact Us</a>
-                        <a href="/page/shipping-policy" class="m-footerLink">Shipping Info</a>
-                        <a href="/page/privacy-policy" class="m-footerLink">Privacy Policy</a>
+                        <a href="/page/contact" class="m-footerLink">Contact Us</a>
+                        <a href="/page/delivery-info" class="m-footerLink">Shipping Info</a>
+                        <a href="/page/returns-policy" class="m-footerLink">Returns Policy</a>
                     </div>
 
                     <div class="m-newsletter">
@@ -711,7 +768,15 @@
                         <div class="m-paymentIcons">
                             <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/200px-Visa_Inc._logo.svg.png" class="m-paymentIcon" alt="Visa">
                             <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/200px-Mastercard-logo.svg.png" class="m-paymentIcon" alt="Mastercard">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/PayPal.svg/200px-PayPal.svg.png" class="m-paymentIcon" alt="PayPal">
+                            @if($paypalEnabled)
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/PayPal.svg/200px-PayPal.svg.png" class="m-paymentIcon" alt="PayPal">
+                            @endif
+                            @if($bankEnabled)
+                                <div class="m-paymentIcon m-bankBadge">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M3 10h18"/><path d="M5 6l7-3 7 3"/><path d="M4 10v11"/><path d="M20 10v11"/><path d="M8 14v3"/><path d="M12 14v3"/><path d="M16 14v3"/></svg>
+                                    Bank
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -961,6 +1026,19 @@
 }
 </script>
 @endpush
+        <!-- Inquiry Modal -->
+        <div id="inquiryModal" class="s-modal">
+            <div class="s-modalBg" onclick="closeInquiryModal()"></div>
+            <div class="s-modalPanel">
+                <div class="s-modalIcon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                </div>
+                <h3 class="s-modalTitle">Ordering Information</h3>
+                <div id="inquiryModalText" class="s-modalText"></div>
+                <button class="s-modalBtn" onclick="closeInquiryModal()">Understood</button>
+            </div>
+        </div>
+
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -997,6 +1075,79 @@
                 if (window.scrollY > 400) backToTop.classList.add('show');
                 else backToTop.classList.remove('show');
             });
+
+            // Handle disabled cart messages
+            window.showCartDisabledMessage = function(message) {
+                const modal = document.getElementById('inquiryModal');
+                const text = document.getElementById('inquiryModalText');
+                if (!message) message = "This item is currently not available for online purchase.";
+                text.innerText = message;
+                modal.classList.add('show');
+            };
+
+            window.closeInquiryModal = function() {
+                document.getElementById('inquiryModal').classList.remove('show');
+            };
+
+            window.updateCartQty = async function(id, delta) {
+                const input = document.getElementById('cart-qty-' + id);
+                if (!input) return;
+                
+                const itemRow = input.closest('.s-cartItem');
+                let val = parseInt(input.value) + delta;
+                if (val < 1) return; 
+
+                if (itemRow) itemRow.classList.add('s-qtyLoading');
+
+                try {
+                    const response = await fetch(`/cart/${id}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: JSON.stringify({ qty: val, _method: 'PATCH' })
+                    });
+
+                    const data = await response.json();
+                    if (data.success) {
+                        updateCartUI(data);
+                    }
+                } catch (error) {
+                    console.error('Error updating cart:', error);
+                    showToast('Could not update cart', 'error');
+                    if (itemRow) itemRow.classList.remove('s-qtyLoading');
+                }
+            };
+
+            window.removeCartItem = async function(id) {
+                const itemRow = document.querySelector(`.s-cartItem[data-id="${id}"]`) || document.getElementById('cart-qty-' + id)?.closest('.s-cartItem');
+                if (itemRow) itemRow.classList.add('s-qtyLoading');
+
+                try {
+                    const response = await fetch(`/cart/${id}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: JSON.stringify({ _method: 'DELETE' })
+                    });
+
+                    const data = await response.json();
+                    if (data.success) {
+                        updateCartUI(data);
+                    }
+                } catch (error) {
+                    console.error('Error removing item:', error);
+                    showToast('Could not remove item', 'error');
+                    if (itemRow) itemRow.classList.remove('s-qtyLoading');
+                }
+            };
         });
     </script>
 </body>

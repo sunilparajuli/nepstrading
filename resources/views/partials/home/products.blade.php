@@ -62,15 +62,22 @@
                         
                         <!-- Permanent Full-width Cart Button -->
                         <div class="relative z-10 mt-auto">
-                            @if(!($product->manage_stock && $product->stock_quantity <= 0))
-                                <button type="button" onclick="addToCart({{ $product->id }})" 
-                                        class="w-full py-3 bg-[#15803D] text-white text-[13px] font-bold rounded-lg hover:bg-[#166534] transition-colors flex items-center justify-center tracking-wide shadow-sm hover:shadow">
-                                    + ADD TO CART
-                                </button>
+                            @if($product->allow_add_to_cart)
+                                @if(!($product->manage_stock && $product->stock_quantity <= 0))
+                                    <button type="button" onclick="addToCart({{ $product->id }})" 
+                                            class="w-full py-3 bg-[hsl(var(--primary))] text-[hsl(var(--primary-fg))] text-[13px] font-bold rounded-lg hover:opacity-90 transition-colors flex items-center justify-center tracking-wide shadow-sm hover:shadow">
+                                        + ADD TO CART
+                                    </button>
+                                @else
+                                    <button type="button" disabled 
+                                            class="w-full py-3 bg-gray-100 text-gray-400 text-[13px] font-bold rounded-lg cursor-not-allowed flex items-center justify-center tracking-wide">
+                                        SOLD OUT
+                                    </button>
+                                @endif
                             @else
-                                <button type="button" disabled 
-                                        class="w-full py-3 bg-gray-100 text-gray-400 text-[13px] font-bold rounded-lg cursor-not-allowed flex items-center justify-center tracking-wide">
-                                    SOLD OUT
+                                <button type="button" onclick="showCartDisabledMessage('{{ addslashes($product->cart_disabled_message) }}')" 
+                                        class="w-full py-3 bg-[hsl(var(--accent))] text-[hsl(var(--accent-fg))] text-[13px] font-bold rounded-lg hover:opacity-90 transition-colors flex items-center justify-center tracking-wide shadow-sm hover:shadow">
+                                    INQUIRE
                                 </button>
                             @endif
                         </div>

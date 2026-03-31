@@ -45,6 +45,8 @@ class SearchController extends Controller
                     'original_price' => $p->sale_price ? number_format($p->price, 2) : null,
                     'image' => $p->image ?: 'https://placehold.co/100x100/f7f5ed/1f332a?text=' . urlencode($p->name),
                     'category' => $p->categories->first()?->name ?? '',
+                    'allow_add_to_cart' => (bool)$p->allow_add_to_cart,
+                    'cart_disabled_message' => $p->cart_disabled_message,
                     'url' => route('products.show', $p),
                 ];
             });

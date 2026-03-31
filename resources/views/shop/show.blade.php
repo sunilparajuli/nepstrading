@@ -97,15 +97,15 @@
         background: hsl(var(--primary)); color: hsl(var(--primary-fg));
         transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;
     }
-    .pd-addBtn:hover { background: hsl(145 63% 28%); transform: translateY(-1px); box-shadow: 0 4px 12px hsla(145, 63%, 32%, 0.3); }
+    .pd-addBtn:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 4px 12px hsla(var(--primary), 0.3); }
     .pd-addBtn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
 
     .pd-buyBtn {
-        width: 100%; height: 48px; border: 2px solid hsl(var(--fg)); border-radius: 999px;
+        width: 100%; height: 48px; border: 2px solid hsl(var(--primary)); border-radius: 999px;
         font-size: 15px; font-weight: 600; cursor: pointer; margin-bottom: 32px;
-        background: transparent; color: hsl(var(--fg)); transition: all 0.2s;
+        background: transparent; color: hsl(var(--primary)); transition: all 0.2s;
     }
-    .pd-buyBtn:hover { background: hsl(var(--fg)); color: hsl(var(--bg)); }
+    .pd-buyBtn:hover { background: hsl(var(--primary)); color: hsl(var(--primary-fg)); transform: translateY(-1px); box-shadow: 0 4px 12px hsla(var(--primary), 0.2); }
 
     .pd-accordion { border-top: 1px solid hsl(var(--border)); }
     .pd-accItem { border-bottom: 1px solid hsl(var(--border)); padding: 20px 0; }
@@ -141,13 +141,18 @@
 
     /* Cart Disabled advisory */
     .pd-disabled-advisory {
-        background: hsl(var(--bg-alt)); border: 1px solid hsl(var(--border));
-        border-radius: 12px; padding: 20px; margin-bottom: 24px;
-        color: hsl(var(--muted-fg));
+        background: hsl(var(--primary) / 0.03); border: 1px solid hsl(var(--primary) / 0.15);
+        border-radius: 16px; padding: 24px; margin-bottom: 32px;
+        color: hsl(var(--fg)); box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+        position: relative; overflow: hidden;
     }
-    .pd-disabled-header { display: flex; align-items: center; gap: 8px; font-weight: 700; color: hsl(var(--fg)); margin-bottom: 10px; font-size: 15px; }
+    .pd-disabled-advisory::before {
+        content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+        background: hsl(var(--primary));
+    }
+    .pd-disabled-header { display: flex; align-items: center; gap: 10px; font-weight: 800; color: hsl(var(--fg)); margin-bottom: 12px; font-size: 16px; text-transform: uppercase; letter-spacing: 0.02em; }
     .pd-disabled-icon { color: hsl(var(--primary)); }
-    .pd-disabled-body { font-size: 14px; line-height: 1.6; }
+    .pd-disabled-body { font-size: 15px; line-height: 1.7; color: hsl(var(--muted-fg)); }
 </style>
 
 <!-- Breadcrumbs -->
@@ -235,8 +240,6 @@
             @endif
 
             @if($product->allow_add_to_cart)
-            <form action="{{ route('cart.add', $product) }}" method="POST">
-                @csrf
                 <div class="pd-qtyRow">
                     <!-- Rounded Quantity Control -->
                     <div class="pd-qtyControl">
@@ -250,7 +253,8 @@
                     </div>
 
                     <!-- Add to Cart -->
-                    <button type="submit" class="pd-addBtn"
+                    <button type="button" class="pd-addBtn"
+                            onclick="addToCart({{ $product->id }}, document.getElementById('pdQtyInput').value)"
                             {{ $product->manage_stock && $product->stock_quantity <= 0 ? 'disabled' : '' }}>
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
                         {{ $product->manage_stock && $product->stock_quantity <= 0 ? 'Sold Out' : 'Add to Cart' }}
@@ -258,9 +262,8 @@
                 </div>
                 
                 @if(!($product->manage_stock && $product->stock_quantity <= 0))
-                    <button type="button" class="pd-buyBtn">Buy it now</button>
+                    <button type="button" class="pd-buyBtn" onclick="addToCart({{ $product->id }}, document.getElementById('pdQtyInput').value); setTimeout(() => window.location='/cart', 500);">Buy it now</button>
                 @endif
-            </form>
             @else
             <div class="pd-disabled-advisory">
                 <div class="pd-disabled-header">

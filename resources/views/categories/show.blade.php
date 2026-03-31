@@ -83,18 +83,25 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                 @forelse($products as $product)
                     <div class="group">
-                        <div class="relative aspect-square overflow-hidden bg-gray-50 rounded-2xl mb-4">
+                        <div class="relative aspect-square overflow-hidden bg-gray-50 rounded-2xl mb-4 text-center flex items-center justify-center">
                             <img src="{{ $product->image ?: 'https://placehold.co/400x400' }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="{{ $product->name }}">
                             <div class="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors"></div>
-                            <form action="{{ route('cart.add', $product) }}" method="POST" class="absolute bottom-4 left-4 right-4 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
-                                @csrf
-                                <button type="submit" class="w-full bg-white text-gray-900 font-bold py-3 rounded-xl shadow-lg hover:bg-primary hover:text-white transition-colors flex items-center justify-center gap-2">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
-                                    Add to Cart
-                                </button>
-                            </form>
+                            
+                            <div class="absolute bottom-4 left-4 right-4 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
+                                @if($product->allow_add_to_cart)
+                                    <button type="button" onclick="addToCart({{ $product->id }})" class="w-full bg-[hsl(var(--primary))] text-[hsl(var(--primary-fg))] font-bold py-3 rounded-xl shadow-lg hover:opacity-90 transition-colors flex items-center justify-center gap-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+                                        Add to Cart
+                                    </button>
+                                @else
+                                    <button type="button" onclick="showCartDisabledMessage('{{ addslashes($product->cart_disabled_message) }}')" 
+                                            class="w-full bg-[hsl(var(--accent))] text-[hsl(var(--accent-fg))] font-bold py-3 rounded-xl shadow-lg hover:opacity-90 transition-colors flex items-center justify-center gap-2">
+                                        Inquiry
+                                    </button>
+                                @endif
+                            </div>
                         </div>
-                        <h3 class="font-bold text-gray-900 group-hover:text-primary transition-colors mb-1">
+                        <h3 class="font-bold text-gray-900 group-hover:text-[hsl(var(--primary))] transition-colors mb-1">
                             <a href="{{ route('products.show', $product) }}">{{ $product->name }}</a>
                         </h3>
                         <p class="text-lg font-bold text-gray-900">${{ number_format($product->price, 2) }}</p>
@@ -106,7 +113,7 @@
                         </div>
                         <h3 class="text-xl font-bold text-gray-900 mb-2">No products found</h3>
                         <p class="text-gray-500">We couldn't find any products in this category at the moment.</p>
-                        <a href="{{ route('products.index') }}" class="mt-8 inline-block bg-primary text-white px-8 py-3 rounded-xl font-bold hover:opacity-90 transition-opacity">Browse All Products</a>
+                        <a href="{{ route('products.index') }}" class="mt-8 inline-block bg-[hsl(var(--primary))] text-[hsl(var(--primary-fg))] px-8 py-3 rounded-xl font-bold hover:opacity-90 transition-opacity">Browse All Products</a>
                     </div>
                 @endforelse
             </div>

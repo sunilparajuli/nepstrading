@@ -11,7 +11,7 @@
                 {{ $section->subtitle }}
             </p>
             <div class="flex items-center gap-4">
-                <a href="{{ $section->data['button_link'] ?? '/products' }}" class="inline-flex items-center justify-center px-8 py-4 rounded-md bg-[#FACC15] text-black text-sm font-bold transition-colors hover:bg-yellow-500 shadow-sm">
+                <a href="{{ $section->data['button_link'] ?? '/products' }}" class="inline-flex items-center justify-center px-8 py-4 rounded-md bg-[hsl(var(--primary))] text-[hsl(var(--primary-fg))] text-sm font-bold transition-colors hover:opacity-90 shadow-sm">
                     {{ $section->data['button_text'] ?? 'Shop Now' }}
                 </a>
             </div>
