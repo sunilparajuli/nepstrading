@@ -10,7 +10,7 @@
     </div>
 
     <div class="relative group/swiper">
-        <div class="swiper product-swiper">
+        <div class="swiper product-swiper" data-cols="{{ $section->data['columns'] ?? 4 }}">
             <div class="swiper-wrapper">
                 @foreach($section->resolved_data as $product)
                 <div class="swiper-slide h-auto">

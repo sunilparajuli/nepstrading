@@ -4,6 +4,7 @@
 
 @section('content')
     <div class="homepage-content">
+        @include('partials.home.popular-categories')
         @forelse ($sections as $section)
             @switch($section->type)
                 @case('hero')

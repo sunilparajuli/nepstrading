@@ -4,10 +4,11 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- Primary Meta Tags -->
-    <title>@yield('meta_title', config('app.name', 'Nepstrading'))</title>
-    <meta name="title" content="@yield('meta_title', config('app.name', 'Nepstrading'))">
+    @php $appName = \App\Models\SiteSetting::getValue('app_name', 'Nepstrading'); @endphp
+    <title>@yield('meta_title', $appName)</title>
+    <meta name="title" content="@yield('meta_title', $appName)">
     <meta name="description" content="@yield('meta_description', 'Your neighborhood grocery store, delivering fresh produce and quality goods right to your door.')">
-    <meta name="keywords" content="@yield('meta_keywords', 'grocery, fresh produce, delivery, nepstrading, online shopping')">
+    <meta name="keywords" content="@yield('meta_keywords', 'grocery, fresh produce, delivery, ' . strtolower($appName) . ', online shopping')">
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="@yield('og_type', 'website')">
@@ -459,13 +460,13 @@
             padding-bottom: 8px;
         }
         .s-megaTitle::after {
-            content: '';
+            content: "";
             position: absolute;
-            bottom: 0;
-            left: 0;
+            bottom: 0px;
+            left: 0px;
             width: 40px;
             height: 2px;
-            background: hsl(var(--primary));
+            background-color: hsl(var(--primary));
         }
         .s-megaLink { 
             display: flex; 
@@ -1048,6 +1049,9 @@
                 const nextEl = swiperEl.closest('section').querySelector('.swiper-button-next');
                 const prevEl = swiperEl.closest('section').querySelector('.swiper-button-prev');
                 
+                const desktopCols = parseInt(swiperEl.getAttribute('data-cols')) || 5;
+                const tabletCols = Math.max(3, Math.min(desktopCols, 4));
+                
                 new Swiper(swiperEl, {
                     slidesPerView: 2,
                     spaceBetween: 16,
@@ -1057,9 +1061,8 @@
                     },
                     breakpoints: {
                         640: { slidesPerView: 2, spaceBetween: 20 },
-                        768: { slidesPerView: 3, spaceBetween: 20 },
-                        1024: { slidesPerView: 4, spaceBetween: 24 },
-                        1280: { slidesPerView: 5, spaceBetween: 24 }
+                        768: { slidesPerView: tabletCols, spaceBetween: 20 },
+                        1024: { slidesPerView: desktopCols, spaceBetween: 24 },
                     },
                     on: {
                         init: function() {

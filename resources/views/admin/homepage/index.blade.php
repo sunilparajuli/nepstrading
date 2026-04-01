@@ -90,7 +90,7 @@
                                 </div>
                             </div>
                         </div>
-                    @elseif(in_array($section->type, ['featured_products', 'popular_products', 'new_products']))
+                    @elseif(in_array($section->type, ['featured_products', 'popular_products', 'new_products', 'categories']))
                         <div class="p-4 bg-gray-50 rounded-lg border border-gray-100">
                             <div class="flex justify-between items-center mb-3">
                                 <h4 class="text-xs font-bold text-gray-500 uppercase text-blue-600">Hand-picked Products</h4>

@@ -9,7 +9,18 @@
             @endif
         </div>
         
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4 md:gap-6">
+        @php
+            $cols = $section->data['columns'] ?? 4;
+            $gridClass = match((int)$cols) {
+                1 => 'grid-cols-1',
+                2 => 'grid-cols-2',
+                3 => 'grid-cols-1 md:grid-cols-3',
+                4 => 'grid-cols-2 lg:grid-cols-4',
+                6 => 'grid-cols-2 md:grid-cols-3 lg:grid-cols-6',
+                default => 'grid-cols-2 lg:grid-cols-4',
+            };
+        @endphp
+        <div class="grid {{ $gridClass }} gap-4 md:gap-6">
             @foreach($section->resolved_data as $category)
             <a href="{{ route('categories.show', $category) }}" class="group block bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 text-center overflow-hidden h-full flex flex-col border border-gray-100">
                 <div class="aspect-square bg-gray-50/50 p-6 flex flex-col items-center justify-center relative overflow-hidden">
