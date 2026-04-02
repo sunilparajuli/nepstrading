@@ -69,6 +69,53 @@
 
             <hr class="border-gray-200">
 
+            <hr class="border-gray-200">
+
+            <div class="space-y-4">
+                <h3 class="text-sm font-semibold text-gray-900">Footer Configuration</h3>
+                <p class="text-xs text-gray-500">Manage the content and links displayed in the store footer.</p>
+                
+                <div class="space-y-4">
+                    <div class="space-y-2">
+                        <label for="footer_about_text" class="block text-sm font-medium text-gray-700">About US Text</label>
+                        <textarea name="footer_about_text" id="footer_about_text" rows="3" class="block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-black focus:border-black sm:text-sm">{{ $footerAboutText }}</textarea>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="space-y-2">
+                            <label for="footer_address" class="block text-sm font-medium text-gray-700">Business Address</label>
+                            <input type="text" name="footer_address" id="footer_address" value="{{ $footerAddress }}" class="block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-black focus:border-black sm:text-sm">
+                        </div>
+                        <div class="space-y-2">
+                            <label for="footer_phone" class="block text-sm font-medium text-gray-700">Contact Phone</label>
+                            <input type="text" name="footer_phone" id="footer_phone" value="{{ $footerPhone }}" class="block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-black focus:border-black sm:text-sm">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="space-y-2">
+                            <label for="footer_facebook_url" class="block text-sm font-medium text-gray-700">Facebook URL</label>
+                            <input type="text" name="footer_facebook_url" id="footer_facebook_url" value="{{ $footerFacebookUrl }}" class="block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-black focus:border-black sm:text-sm">
+                        </div>
+                        <div class="space-y-2">
+                            <label for="footer_instagram_url" class="block text-sm font-medium text-gray-700">Instagram URL</label>
+                            <input type="text" name="footer_instagram_url" id="footer_instagram_url" value="{{ $footerInstagramUrl }}" class="block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-black focus:border-black sm:text-sm">
+                        </div>
+                        <div class="space-y-2">
+                            <label for="footer_youtube_url" class="block text-sm font-medium text-gray-700">YouTube URL</label>
+                            <input type="text" name="footer_youtube_url" id="footer_youtube_url" value="{{ $footerYoutubeUrl }}" class="block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-black focus:border-black sm:text-sm">
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label for="footer_copyright_text" class="block text-sm font-medium text-gray-700">Copyright Text</label>
+                        <input type="text" name="footer_copyright_text" id="footer_copyright_text" value="{{ $footerCopyrightText }}" class="block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-black focus:border-black sm:text-sm">
+                    </div>
+                </div>
+            </div>
+
+            <hr class="border-gray-200">
+
             <div class="space-y-4">
                 <h3 class="text-sm font-semibold text-gray-900">Payment Methods</h3>
                 <p class="text-xs text-gray-500">Enable or disable payment methods shown in the footer and checkout.</p>
