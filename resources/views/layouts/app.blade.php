@@ -1046,8 +1046,11 @@
             // Initialize Product Carousels
             const productSwipers = document.querySelectorAll('.product-swiper');
             productSwipers.forEach((swiperEl, index) => {
-                const nextEl = swiperEl.closest('section').querySelector('.swiper-button-next');
-                const prevEl = swiperEl.closest('section').querySelector('.swiper-button-prev');
+                const section = swiperEl.closest('section');
+                if (!section) return; // Skip if no section parent
+
+                const nextEl = section.querySelector('.swiper-button-next');
+                const prevEl = section.querySelector('.swiper-button-prev');
                 
                 const desktopCols = parseInt(swiperEl.getAttribute('data-cols')) || 5;
                 const tabletCols = Math.max(3, Math.min(desktopCols, 4));

@@ -99,9 +99,16 @@
                 </div>
                 <div class="flex items-center space-x-6">
                     <a href="/" target="_blank" class="text-sm text-blue-600 hover:underline">Visit Store</a>
-                    <div class="flex items-center space-x-2 cursor-pointer group">
+                    <div class="flex items-center space-x-2 group">
                         <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 group-hover:bg-primary transition-colors">👤</div>
                         <span class="text-sm font-medium text-gray-700">Admin User</span>
+                        
+                        <form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">
+                            @csrf
+                        </form>
+                        <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="ml-4 text-xs font-semibold text-red-500 hover:text-red-700 bg-red-50 px-2 py-1 rounded border border-red-100 transition-colors">
+                            Logout
+                        </a>
                     </div>
                 </div>
             </header>
