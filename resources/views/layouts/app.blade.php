@@ -10,18 +10,19 @@
     <meta name="description" content="@yield('meta_description', 'Your neighborhood grocery store, delivering fresh produce and quality goods right to your door.')">
     <meta name="keywords" content="@yield('meta_keywords', 'grocery, fresh produce, delivery, ' . strtolower($appName) . ', online shopping')">
 
+    @php $sections = View::getSections(); @endphp
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="@yield('og_type', 'website')">
     <meta property="og:url" content="{{ url()->current() }}">
-    <meta property="og:title" content="@yield('og_title', View::getSections()['meta_title'] ?? config('app.name'))">
-    <meta property="og:description" content="@yield('og_description', View::getSections()['meta_description'] ?? 'Your neighborhood grocery store.')">
+    <meta property="og:title" content="@yield('og_title', $sections['meta_title'] ?? config('app.name'))">
+    <meta property="og:description" content="@yield('og_description', $sections['meta_description'] ?? 'Your neighborhood grocery store.')">
     <meta property="og:image" content="@yield('og_image', asset('images/og-default.jpg'))">
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="{{ url()->current() }}">
-    <meta property="twitter:title" content="@yield('og_title', View::getSections()['meta_title'] ?? config('app.name'))">
-    <meta property="twitter:description" content="@yield('og_description', View::getSections()['meta_description'] ?? 'Your neighborhood grocery store.')">
+    <meta property="twitter:title" content="@yield('og_title', $sections['meta_title'] ?? config('app.name'))">
+    <meta property="twitter:description" content="@yield('og_description', $sections['meta_description'] ?? 'Your neighborhood grocery store.')">
     <meta property="twitter:image" content="@yield('og_image', asset('images/og-default.jpg'))">
 
     <!-- Canonical URL -->
@@ -465,8 +466,8 @@
             bottom: 0px;
             left: 0px;
             width: 40px;
-            height: 2px;
-            background-color: hsl(var(--primary));
+            height: 2px ;
+            background-color: hsl(var(--primary)) ;
         }
         .s-megaLink { 
             display: flex; 
