@@ -10,27 +10,30 @@
         </div>
         
         @php
-            $cols = $section->data['columns'] ?? 4;
-            $gridClass = match((int)$cols) {
-                1 => 'grid-cols-1',
-                2 => 'grid-cols-2',
-                3 => 'grid-cols-1 md:grid-cols-3',
-                4 => 'grid-cols-2 lg:grid-cols-4',
-                6 => 'grid-cols-2 md:grid-cols-3 lg:grid-cols-6',
-                default => 'grid-cols-2 lg:grid-cols-4',
-            };
+            $cols = $section->data['columns'] ?? 6;
         @endphp
-        <div class="grid {{ $gridClass }} gap-4 md:gap-6">
-            @foreach($section->resolved_data as $category)
-            <a href="{{ route('categories.show', $category) }}" class="group block bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 text-center overflow-hidden h-full flex flex-col border border-gray-100">
-                <div class="aspect-square bg-gray-50/50 p-6 flex flex-col items-center justify-center relative overflow-hidden">
-                    <img src="{{ $category->image ? asset($category->image) : 'https://placehold.co/400x400' }}" class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110" alt="{{ $category->name }}">
+        <div class="relative group/swiper px-2 md:px-8">
+            <div class="swiper product-swiper category-swiper" data-cols="{{ $cols }}">
+                <div class="swiper-wrapper py-4">
+                    @foreach($section->resolved_data as $category)
+                    <div class="swiper-slide h-auto">
+                        <a href="{{ route('categories.show', $category) }}" class="group flex flex-col items-center justify-start text-center h-full w-full">
+                            <div class="w-24 h-24 sm:w-28 sm:h-28 md:w-36 md:h-36 mb-4 rounded-full border-4 border-white shadow-[0_4px_20px_rgba(0,0,0,0.08)] group-hover:shadow-[0_8px_25px_rgba(21,128,61,0.2)] group-hover:border-[#15803D]/10 overflow-hidden relative transition-all duration-300 bg-gray-50 flex-shrink-0">
+                                @php
+                                    $imgUrl = $category->image ? (Str::startsWith($category->image, 'http') ? $category->image : asset($category->image)) : 'https://placehold.co/400x400';
+                                @endphp
+                                <img src="{{ $imgUrl }}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" alt="{{ $category->name }}">
+                            </div>
+                            <h3 class="font-bold text-gray-900 text-[13px] md:text-[15px] leading-tight group-hover:text-[#15803D] transition-colors line-clamp-2 px-1 max-w-[140px]">{{ $category->name }}</h3>
+                        </a>
+                    </div>
+                    @endforeach
                 </div>
-                <div class="p-4 mt-auto bg-white">
-                    <h3 class="font-bold text-gray-900 text-[14px] leading-snug group-hover:text-[#15803D] transition-colors uppercase tracking-wide">{{ $category->name }}</h3>
-                </div>
-            </a>
-            @endforeach
+            </div>
+            
+            <!-- Navigation -->
+            <div class="swiper-button-prev !-left-2 md:!-left-4 md:opacity-0 group-hover/swiper:opacity-100 transition-opacity"></div>
+            <div class="swiper-button-next !-right-2 md:!-right-4 md:opacity-0 group-hover/swiper:opacity-100 transition-opacity"></div>
         </div>
     </div>
 </section>
