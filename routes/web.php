@@ -58,6 +58,10 @@ Route::middleware('auth')->group(function () {
     // Reviews
     Route::post('/products/{product}/reviews', [ReviewController::class , 'store'])->name('reviews.store');
 
+    // Customer Dashboard
+    Route::get('/dashboard', [\App\Http\Controllers\CustomerController::class, 'dashboard'])->name('customer.dashboard');
+    Route::get('/orders/{order}', [\App\Http\Controllers\CustomerController::class, 'showOrder'])->name('customer.orders.show');
+
     // Wishlist
     Route::get('/wishlist', [WishlistController::class , 'index'])->name('wishlist.index');
     Route::post('/wishlist/{product}', [WishlistController::class , 'toggle'])->name('wishlist.toggle');
