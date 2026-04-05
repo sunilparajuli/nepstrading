@@ -38,7 +38,8 @@ class HomeController extends Controller
                     }
                     break;
                 case 'categories':
-                    $section->resolved_data = Category::whereNull('parent_id')->limit($limit)->get();
+                    $catLimit = empty($data['limit']) ? 100 : $data['limit'];
+                    $section->resolved_data = Category::whereNull('parent_id')->limit($catLimit)->get();
                     break;
             }
             return $section;
