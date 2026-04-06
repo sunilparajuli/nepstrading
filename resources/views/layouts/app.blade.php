@@ -145,6 +145,7 @@
             border: 1px solid hsl(var(--border)); border-right: none;
             border-radius: 6px 0 0 6px; padding: 10px 12px; font-size: 14px;
             background: hsl(var(--muted)); color: hsl(var(--fg)); outline: none;
+            max-width: 150px; text-overflow: ellipsis;
         }
         .s-searchInputWrap {
             position: relative; flex: 1;
