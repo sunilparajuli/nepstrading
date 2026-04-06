@@ -13,13 +13,18 @@ echo "Clearing all Orders and Order Items...\n";
 try {
     DB::beginTransaction();
     
-    // Clear items first to avoid foreign key issues
+    // Disable FK checks to truncate
+    DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+    
+    // Clear items first
     DB::table('order_items')->truncate();
     echo "Order items cleared.\n";
     
     // Clear orders
     DB::table('orders')->truncate();
     echo "Orders cleared.\n";
+    
+    DB::statement('SET FOREIGN_KEY_CHECKS=1;');
     
     DB::commit();
     echo "\nAll order data removed successfully.\n";
