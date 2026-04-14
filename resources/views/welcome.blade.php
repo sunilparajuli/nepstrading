@@ -1,6 +1,32 @@
 @extends('layouts.app')
 
-@section('title', 'Welcome to Nepstrading')
+@section('meta_title', 'Nepstrading - Authentic Indian & Nepali Groceries Delivery')
+@section('meta_description', 'Your one-stop shop for authentic Indian and Nepali groceries, spices, snacks, and premium pantry essentials. Fast delivery across Australia.')
+@section('meta_keywords', 'indian groceries, nepali spices, authentic nepalese, snacks, pantry essentials, delivery, Nepstrading Australia')
+
+@push('seo_schema')
+<script type="application/ld+json">
+{
+  "@@context": "https://schema.org",
+  "@@type": "Organization",
+  "name": "Nepstrading",
+  "url": "{{ url('/') }}",
+  "logo": "{{ asset(\App\Models\SiteSetting::getValue('logo') ?: 'images/logo.png') }}",
+  "contactPoint": {
+    "@@type": "ContactPoint",
+    "telephone": "{{ \App\Models\SiteSetting::getValue('footer_phone', '+61 000 000 000') }}",
+    "contactType": "customer service",
+    "areaServed": "AU",
+    "availableLanguage": "en"
+  },
+  "sameAs": [
+    "{{ \App\Models\SiteSetting::getValue('footer_facebook_url', '#') }}",
+    "{{ \App\Models\SiteSetting::getValue('footer_instagram_url', '#') }}",
+    "{{ \App\Models\SiteSetting::getValue('footer_youtube_url', '#') }}"
+  ]
+}
+</script>
+@endpush
 
 @section('content')
     <div class="homepage-content">
@@ -13,6 +39,7 @@
                 @case('featured_products')
                 @case('popular_products')
                 @case('new_products')
+                @case('weekly_special')
                     @include('partials.home.products', ['section' => $section])
                     @break
                 @case('categories')

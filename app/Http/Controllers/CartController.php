@@ -36,8 +36,9 @@ class CartController extends Controller
         }
 
         $total = max(0, $subtotal - $discount) + ($shipping['cost'] ?? 0);
+        $minOrderMet = $subtotal >= 69;
 
-        return view('cart.index', compact('cart', 'subtotal', 'total', 'shipping', 'discount'));
+        return view('cart.index', compact('cart', 'subtotal', 'total', 'shipping', 'discount', 'minOrderMet'));
     }
 
     public function setLocation(Request $request)
@@ -79,20 +80,38 @@ class CartController extends Controller
             return ['cost' => 0, 'name' => 'Please calculate shipping', 'method' => null];
         }
 
-        // 1. Try to find a zone by state/country
-        $foundLocation = ShippingLocation::where(function($q) use ($location) {
-            $q->where('type', 'state')->where('code', $location['state']);
-        })->orWhere(function($q) use ($location) {
-            $q->where('type', 'country')->where('code', $location['country']);
-        })->first();
+        $userPostcode = $location['postcode'] ?? '';
+        $userState = \App\Helpers\LocationHelper::normalizeState($location['state'] ?? '');
+        $userCountry = strtoupper(trim($location['country'] ?? ''));
 
-        if ($foundLocation) {
+        // Fetch all postcode-type locations once to avoid multiple queries
+        $postcodeLocations = ShippingLocation::where('type', 'postcode')->with('zone.rates')->get();
+        $foundLocation = null;
+
+        // 1. Try to find a zone by postcode (highest priority)
+        foreach ($postcodeLocations as $loc) {
+            if (\App\Helpers\LocationHelper::matchPostcode($userPostcode, $loc->code)) {
+                $foundLocation = $loc;
+                break;
+            }
+        }
+
+        // 2. If no postcode match, try to find a zone by state/country
+        if (!$foundLocation) {
+            $foundLocation = ShippingLocation::where(function($q) use ($userState) {
+                $q->where('type', 'state')->where('code', $userState);
+            })->orWhere(function($q) use ($userCountry) {
+                $q->where('type', 'country')->where('code', $userCountry);
+            })->first();
+        }
+
+        if ($foundLocation && $foundLocation->zone) {
             $rate = ShippingRate::where('shipping_zone_id', $foundLocation->shipping_zone_id)
                                 ->orderBy('cost', 'asc') // Pick cheapest
                                 ->first();
             
             if ($rate) {
-                $info = ['cost' => (float)$rate->cost, 'name' => $rate->name, 'method' => $rate->id];
+                $info = ['cost' => (float)$rate->cost, 'name' => $rate->name . ' (' . $foundLocation->zone->name . ')', 'method' => $rate->id];
                 session()->put('shipping_info', $info);
                 return $info;
             }

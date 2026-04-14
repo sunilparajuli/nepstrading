@@ -31,8 +31,8 @@ class HomepageSeeder extends Seeder
             'order' => 2,
             'is_active' => true,
             'data' => [
-                'limit' => 4,
-                'columns' => 4
+                'limit' => 12,
+                'columns' => 6
             ]
         ]);
 
@@ -56,8 +56,8 @@ class HomepageSeeder extends Seeder
             'order' => 4,
             'is_active' => true,
             'data' => [
-                'limit' => 8,
-                'columns' => 4
+                'limit' => 12,
+                'columns' => 6
             ]
         ]);
     }

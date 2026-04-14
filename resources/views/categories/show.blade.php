@@ -8,6 +8,37 @@
 @section('og_description', $category->og_description ?: $category->meta_description)
 @section('og_image', $category->og_image ? asset($category->og_image) : ($category->image ? asset($category->image) : asset('images/og-default.jpg')))
 
+@push('seo_schema')
+<script type="application/ld+json">
+{
+  "@@context": "https://schema.org",
+  "@@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "{{ url('/') }}"
+    },
+    @if($category->parent)
+    {
+      "@@type": "ListItem",
+      "position": 2,
+      "name": "{{ $category->parent->name }}",
+      "item": "{{ route('categories.show', $category->parent) }}"
+    },
+    @endif
+    {
+      "@@type": "ListItem",
+      "position": {{ $category->parent ? 3 : 2 }},
+      "name": "{{ $category->name }}",
+      "item": "{{ url()->current() }}"
+    }
+  ]
+}
+</script>
+@endpush
+
 @section('content')
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
     <!-- Breadcrumbs -->

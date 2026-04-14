@@ -59,18 +59,16 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Town / City *</label>
+                        <input type="text" name="billing_city" required value="{{ old('billing_city', $location['city'] ?? '') }}"
+                            class="w-full border-gray-300 rounded-md shadow-sm focus:border-yellow-500 focus:ring-yellow-500">
+                        @error('billing_city') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                    </div>
+                    <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Postcode / ZIP *</label>
                         <input type="text" name="billing_postcode" required value="{{ old('billing_postcode', $location['postcode'] ?? '') }}"
                             class="w-full border-gray-300 rounded-md shadow-sm focus:border-yellow-500 focus:ring-yellow-500">
                         @error('billing_postcode') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                     </div>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Town / City *</label>
-                    <input type="text" name="billing_city" required value="{{ old('billing_city', $location['city'] ?? '') }}"
-                        class="w-full border-gray-300 rounded-md shadow-sm focus:border-yellow-500 focus:ring-yellow-500">
-                    @error('billing_city') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
 
                 <div class="pt-6">
@@ -105,7 +103,7 @@
                         <div class="border-t pt-4">
                             <div class="flex justify-between mb-2">
                                 <span class="text-gray-600">Subtotal</span>
-                                <span class="font-medium">${{ number_format($total, 2) }}</span>
+                                <span class="font-medium">${{ number_format($subtotal, 2) }}</span>
                             </div>
                             <div class="flex justify-between mb-2">
                                 <span class="text-gray-600">Shipping</span>
@@ -123,10 +121,17 @@
                         </div>
                     </div>
 
-                    <div class="bg-white p-4 border border-gray-200 rounded mb-6">
-                        <p class="text-sm text-gray-600">
-                            Cash on delivery. Pay with cash upon delivery.
+                    <div class="bg-white p-6 border border-gray-200 rounded mb-6 shadow-sm">
+                        <h3 class="font-bold text-sm uppercase tracking-wider mb-3 text-gray-900 border-b pb-2">Direct Bank Transfer</h3>
+                        <p class="text-[13px] text-gray-600 mb-4 leading-relaxed">
+                            Make your payment directly into our bank account OR Pay ID 0401596751. Please use your Order ID as the payment reference. Your order will not be shipped until the funds have cleared in our account.
                         </p>
+                        <div class="space-y-2 text-sm bg-gray-50 p-4 rounded border border-gray-100">
+                            <div class="flex justify-between"><span class="text-gray-500">Bank:</span> <span class="font-bold">Nepstrading</span></div>
+                            <div class="flex justify-between"><span class="text-gray-500">B.S.B:</span> <span class="font-bold">063-581</span></div>
+                            <div class="flex justify-between"><span class="text-gray-500">A/C:</span> <span class="font-bold">10599057</span></div>
+                            <div class="flex justify-between"><span class="text-gray-500">PayID:</span> <span class="font-bold">0401596751</span></div>
+                        </div>
                     </div>
 
                     <button type="submit" class="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-4 rounded transition duration-200 uppercase tracking-widest">

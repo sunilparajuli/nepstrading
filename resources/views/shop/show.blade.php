@@ -9,20 +9,53 @@
 @section('og_image', $product->og_image ? asset($product->og_image) : ($product->image ? asset($product->image) : asset('images/og-default.jpg')))
 
 @push('seo_schema')
+@php
+    $reviews = $product->approvedReviews()->with('user')->latest()->get();
+    $avgRating = $reviews->avg('rating') ?? 0;
+@endphp
 <script type="application/ld+json">
 {
   "@@context": "https://schema.org/",
-  "@type": "Product",
+  "@@type": "Product",
   "name": {!! json_encode($product->name) !!},
   "image": "{{ $product->image ?: asset('images/default-og.jpg') }}",
   "description": {!! json_encode(\Illuminate\Support\Str::limit(strip_tags($product->description), 150)) !!},
   "sku": "{{ $product->sku }}",
+  "brand": {
+    "@@type": "Brand",
+    "name": "{{ \App\Models\SiteSetting::getValue('app_name', 'Nepstrading') }}"
+  },
+  @if($reviews->count() > 0)
+  "aggregateRating": {
+    "@@type": "AggregateRating",
+    "ratingValue": "{{ number_format($avgRating, 1) }}",
+    "reviewCount": "{{ $reviews->count() }}"
+  },
+  "review": [
+    @foreach($reviews->take(3) as $review)
+    {
+      "@@type": "Review",
+      "reviewRating": {
+        "@@type": "Rating",
+        "ratingValue": "{{ $review->rating }}"
+      },
+      "author": {
+        "@@type": "Person",
+        "name": "{{ $review->user->name ?? 'Anonymous' }}"
+      },
+      "reviewBody": {!! json_encode(\Illuminate\Support\Str::limit($review->content, 100)) !!}
+    }{{ !$loop->last ? ',' : '' }}
+    @endforeach
+  ],
+  @endif
   "offers": {
-    "@type": "Offer",
+    "@@type": "Offer",
     "url": "{{ url()->current() }}",
     "priceCurrency": "AUD",
     "price": "{{ $product->sale_price ?: $product->price }}",
-    "availability": "{{ ($product->manage_stock && $product->stock_quantity <= 0) ? 'https://schema.org/OutOfStock' : 'https://schema.org/InStock' }}"
+    "priceValidUntil": "{{ now()->addMonths(6)->toDateString() }}",
+    "availability": "{{ ($product->manage_stock && $product->stock_quantity <= 0) ? 'https://schema.org/OutOfStock' : 'https://schema.org/InStock' }}",
+    "itemCondition": "https://schema.org/NewCondition"
   }
 }
 </script>

@@ -27,6 +27,10 @@ class CheckoutController extends Controller
             return $carry + ($item['price'] * $item['qty']);
         }, 0);
 
+        if ($subtotal < 69) {
+            return redirect()->route('cart.index')->with('error', 'You must have an order with a minimum of $69.00 to place your order.');
+        }
+
         $shipping = session()->get('shipping_info', ['cost' => 0, 'name' => 'Free Shipping']);
         $location = session()->get('shipping_location');
         $coupon = session('coupon');
@@ -90,6 +94,10 @@ class CheckoutController extends Controller
             $subtotal = array_reduce($cart, function($carry, $item) {
                 return $carry + ($item['price'] * $item['qty']);
             }, 0);
+
+            if ($subtotal < 69) {
+                return redirect()->route('cart.index')->with('error', 'You must have an order with a minimum of $69.00 to place your order.');
+            }
 
             $shipping = session()->get('shipping_info', ['cost' => 0, 'name' => null]);
             $location = session()->get('shipping_location');

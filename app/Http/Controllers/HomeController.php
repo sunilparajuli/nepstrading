@@ -23,6 +23,13 @@ class HomeController extends Controller
                         $section->resolved_data = Product::with('categories')->where('is_seasonal', true)->limit($limit)->get();
                     }
                     break;
+                case 'weekly_special':
+                    if (!empty($data['product_ids'])) {
+                        $section->resolved_data = Product::with('categories')->whereIn('id', $data['product_ids'])->get();
+                    } else {
+                        $section->resolved_data = Product::with('categories')->whereNotNull('sale_price')->limit($limit)->get();
+                    }
+                    break;
                 case 'popular_products':
                     if (!empty($data['product_ids'])) {
                         $section->resolved_data = Product::with('categories')->whereIn('id', $data['product_ids'])->get();

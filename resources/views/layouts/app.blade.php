@@ -7,22 +7,22 @@
     @php $appName = \App\Models\SiteSetting::getValue('app_name', 'Nepstrading'); @endphp
     <title>@yield('meta_title', $appName)</title>
     <meta name="title" content="@yield('meta_title', $appName)">
-    <meta name="description" content="@yield('meta_description', 'Your neighborhood grocery store, delivering fresh produce and quality goods right to your door.')">
-    <meta name="keywords" content="@yield('meta_keywords', 'grocery, fresh produce, delivery, ' . strtolower($appName) . ', online shopping')">
+    <meta name="description" content="@yield('meta_description', 'Your authentic Indian and Nepali store, delivering fresh produce and quality goods right to your door.')">
+    <meta name="keywords" content="@yield('meta_keywords', 'indian groceries, nepali spices, authentic nepalese, indian delivery, ' . strtolower($appName) . ', online shopping')">
 
     @php $sections = View::getSections(); @endphp
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="@yield('og_type', 'website')">
     <meta property="og:url" content="{{ url()->current() }}">
     <meta property="og:title" content="@yield('og_title', $sections['meta_title'] ?? config('app.name'))">
-    <meta property="og:description" content="@yield('og_description', $sections['meta_description'] ?? 'Your neighborhood grocery store.')">
+    <meta property="og:description" content="@yield('og_description', $sections['meta_description'] ?? 'Your authentic Indian and Nepali store.')">
     <meta property="og:image" content="@yield('og_image', asset('images/og-default.jpg'))">
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="{{ url()->current() }}">
     <meta property="twitter:title" content="@yield('og_title', $sections['meta_title'] ?? config('app.name'))">
-    <meta property="twitter:description" content="@yield('og_description', $sections['meta_description'] ?? 'Your neighborhood grocery store.')">
+    <meta property="twitter:description" content="@yield('og_description', $sections['meta_description'] ?? 'Your authentic Indian and Nepali store.')">
     <meta property="twitter:image" content="@yield('og_image', asset('images/og-default.jpg'))">
 
     <!-- Canonical URL -->
@@ -439,6 +439,8 @@
             border-top: 2px solid hsl(var(--primary));
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
             padding: 40px 0;
+            max-height: 85vh;
+            overflow-y: auto;
             animation: slideUpFade 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
         @keyframes slideUpFade {
@@ -646,47 +648,45 @@
                     </div>
                     <div class="s-navLinks" style="background: hsl(var(--card-bg)); box-shadow: var(--shadow-sm); padding: 0 16px; margin: 0;">
                         <a href="{{ url('/') }}" class="s-navLink">Home</a>
-                        @php $navCategories = \App\Models\Category::with('children')->whereNull('parent_id')->orderBy('name')->get(); @endphp
-                        @foreach($navCategories as $navCat)
-                            <div class="s-navDropdown">
-                                <a href="{{ route('categories.show', $navCat) }}" class="s-navLink">
-                                    {{ $navCat->name }}
-                                    @if($navCat->children->count() > 0)
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-                                    @endif
-                                </a>
-                                @if($navCat->children->count() > 0)
-                                    <div class="s-megaMenu">
-                                        <div class="s-megaInner py-6 px-8 grid grid-cols-4 gap-8">
-                                            @foreach($navCat->children as $sub)
-                                                <div class="space-y-3">
-                                                    <a href="{{ route('categories.show', $sub) }}" class="font-bold text-gray-900 hover:text-[hsl(var(--primary))] text-[14px] uppercase tracking-wider block border-b border-gray-100 pb-2 mb-2">
-                                                        {{ $sub->name }}
-                                                    </a>
-                                                    @if($sub->children->count() > 0)
-                                                        <div class="space-y-2">
-                                                            @foreach($sub->children->take(8) as $child)
-                                                                <a href="{{ route('categories.show', $child) }}" class="s-megaLink group flex items-center">
-                                                                    <span class="w-1 h-1 rounded-full bg-gray-300 mr-2 group-hover:bg-[hsl(var(--primary))] transition-colors"></span>
-                                                                    <span class="text-[13px] group-hover:translate-x-1 transition-transform">{{ $child->name }}</span>
-                                                                </a>
-                                                            @endforeach
-                                                            @if($sub->children->count() > 8)
-                                                                <a href="{{ route('categories.show', $sub) }}" class="text-[11px] font-bold text-[hsl(var(--primary))] hover:underline pt-1 block">
-                                                                    + {{ $sub->children->count() - 8 }} More...
-                                                                </a>
-                                                            @endif
-                                                        </div>
+                        <a href="/page/payment-method" class="s-navLink">Payment Method</a>
+                        <a href="{{ route('products.index') }}" class="s-navLink highlight">All Products</a>
+
+                        <!-- Comprehensive Categories Dropdown -->
+                        <div class="s-navDropdown">
+                            <button class="s-navLink">
+                                Categories
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                            </button>
+                            <div class="s-megaMenu">
+                                <div class="s-megaInner py-8 px-10 grid grid-cols-5 gap-y-10 gap-x-12">
+                                    @php 
+                                        $allNavCategories = \App\Models\Category::with('children')->whereNull('parent_id')->orderBy('name')->get(); 
+                                    @endphp
+                                    @foreach($allNavCategories as $navCat)
+                                        <div class="flex flex-col gap-3">
+                                            <a href="{{ route('categories.show', $navCat) }}" class="font-extrabold text-[#111827] hover:text-[hsl(var(--primary))] text-[13px] uppercase tracking-widest block border-b-2 border-gray-100 pb-2 mb-1">
+                                                {{ $navCat->name }}
+                                            </a>
+                                            @if($navCat->children->count() > 0)
+                                                <div class="flex flex-col gap-2">
+                                                    @foreach($navCat->children->take(6) as $sub)
+                                                        <a href="{{ route('categories.show', $sub) }}" class="text-[13px] text-gray-500 hover:text-[hsl(var(--primary))] hover:translate-x-1 transition-all duration-200">
+                                                            {{ $sub->name }}
+                                                        </a>
+                                                    @endforeach
+                                                    @if($navCat->children->count() > 6)
+                                                        <a href="{{ route('categories.show', $navCat) }}" class="text-[11px] font-bold text-[hsl(var(--primary))] hover:underline mt-1">
+                                                            View All {{ $navCat->children->count() }} Items
+                                                        </a>
                                                     @endif
                                                 </div>
-                                            @endforeach
+                                            @endif
                                         </div>
-                                    </div>
-                                @endif
+                                    @endforeach
+                                </div>
                             </div>
-                        @endforeach
-                        <a href="{{ route('products.index') }}" class="s-navLink highlight">All Products</a>
-                        
+                        </div>
+
                         <span style="margin-left: auto; flex-shrink: 0;">
                             <span class="s-badgeSeason">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
@@ -719,7 +719,7 @@
                                 <span style="font-style: italic;">Nepstrading</span>
                             @endif
                         </h3>
-                        <p class="m-footerText">{{ \App\Models\SiteSetting::getValue('footer_about_text', 'Premium neighborhood grocery for artisanal produce, daily essentials, and unique global finds. Quality you can trust, delivered to your door.') }}</p>
+                        <p class="m-footerText">{{ \App\Models\SiteSetting::getValue('footer_about_text', 'Premium Authentic Indian and Nepali spices, snacks, and daily essentials. Quality you can trust, delivered to your door.') }}</p>
                         <div class="m-socialLinks">
                             @php 
                                 $fbUrl = \App\Models\SiteSetting::getValue('footer_facebook_url', '#');
@@ -756,6 +756,7 @@
 
                     <div>
                         <h4 class="m-footerHeading">Useful Links</h4>
+                        <a href="/page/payment-method" class="m-footerLink">Payment Method</a>
                         <a href="/page/about-us" class="m-footerLink">About Us</a>
                         <a href="/page/contact" class="m-footerLink">Contact Us</a>
                         <a href="/page/delivery-info" class="m-footerLink">Shipping Info</a>
@@ -1081,6 +1082,7 @@
                 new Swiper(swiperEl, {
                     slidesPerView: 2,
                     spaceBetween: 16,
+                    loop: true,
                     navigation: {
                         nextEl: nextEl,
                         prevEl: prevEl,

@@ -184,7 +184,17 @@
                     <span class="ct-totalLabel">Total</span>
                     <span class="ct-totalPrice">${{ number_format($total, 2) }}</span>
                 </div>
-                <a href="{{ route('checkout.index') }}" class="ct-checkoutBtn">Checkout Now</a>
+
+                @if(!$minOrderMet)
+                    <div style="margin-top: 16px; padding: 12px; background: hsl(0 84% 97%); border: 1px solid hsl(0 84% 90%); border-radius: 8px; color: hsl(0 84% 40%); font-size: 13px; font-weight: 500; line-height: 1.4;">
+                        <span style="font-weight: 800; display: block; margin-bottom: 2px;">Minimum Order: $69.00</span>
+                        You must have an order with a minimum of $69.00 to place your order. Your current order total is ${{ number_format($subtotal, 2) }}.
+                    </div>
+                    <button disabled class="ct-checkoutBtn" style="background: hsl(var(--muted)); color: hsl(var(--muted-fg)); cursor: not-allowed; opacity: 0.7;">Checkout Now</button>
+                    <p style="text-align: center; font-size: 11px; color: hsl(var(--muted-fg)); margin-top: 8px;">Add ${{ number_format(69 - $subtotal, 2) }} more to checkout</p>
+                @else
+                    <a href="{{ route('checkout.index') }}" class="ct-checkoutBtn">Checkout Now</a>
+                @endif
 
                 @if(!session('coupon'))
                 <form action="{{ route('cart.coupon.apply') }}" method="POST" style="margin-top: 16px; display: flex; gap: 8px;">
@@ -212,23 +222,25 @@
 
                 <form action="{{ route('cart.shipping.set') }}" method="POST">
                     @csrf
-                    <div class="ct-formGroup">
-                        <label class="ct-formLabel">State / Region</label>
-                        <select name="state" class="ct-select">
-                            @foreach(['NSW' => 'New South Wales', 'VIC' => 'Victoria', 'QLD' => 'Queensland', 'WA' => 'Western Australia', 'SA' => 'South Australia', 'TAS' => 'Tasmania', 'ACT' => 'ACT', 'NT' => 'Northern Territory'] as $code => $name)
-                                <option value="{{ $code }}" {{ (session('shipping_location')['state'] ?? '') == $code ? 'selected' : '' }}>{{ $name }}</option>
-                            @endforeach
-                        </select>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+                        <div class="ct-formGroup" style="margin-bottom: 0;">
+                            <label class="ct-formLabel">State</label>
+                            <select name="state" class="ct-select">
+                                @foreach(['NSW' => 'NSW', 'VIC' => 'VIC', 'QLD' => 'QLD', 'WA' => 'WA', 'SA' => 'SA', 'TAS' => 'TAS', 'ACT' => 'ACT', 'NT' => 'NT'] as $code => $name)
+                                    <option value="{{ $code }}" {{ (session('shipping_location')['state'] ?? '') == $code ? 'selected' : '' }}>{{ $name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="ct-formGroup" style="margin-bottom: 0;">
+                            <label class="ct-formLabel">Postcode</label>
+                            <input type="text" name="postcode" value="{{ session('shipping_location')['postcode'] ?? '' }}" class="ct-input" placeholder="e.g. 2000">
+                        </div>
                     </div>
                     <div class="ct-formGroup">
                         <label class="ct-formLabel">Country</label>
                         <select name="country" class="ct-select">
                             <option value="AU">Australia</option>
                         </select>
-                    </div>
-                    <div class="ct-formGroup">
-                        <label class="ct-formLabel">Postcode</label>
-                        <input type="text" name="postcode" value="{{ session('shipping_location')['postcode'] ?? '' }}" class="ct-input" placeholder="e.g. 2000">
                     </div>
                     <button type="submit" class="ct-updateBtn">Update Shipping</button>
                 </form>

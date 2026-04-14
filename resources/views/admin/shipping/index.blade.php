@@ -29,7 +29,7 @@
             <!-- Locations -->
             <div>
                 <h5 class="text-xs font-bold text-gray-400 uppercase mb-4">Locations</h5>
-                <ul class="space-y-2 mb-4">
+                <ul class="space-y-2 mb-4 max-h-64 overflow-y-auto pr-2 custom-scrollbar">
                     @forelse($zone->locations as $loc)
                     <li class="flex justify-between items-center bg-gray-50 px-3 py-2 rounded text-sm text-gray-600">
                         <span>{{ $loc->type }}: {{ $loc->code }}</span>
