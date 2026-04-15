@@ -3,143 +3,333 @@
 @section('title', 'Checkout')
 
 @section('content')
-<div class="container mx-auto px-4 py-12">
-    <h1 class="text-3xl font-bold mb-8">Checkout</h1>
+<style>
+    :root {
+        --checkout-bg: hsl(var(--bg));
+        --checkout-muted: hsl(var(--muted));
+        --checkout-border: hsl(var(--border));
+        --checkout-primary: hsl(var(--primary));
+        --checkout-primary-fg: hsl(var(--primary-fg));
+        --checkout-sale: hsl(var(--sale));
+    }
 
+    .ch-header { padding: 48px 0; background: var(--checkout-muted); text-align: center; }
+    .ch-headerTitle { font-family: 'DM Serif Display', serif; font-size: 42px; color: hsl(var(--fg)); margin: 0 0 8px; }
+    .ch-headerDesc { font-size: 16px; color: hsl(var(--muted-fg)); margin: 0; }
+
+    .ch-wrap { max-width: 1200px; margin: 0 auto; padding: 40px 16px; display: flex; gap: 40px; align-items: flex-start; }
+    @media (max-width: 1024px) { .ch-wrap { flex-direction: column; } .ch-side { width: 100% !important; } }
+
+    .ch-main { flex: 1; min-width: 0; }
+    .ch-section { background: var(--checkout-bg); border-radius: 16px; border: 1px solid var(--checkout-border); padding: 32px; margin-bottom: 32px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); }
+    .ch-sectionTitle { font-family: 'DM Serif Display', serif; font-size: 24px; color: hsl(var(--fg)); margin: 0 0 24px; padding-bottom: 16px; border-bottom: 1px solid var(--checkout-border); }
+
+    .ch-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+    @media (max-width: 640px) { .ch-grid { grid-template-columns: 1fr; } }
+
+    .ch-group { margin-bottom: 20px; position: relative; }
+    .ch-label { display: block; font-size: 13px; font-weight: 600; color: hsl(var(--muted-fg)); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em; }
+    
+    .ch-input, .ch-textarea {
+        width: 100%; padding: 12px 16px; border: 1.5px solid var(--checkout-border); border-radius: 10px;
+        background: var(--checkout-bg); font-size: 15px; color: hsl(var(--fg)); outline: none;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .ch-input:focus, .ch-textarea:focus { border-color: var(--checkout-primary); box-shadow: 0 0 0 4px hsla(var(--primary-hue), var(--primary-sat), var(--primary-light), 0.1); }
+    .ch-input::placeholder { color: hsl(var(--muted-fg) / 0.5); }
+
+    .ch-side { width: 400px; flex-shrink: 0; position: sticky; top: 32px; }
+    .ch-panel { background: var(--checkout-bg); border-radius: 16px; border: 1px solid var(--checkout-border); padding: 32px; position: relative; box-shadow: 0 4px 20px rgba(0,0,0,0.03); }
+    .ch-panelTitle { font-family: 'DM Serif Display', serif; font-size: 22px; color: hsl(var(--fg)); margin: 0 0 24px; }
+
+    .ch-orderItem { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 14px; color: hsl(var(--fg)); }
+    .ch-orderName { color: hsl(var(--muted-fg)); max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .ch-orderQty { font-weight: 700; color: hsl(var(--fg)); margin-left: 4px; }
+    .ch-orderPrice { font-weight: 600; }
+
+    .ch-summaryTable { margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--checkout-border); }
+    .ch-sumRow { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 15px; }
+    .ch-sumLabel { color: hsl(var(--muted-fg)); }
+    .ch-sumVal { font-weight: 600; color: hsl(var(--fg)); }
+    .ch-totalRow { margin-top: 16px; padding-top: 16px; border-top: 2px solid var(--checkout-border); }
+    .ch-totalLabel { font-size: 18px; font-weight: 800; color: hsl(var(--fg)); }
+    .ch-totalPrice { font-size: 28px; font-weight: 900; color: var(--checkout-sale); }
+
+    .ch-paymentCard { background: var(--checkout-muted); border-radius: 12px; padding: 20px; margin-bottom: 24px; border: 1px solid var(--checkout-border); }
+    .ch-paymentTitle { font-size: 14px; font-weight: 700; text-transform: uppercase; color: hsl(var(--fg)); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+    .ch-paymentDesc { font-size: 13px; color: hsl(var(--muted-fg)); line-height: 1.5; margin-bottom: 16px; }
+    .ch-bankDetails { display: grid; gap: 8px; }
+    .ch-bankRow { display: flex; justify-content: space-between; font-size: 13px; }
+    .ch-bankLabel { color: hsl(var(--muted-fg)); }
+    .ch-bankVal { font-weight: 700; color: hsl(var(--fg)); font-family: 'JetBrains Mono', monospace; }
+
+    .ch-submitBtn {
+        width: 100%; padding: 20px; background: var(--checkout-primary); color: var(--checkout-primary-fg);
+        border: none; border-radius: 12px; font-size: 16px; font-weight: 800; text-transform: uppercase;
+        letter-spacing: 0.1em; cursor: pointer; transition: all 0.3s; margin-top: 16px;
+        box-shadow: 0 4px 12px hsla(145, 63%, 32%, 0.2);
+    }
+    .ch-submitBtn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px hsla(145, 63%, 32%, 0.3); background: hsl(145 63% 28%); }
+    .ch-submitBtn:active { transform: translateY(0); }
+
+    /* Autocomplete Dropdown */
+    .ch-autocomplete {
+        position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+        background: var(--checkout-bg); border: 1px solid var(--checkout-border);
+        border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        z-index: 1000; overflow: hidden; display: none;
+    }
+    .ch-autocomplete.active { display: block; }
+    .ch-suggestion {
+        padding: 12px 16px; cursor: pointer; font-size: 14px; color: hsl(var(--fg));
+        border-bottom: 1px solid var(--checkout-border); transition: background 0.2s;
+    }
+    .ch-suggestion:last-child { border-bottom: none; }
+    .ch-suggestion:hover { background: var(--checkout-muted); }
+    .ch-suggestion-main { font-weight: 600; display: block; }
+    .ch-suggestion-sub { font-size: 12px; color: hsl(var(--muted-fg)); }
+
+    .ch-error { color: var(--checkout-sale); font-size: 12px; margin-top: 4px; font-weight: 500; }
+</style>
+
+<div class="ch-header">
+    <h1 class="ch-headerTitle">Checkout</h1>
+    <p class="ch-headerDesc">Securely complete your purchase.</p>
+</div>
+
+<div class="ch-wrap">
     @if(session('error'))
-    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
-        {{ session('error') }}
-    </div>
+        <div style="background: hsl(0 84% 97%); border: 1px solid hsl(0 84% 90%); color: hsl(0 84% 40%); padding: 16px; border-radius: 12px; margin-bottom: 24px; width: 100%;">
+            {{ session('error') }}
+        </div>
     @endif
 
-    <form action="{{ route('checkout.store') }}" method="POST">
+    <form action="{{ route('checkout.store') }}" method="POST" id="checkout-form" class="ch-main">
         @csrf
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
-            <!-- Billing Details -->
-            <div class="space-y-6">
-                <h2 class="text-xl font-bold border-b pb-4">Billing Details</h2>
-                
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">First Name *</label>
-                        <input type="text" name="billing_first_name" required value="{{ old('billing_first_name') }}"
-                            class="w-full border-gray-300 rounded-md shadow-sm focus:border-yellow-500 focus:ring-yellow-500">
-                        @error('billing_first_name') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Last Name *</label>
-                        <input type="text" name="billing_last_name" required value="{{ old('billing_last_name') }}"
-                            class="w-full border-gray-300 rounded-md shadow-sm focus:border-yellow-500 focus:ring-yellow-500">
-                        @error('billing_last_name') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
-                    </div>
+        
+        <!-- Billing Details -->
+        <div class="ch-section">
+            <h2 class="ch-sectionTitle">Billing Details</h2>
+            
+            <div class="ch-grid">
+                <div class="ch-group">
+                    <label class="ch-label">First Name *</label>
+                    <input type="text" name="billing_first_name" required value="{{ old('billing_first_name') }}" class="ch-input">
+                    @error('billing_first_name') <p class="ch-error">{{ $message }}</p> @enderror
                 </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Email Address *</label>
-                    <input type="email" name="billing_email" required value="{{ old('billing_email') }}"
-                        class="w-full border-gray-300 rounded-md shadow-sm focus:border-yellow-500 focus:ring-yellow-500">
-                    @error('billing_email') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Phone *</label>
-                    <input type="text" name="billing_phone" required value="{{ old('billing_phone') }}"
-                        class="w-full border-gray-300 rounded-md shadow-sm focus:border-yellow-500 focus:ring-yellow-500">
-                    @error('billing_phone') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Street Address *</label>
-                    <input type="text" name="billing_address" required value="{{ old('billing_address') }}"
-                        placeholder="House number and street name"
-                        class="w-full border-gray-300 rounded-md shadow-sm focus:border-yellow-500 focus:ring-yellow-500">
-                    @error('billing_address') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
-                </div>
-
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Town / City *</label>
-                        <input type="text" name="billing_city" required value="{{ old('billing_city', $location['city'] ?? '') }}"
-                            class="w-full border-gray-300 rounded-md shadow-sm focus:border-yellow-500 focus:ring-yellow-500">
-                        @error('billing_city') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Postcode / ZIP *</label>
-                        <input type="text" name="billing_postcode" required value="{{ old('billing_postcode', $location['postcode'] ?? '') }}"
-                            class="w-full border-gray-300 rounded-md shadow-sm focus:border-yellow-500 focus:ring-yellow-500">
-                        @error('billing_postcode') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
-                    </div>
-                </div>
-
-                <div class="pt-6">
-                    <h2 class="text-xl font-bold border-b pb-4 mb-4">Additional Information</h2>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Order Notes (optional)</label>
-                        <textarea name="order_notes" rows="4" 
-                            placeholder="Notes about your order, e.g. special notes for delivery."
-                            class="w-full border-gray-300 rounded-md shadow-sm focus:border-yellow-500 focus:ring-yellow-500">{{ old('order_notes') }}</textarea>
-                    </div>
+                <div class="ch-group">
+                    <label class="ch-label">Last Name *</label>
+                    <input type="text" name="billing_last_name" required value="{{ old('billing_last_name') }}" class="ch-input">
+                    @error('billing_last_name') <p class="ch-error">{{ $message }}</p> @enderror
                 </div>
             </div>
 
-            <!-- Order Summary -->
-            <div>
-                <div class="bg-gray-50 p-8 rounded-md border border-gray-200">
-                    <h2 class="text-xl font-bold mb-6">Your Order</h2>
-                    
-                    <div class="space-y-4 mb-6">
-                        <div class="flex justify-between font-bold text-sm uppercase tracking-wider text-gray-500 border-b pb-2">
-                            <span>Product</span>
-                            <span>Subtotal</span>
-                        </div>
-                        
-                        @foreach($cart as $id => $item)
-                        <div class="flex justify-between text-sm">
-                            <span class="text-gray-600">{{ $item['name'] }} <strong class="text-gray-900">× {{ $item['qty'] }}</strong></span>
-                            <span class="font-medium">${{ number_format($item['price'] * $item['qty'], 2) }}</span>
-                        </div>
-                        @endforeach
-                        
-                        <div class="border-t pt-4">
-                            <div class="flex justify-between mb-2">
-                                <span class="text-gray-600">Subtotal</span>
-                                <span class="font-medium">${{ number_format($subtotal, 2) }}</span>
-                            </div>
-                            <div class="flex justify-between mb-2">
-                                <span class="text-gray-600">Shipping</span>
-                                <div class="text-right">
-                                    <div class="font-medium text-green-600">{{ $shipping['name'] }}</div>
-                                    @if($location)
-                                        <div class="text-[10px] text-gray-400 italic">To: {{ $location['state'] }}, {{ $location['country'] }}</div>
-                                    @endif
-                                </div>
-                            </div>
-                            <div class="flex justify-between text-xl font-bold pt-4 border-t">
-                                <span>Total</span>
-                                <span class="text-yellow-600">${{ number_format($total, 2) }}</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-white p-6 border border-gray-200 rounded mb-6 shadow-sm">
-                        <h3 class="font-bold text-sm uppercase tracking-wider mb-3 text-gray-900 border-b pb-2">Direct Bank Transfer</h3>
-                        <p class="text-[13px] text-gray-600 mb-4 leading-relaxed">
-                            Make your payment directly into our bank account OR Pay ID 0401596751. Please use your Order ID as the payment reference. Your order will not be shipped until the funds have cleared in our account.
-                        </p>
-                        <div class="space-y-2 text-sm bg-gray-50 p-4 rounded border border-gray-100">
-                            <div class="flex justify-between"><span class="text-gray-500">Bank:</span> <span class="font-bold">Nepstrading</span></div>
-                            <div class="flex justify-between"><span class="text-gray-500">B.S.B:</span> <span class="font-bold">063-581</span></div>
-                            <div class="flex justify-between"><span class="text-gray-500">A/C:</span> <span class="font-bold">10599057</span></div>
-                            <div class="flex justify-between"><span class="text-gray-500">PayID:</span> <span class="font-bold">0401596751</span></div>
-                        </div>
-                    </div>
-
-                    <button type="submit" class="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-4 rounded transition duration-200 uppercase tracking-widest">
-                        Place Order
-                    </button>
+            <div class="ch-grid">
+                <div class="ch-group">
+                    <label class="ch-label">Email Address *</label>
+                    <input type="email" name="billing_email" required value="{{ old('billing_email') }}" class="ch-input">
+                    @error('billing_email') <p class="ch-error">{{ $message }}</p> @enderror
                 </div>
+                <div class="ch-group">
+                    <label class="ch-label">Phone *</label>
+                    <input type="text" name="billing_phone" required value="{{ old('billing_phone') }}" class="ch-input">
+                    @error('billing_phone') <p class="ch-error">{{ $message }}</p> @enderror
+                </div>
+            </div>
+
+            <div class="ch-group">
+                <label class="ch-label">Street Address *</label>
+                <input type="text" name="billing_address" id="street-address" required value="{{ old('billing_address') }}"
+                    placeholder="Search your street address..." autocomplete="off" class="ch-input">
+                <div id="address-loading" style="position: absolute; right: 12px; top: 38px; display: none;">
+                    <svg style="width: 20px; height: 20px; animation: spin 1s linear infinite;" viewBox="0 0 24 24"><path fill="currentColor" d="M12,4V2A10,10 0 0,0 2,12H4A8,8 0 0,1 12,4Z"/></svg>
+                </div>
+                <div id="address-suggestions" class="ch-autocomplete"></div>
+                @error('billing_address') <p class="ch-error">{{ $message }}</p> @enderror
+            </div>
+
+            <div class="ch-grid">
+                <div class="ch-group">
+                    <label class="ch-label">Town / City *</label>
+                    <input type="text" name="billing_city" id="billing_city" required value="{{ old('billing_city', $location['city'] ?? '') }}" class="ch-input">
+                    @error('billing_city') <p class="ch-error">{{ $message }}</p> @enderror
+                </div>
+                <div class="ch-group">
+                    <label class="ch-label">Postcode / ZIP *</label>
+                    <input type="text" name="billing_postcode" id="billing_postcode" required value="{{ old('billing_postcode', $location['postcode'] ?? '') }}" class="ch-input">
+                    @error('billing_postcode') <p class="ch-error">{{ $message }}</p> @enderror
+                </div>
+            </div>
+
+            <div class="ch-group" style="margin-bottom: 0;">
+                <label class="ch-label">State</label>
+                <input type="text" name="billing_state" id="billing_state" readonly value="{{ $location['state'] ?? '' }}" class="ch-input" style="background: var(--checkout-muted); cursor: not-allowed;">
+            </div>
+        </div>
+
+        <!-- Additional Info -->
+        <div class="ch-section">
+            <h2 class="ch-sectionTitle">Additional Information</h2>
+            <div class="ch-group" style="margin-bottom: 0;">
+                <label class="ch-label">Order Notes (optional)</label>
+                <textarea name="order_notes" rows="4" 
+                    placeholder="Notes about your order, e.g. special notes for delivery."
+                    class="ch-textarea">{{ old('order_notes') }}</textarea>
             </div>
         </div>
     </form>
+
+    <!-- Sidebar Summary -->
+    <aside class="ch-side">
+        <div class="ch-panel">
+            <h2 class="ch-panelTitle">Your Order</h2>
+            
+            <div style="margin-bottom: 24px;">
+                @foreach($cart as $id => $item)
+                <div class="ch-orderItem">
+                    <span>
+                        <span class="ch-orderName">{{ $item['name'] }}</span>
+                        <span class="ch-orderQty">× {{ $item['qty'] }}</span>
+                    </span>
+                    <span class="ch-orderPrice">${{ number_format($item['price'] * $item['qty'], 2) }}</span>
+                </div>
+                @endforeach
+            </div>
+
+            <div class="ch-summaryTable">
+                <div class="ch-sumRow">
+                    <span class="ch-sumLabel">Subtotal</span>
+                    <span class="ch-sumVal">${{ number_format($subtotal, 2) }}</span>
+                </div>
+                <div class="ch-sumRow">
+                    <span class="ch-sumLabel">Shipping ({{ $shipping['name'] }})</span>
+                    <span class="ch-sumVal">${{ number_format($shipping['cost'] ?? 0, 2) }}</span>
+                </div>
+                @if($discount > 0)
+                <div class="ch-sumRow" style="color: var(--checkout-sale);">
+                    <span class="ch-sumLabel">Coupon Discount</span>
+                    <span class="ch-sumVal">-${{ number_format($discount, 2) }}</span>
+                </div>
+                @endif
+                <div class="ch-sumRow ch-totalRow">
+                    <span class="ch-totalLabel">Total</span>
+                    <span class="ch-totalPrice">${{ number_format($total, 2) }}</span>
+                </div>
+            </div>
+
+            <div class="ch-paymentCard">
+                <h3 class="ch-paymentTitle">
+                    <svg style="width: 18px; height: 18px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    Direct Bank Transfer
+                </h3>
+                <p class="ch-paymentDesc">Use Order ID as payment reference. Order shipped after funds clear.</p>
+                <div class="ch-bankDetails">
+                    <div class="ch-bankRow"><span class="ch-bankLabel">Bank:</span> <span class="ch-bankVal">Nepstrading</span></div>
+                    <div class="ch-bankRow"><span class="ch-bankLabel">B.S.B:</span> <span class="ch-bankVal">063-581</span></div>
+                    <div class="ch-bankRow"><span class="ch-bankLabel">A/C:</span> <span class="ch-bankVal">10599057</span></div>
+                    <div class="ch-bankRow"><span class="ch-bankLabel">PayID:</span> <span class="ch-bankVal">0401596751</span></div>
+                </div>
+            </div>
+
+            <button type="submit" form="checkout-form" class="ch-submitBtn">
+                Place Order
+            </button>
+            <p style="text-align: center; font-size: 11px; color: hsl(var(--muted-fg)); margin-top: 16px;">Secure 256-bit SSL Encrypted Checkout</p>
+        </div>
+    </aside>
 </div>
+
+<script>
+    const addressInput = document.getElementById('street-address');
+    const suggestionsBox = document.getElementById('address-suggestions');
+    const loadingIcon = document.getElementById('address-loading');
+    
+    let debounceTimer;
+
+    addressInput.addEventListener('input', () => {
+        clearTimeout(debounceTimer);
+        const query = addressInput.value.trim();
+        
+        if (query.length < 3) {
+            suggestionsBox.classList.remove('active');
+            return;
+        }
+
+        debounceTimer = setTimeout(() => {
+            fetchAddressSuggestions(query);
+        }, 500);
+    });
+
+    // Close suggestions on click outside
+    document.addEventListener('click', (e) => {
+        if (!addressInput.contains(e.target) && !suggestionsBox.contains(e.target)) {
+            suggestionsBox.classList.remove('active');
+        }
+    });
+
+    async function fetchAddressSuggestions(query) {
+        loadingIcon.style.display = 'block';
+        try {
+            const url = `https://nominatim.openstreetmap.org/search?format=json&countrycodes=au&addressdetails=1&q=${encodeURIComponent(query)}`;
+            const response = await fetch(url, {
+                headers: { 'Accept-Language': 'en-AU' }
+            });
+            const data = await response.json();
+            
+            displaySuggestions(data);
+        } catch (error) {
+            console.error('Error fetching addresses:', error);
+        } finally {
+            loadingIcon.style.display = 'none';
+        }
+    }
+
+    function displaySuggestions(results) {
+        suggestionsBox.innerHTML = '';
+        if (results.length === 0) {
+            suggestionsBox.classList.remove('active');
+            return;
+        }
+
+        results.forEach(res => {
+            const div = document.createElement('div');
+            div.className = 'ch-suggestion';
+            
+            const addr = res.address;
+            const mainText = res.display_name.split(',')[0];
+            const subText = res.display_name.split(',').slice(1).join(',').trim();
+
+            div.innerHTML = `
+                <span class="ch-suggestion-main">${mainText}</span>
+                <span class="ch-suggestion-sub">${subText}</span>
+            `;
+
+            div.addEventListener('click', () => {
+                applyAddress(res);
+            });
+            suggestionsBox.appendChild(div);
+        });
+
+        suggestionsBox.classList.add('active');
+    }
+
+    function applyAddress(res) {
+        const addr = res.address;
+        
+        // Populate fields
+        // Nominatim uses different keys for suburb/city
+        const street = res.display_name.split(',')[0] + (addr.road ? ', ' + addr.road : '');
+        addressInput.value = res.display_name.split(',').slice(0, 2).join(', ').trim();
+        
+        document.getElementById('billing_city').value = addr.city || addr.town || addr.suburb || addr.village || '';
+        document.getElementById('billing_postcode').value = addr.postcode || '';
+        
+        // Hide suggestions
+        suggestionsBox.classList.remove('active');
+    }
+</script>
+
+<style>
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+</style>
 @endsection
