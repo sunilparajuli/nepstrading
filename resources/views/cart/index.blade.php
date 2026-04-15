@@ -435,15 +435,8 @@
                     'Accept': 'application/json',
                     'X-Requested-With': 'XMLHttpRequest'
                 },
-                body: JSON.stringify(Object.from_represented_with_JSON(formData))
+                body: JSON.stringify(Object.fromEntries(formData))
             });
-
-            // Fallback for Object.from_represented_with_JSON if not available
-            function Object.from_represented_with_JSON(formData) {
-                const obj = {};
-                formData.forEach((value, key) => obj[key] = value);
-                return obj;
-            }
 
             const data = await response.json();
             if (data.success) {
