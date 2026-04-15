@@ -613,13 +613,13 @@
                                 @endforeach
                             </select>
                             <div class="s-searchInputWrap">
-                                <input id="searchInput" class="s-searchInput" placeholder="Search for products..." autocomplete="off" />
+                                <input class="s-searchInput" placeholder="Search for products..." autocomplete="off" />
                                 <span class="s-searchIcon">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
                                 </span>
                             </div>
                             <!-- Search Results Megamenu -->
-                            <div id="searchResults" class="s-searchMega" style="display: none;"></div>
+                            <div class="s-searchResults s-searchMega" style="display: none;"></div>
                         </div>
                         <div style="display: flex; align-items: center; gap: 12px; margin-left: auto;">
                             @auth
@@ -644,6 +644,18 @@
                                     {{ session()->has('cart') ? count(session('cart')) : 0 }}
                                 </span>
                             </button>
+                        </div>
+                    </div>
+                    <!-- Mobile Search Row -->
+                    <div class="md:hidden pb-3 px-4">
+                        <div class="s-searchWrap" style="position: relative;">
+                            <div class="s-searchInputWrap">
+                                <input class="s-searchInput" style="border-radius: 6px;" placeholder="Search for products..." autocomplete="off" />
+                                <span class="s-searchIcon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                                </span>
+                            </div>
+                            <div class="s-searchResults s-searchMega" style="display: none;"></div>
                         </div>
                     </div>
                     <div class="s-navLinks" style="background: hsl(var(--card-bg)); box-shadow: var(--shadow-sm); padding: 0 16px; margin: 0;">
@@ -968,28 +980,32 @@
 
         // === Live Search ===
         (function() {
-            const input = document.getElementById('searchInput');
-            const catSelect = document.getElementById('searchCategory');
-            const resultsBox = document.getElementById('searchResults');
+            const searchWraps = document.querySelectorAll('.s-searchWrap');
             let debounceTimer;
 
-            if (!input || !resultsBox) return;
+            searchWraps.forEach(wrap => {
+                const input = wrap.querySelector('.s-searchInput');
+                const catSelect = wrap.querySelector('.s-searchSelect');
+                const resultsBox = wrap.querySelector('.s-searchResults');
 
-            input.addEventListener('input', function() {
-                clearTimeout(debounceTimer);
-                const q = this.value.trim();
-                if (q.length < 2) { resultsBox.style.display = 'none'; return; }
-                debounceTimer = setTimeout(() => doSearch(q), 300);
+                if (!input || !resultsBox) return;
+
+                input.addEventListener('input', function() {
+                    clearTimeout(debounceTimer);
+                    const q = this.value.trim();
+                    if (q.length < 2) { resultsBox.style.display = 'none'; return; }
+                    debounceTimer = setTimeout(() => doSearch(q, catSelect, resultsBox), 300);
+                });
+
+                if (catSelect) {
+                    catSelect.addEventListener('change', function() {
+                        const q = input.value.trim();
+                        if (q.length >= 2) doSearch(q, catSelect, resultsBox);
+                    });
+                }
             });
 
-            if (catSelect) {
-                catSelect.addEventListener('change', function() {
-                    const q = input.value.trim();
-                    if (q.length >= 2) doSearch(q);
-                });
-            }
-
-            function doSearch(q) {
+            function doSearch(q, catSelect, resultsBox) {
                 const cat = catSelect ? catSelect.value : '';
                 const url = `/api/search?q=${encodeURIComponent(q)}${cat ? '&category=' + cat : ''}`;
                 fetch(url)
@@ -1017,7 +1033,9 @@
             // Close on click outside
             document.addEventListener('click', function(e) {
                 if (!e.target.closest('.s-searchWrap')) {
-                    resultsBox.style.display = 'none';
+                    document.querySelectorAll('.s-searchResults').forEach(box => {
+                        box.style.display = 'none';
+                    });
                 }
             });
         })();

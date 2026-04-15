@@ -14,6 +14,17 @@ class CartController extends Controller
 {
     public function index()
     {
+        $data = $this->getCartViewData();
+        $postcodes = \App\Models\ShippingLocation::where('type', 'postcode')
+            ->distinct()
+            ->orderBy('code')
+            ->pluck('code');
+
+        return view('cart.index', array_merge($data, ['postcodes' => $postcodes]));
+    }
+
+    private function getCartViewData()
+    {
         $cart = session()->get('cart', []);
         $subtotal = array_reduce($cart, function($carry, $item) {
             return $carry + ($item['price'] * $item['qty']);
@@ -38,7 +49,18 @@ class CartController extends Controller
         $total = max(0, $subtotal - $discount) + ($shipping['cost'] ?? 0);
         $minOrderMet = $subtotal >= 69;
 
-        return view('cart.index', compact('cart', 'subtotal', 'total', 'shipping', 'discount', 'minOrderMet'));
+        return [
+            'cart' => $cart,
+            'subtotal' => $subtotal,
+            'total' => $total,
+            'shipping' => $shipping,
+            'discount' => $discount,
+            'minOrderMet' => $minOrderMet,
+            'formatted_subtotal' => number_format($subtotal, 2),
+            'formatted_total' => number_format($total, 2),
+            'formatted_shipping_cost' => number_format($shipping['cost'] ?? 0, 2),
+            'min_order_gap' => number_format(max(0, 69 - $subtotal), 2)
+        ];
     }
 
     public function setLocation(Request $request)
@@ -48,6 +70,13 @@ class CartController extends Controller
         
         // Find best rate
         $this->getShippingInfo(0); // Trigger session update
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json(array_merge(
+                ['success' => true, 'message' => 'Shipping location updated!'],
+                $this->getCartViewData()
+            ));
+        }
 
         return redirect()->back()->with('success', 'Location updated and shipping recalculated.');
     }
@@ -85,7 +114,7 @@ class CartController extends Controller
         $userCountry = strtoupper(trim($location['country'] ?? ''));
 
         // Fetch all postcode-type locations once to avoid multiple queries
-        $postcodeLocations = ShippingLocation::where('type', 'postcode')->with('zone.rates')->get();
+        $postcodeLocations = \App\Models\ShippingLocation::where('type', 'postcode')->with('zone.rates')->get();
         $foundLocation = null;
 
         // 1. Try to find a zone by postcode (highest priority)
@@ -98,7 +127,7 @@ class CartController extends Controller
 
         // 2. If no postcode match, try to find a zone by state/country
         if (!$foundLocation) {
-            $foundLocation = ShippingLocation::where(function($q) use ($userState) {
+            $foundLocation = \App\Models\ShippingLocation::where(function($q) use ($userState) {
                 $q->where('type', 'state')->where('code', $userState);
             })->orWhere(function($q) use ($userCountry) {
                 $q->where('type', 'country')->where('code', $userCountry);
@@ -106,7 +135,7 @@ class CartController extends Controller
         }
 
         if ($foundLocation && $foundLocation->zone) {
-            $rate = ShippingRate::where('shipping_zone_id', $foundLocation->shipping_zone_id)
+            $rate = \App\Models\ShippingRate::where('shipping_zone_id', $foundLocation->shipping_zone_id)
                                 ->orderBy('cost', 'asc') // Pick cheapest
                                 ->first();
             
@@ -140,23 +169,14 @@ class CartController extends Controller
         session()->put('cart', $cart);
 
         if ($request->ajax() || $request->wantsJson()) {
-            $cart = session()->get('cart', []);
-            $subtotal = array_reduce($cart, function($carry, $item) {
-                return $carry + ($item['price'] * $item['qty']);
-            }, 0);
-
-            // Re-render the cart sidebar partial or the specific section
-            // For now, let's just return the subtotal and count, 
-            // and we'll handle the sidebar update by fetching a partial if needed.
-            // Actually, returning the whole HTML for the sidebar is easier.
-            
-            return response()->json([
+            $data = $this->getCartViewData();
+            return response()->json(array_merge([
                 'success' => true,
                 'message' => 'Product added to cart successfully!',
-                'cart_count' => count($cart),
-                'cart_total' => number_format($subtotal, 2),
+                'cart_count' => count($data['cart']),
+                'cart_total' => $data['formatted_subtotal'],
                 'cart_html' => view('partials.cart_sidebar_contents')->render()
-            ]);
+            ], $data));
         }
 
         return redirect()->back()->with('success', 'Product added to cart successfully!');
@@ -173,18 +193,15 @@ class CartController extends Controller
         }
 
         if ($request->ajax() || $request->wantsJson()) {
-            $cart = session()->get('cart', []);
-            $subtotal = array_reduce($cart, function($carry, $item) {
-                return $carry + ($item['price'] * $item['qty']);
-            }, 0);
-
-            return response()->json([
+            $data = $this->getCartViewData();
+            $item_subtotal = number_format($cart[$id]['price'] * $qty, 2);
+            return response()->json(array_merge([
                 'success' => true,
                 'message' => 'Cart updated successfully!',
-                'cart_count' => count($cart),
-                'cart_total' => number_format($subtotal, 2),
+                'cart_count' => count($data['cart']),
+                'item_subtotal' => $item_subtotal,
                 'cart_html' => view('partials.cart_sidebar_contents')->render()
-            ]);
+            ], $data));
         }
 
         return redirect()->back()->with('success', 'Cart updated successfully.');
@@ -199,20 +216,16 @@ class CartController extends Controller
         }
 
         if ($request->ajax() || $request->wantsJson()) {
-            $cart = session()->get('cart', []);
-            $subtotal = array_reduce($cart, function($carry, $item) {
-                return $carry + ($item['price'] * $item['qty']);
-            }, 0);
-
-            return response()->json([
+            $data = $this->getCartViewData();
+            return response()->json(array_merge([
                 'success' => true,
                 'message' => 'Product removed successfully!',
-                'cart_count' => count($cart),
-                'cart_total' => number_format($subtotal, 2),
+                'cart_count' => count($data['cart']),
                 'cart_html' => view('partials.cart_sidebar_contents')->render()
-            ]);
+            ], $data));
         }
 
         return redirect()->back()->with('success', 'Product removed successfully!');
     }
 }
+
