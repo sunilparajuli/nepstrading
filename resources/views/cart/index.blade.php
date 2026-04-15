@@ -218,10 +218,11 @@
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
                         <div class="ct-formGroup" style="margin-bottom: 0;">
                             <label class="ct-formLabel">State</label>
+                            @php $selState = is_array(session('shipping_location')) ? (session('shipping_location')['state'] ?? '') : ''; @endphp
                             <select name="state" id="state-selector" class="ct-select" onchange="filterPostcodes()">
                                 <option value="">Select State</option>
                                 @foreach(['NSW' => 'NSW', 'VIC' => 'VIC', 'QLD' => 'QLD', 'WA' => 'WA', 'SA' => 'SA', 'TAS' => 'TAS', 'ACT' => 'ACT', 'NT' => 'NT'] as $code => $name)
-                                    <option value="{{ $code }}" {{ (session('shipping_location')['state'] ?? '') == $code ? 'selected' : '' }}>{{ $name }}</option>
+                                    <option value="{{ $code }}" {{ $selState == $code ? 'selected' : '' }}>{{ $name }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -246,8 +247,9 @@
             <!-- Discount Coupon -->
             <div class="ct-panel" id="coupon-panel">
                 <style>
-                    #coupon-form-toggle { cursor: pointer; display: flex; align-items: center; justify-content: space-between; }
+                    #coupon-form-toggle { cursor: pointer; display: flex; align-items: center; justify-content: space-between; position: relative; z-index: 5; }
                     #coupon-form-toggle:hover { color: hsl(var(--primary)); }
+                    #coupon-form-body { display: none; margin-top: 16px; border-top: 1px solid hsl(var(--border)); padding-top: 16px; }
                     #coupon-form-body.open { display: block; }
                     .ct-chevron { width: 12px; height: 12px; transition: transform 0.2s; }
                     #coupon-panel.open .ct-chevron { transform: rotate(180deg); }
@@ -292,13 +294,17 @@
 </div>
 
 <script>
-    // Raw postcodes from database
     const allPostcodes = @json($postcodes);
-    const savedPostcode = @json(session('shipping_location')['postcode'] ?? '');
+    const savedPostcode = @json(is_array(session('shipping_location')) ? (session('shipping_location')['postcode'] ?? '') : '');
+
+    console.log('Cart Script Init:', { postcodeCount: allPostcodes.length, savedPostcode });
 
     function filterPostcodes() {
         const state = document.getElementById('state-selector').value;
         const selector = document.getElementById('postcode-selector');
+        
+        console.log('Filtering postcodes for state:', state);
+        
         selector.innerHTML = '<option value="">Select Postcode</option>';
 
         if (!state) return;
@@ -331,9 +337,13 @@
     }
 
     // Initialize postcodes on load
-    document.addEventListener('DOMContentLoaded', filterPostcodes);
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log('DOM Content Loaded - filtering postcodes');
+        filterPostcodes();
+    });
 
     async function updateQtyAJAX(id, change) {
+        console.log('Update Qty Request:', id, change);
         const itemCard = document.getElementById('item-card-' + id);
         const qtySpan = document.getElementById('item-qty-' + id);
         const summaryPanel = document.getElementById('summary-panel');
