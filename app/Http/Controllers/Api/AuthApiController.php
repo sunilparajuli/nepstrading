@@ -70,8 +70,13 @@ class AuthApiController extends Controller
             'id' => $user->id,
             'name' => $user->name,
             'email' => $user->email,
+            'phone' => $user->phone,
+            'address' => $user->address,
+            'city' => $user->city,
+            'state' => $user->state,
+            'postcode' => $user->postcode,
             'orders_count' => $user->orders()->count(),
-            'total_spent' => $user->orders()->where('status', '!=', 'cancelled')->sum('total'),
+            'total_spent' => (float)$user->orders()->where('status', '!=', 'cancelled')->sum('total'),
             'created_at' => $user->created_at,
         ]);
     }
@@ -82,6 +87,11 @@ class AuthApiController extends Controller
             'name' => 'sometimes|string|max:255',
             'email' => 'sometimes|email|unique:users,email,' . $request->user()->id,
             'password' => 'sometimes|string|min:8|confirmed',
+            'phone' => 'sometimes|nullable|string|max:20',
+            'address' => 'sometimes|nullable|string|max:255',
+            'city' => 'sometimes|nullable|string|max:255',
+            'state' => 'sometimes|nullable|string|max:255',
+            'postcode' => 'sometimes|nullable|string|max:20',
         ]);
 
         $user = $request->user();
@@ -93,7 +103,7 @@ class AuthApiController extends Controller
         $user->update($validated);
 
         return response()->json([
-            'user' => $user->only('id', 'name', 'email'),
+            'user' => $user->only('id', 'name', 'email', 'phone', 'address', 'city', 'state', 'postcode'),
             'message' => 'Profile updated.',
         ]);
     }

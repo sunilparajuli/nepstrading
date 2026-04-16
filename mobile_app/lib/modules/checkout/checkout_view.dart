@@ -26,6 +26,61 @@ class CheckoutView extends GetView<CheckoutController> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Shipping Threshold Progress
+            Obx(() {
+              final subtotal = cartController.totalAmount;
+              final threshold = controller.minOrderThreshold;
+              final met = subtotal >= threshold;
+              
+              return Container(
+                padding: const EdgeInsets.all(16),
+                margin: const EdgeInsets.only(bottom: 24),
+                decoration: BoxDecoration(
+                  color: met ? Colors.green.shade50 : Colors.blue.shade50,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: met ? Colors.green.shade100 : Colors.blue.shade100),
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          met ? LucideIcons.checkCircle2 : LucideIcons.info, 
+                          color: met ? Colors.green : Colors.blue, 
+                          size: 20
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            met 
+                              ? 'Congratulations! You qualify for FREE shipping.' 
+                              : 'Spend \$${(threshold - subtotal).toStringAsFixed(2)} more to get FREE shipping!',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold, 
+                              color: met ? Colors.green.shade800 : Colors.blue.shade800,
+                              fontSize: 13
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (!met) ...[
+                      const SizedBox(height: 12),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: LinearProgressIndicator(
+                          value: subtotal / threshold,
+                          backgroundColor: Colors.blue.shade100,
+                          valueColor: const AlwaysStoppedAnimation<Color>(Colors.blue),
+                          minHeight: 8,
+                        ),
+                      ),
+                    ]
+                  ],
+                ),
+              );
+            }),
+
             _buildSectionHeader(LucideIcons.truck, 'Shipping Address'),
             const SizedBox(height: 15),
             
@@ -42,7 +97,6 @@ class CheckoutView extends GetView<CheckoutController> {
                 keyboardType: TextInputType.emailAddress,
               ),
               
-              // Address with Autocomplete
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -84,7 +138,6 @@ class CheckoutView extends GetView<CheckoutController> {
                 icon: LucideIcons.building,
               ),
 
-              // Dynamic State and Postcode
               Row(
                 children: [
                   Expanded(
@@ -108,7 +161,12 @@ class CheckoutView extends GetView<CheckoutController> {
                       icon: LucideIcons.navigation,
                       value: controller.selectedPostcode.value,
                       items: controller.postcodes,
-                      onChanged: (val) => controller.selectedPostcode.value = val,
+                      onChanged: (val) {
+                        if (val != null) {
+                          controller.selectedPostcode.value = val;
+                          controller.calculateShipping();
+                        }
+                      },
                     )),
                   ),
                 ],
@@ -215,8 +273,6 @@ class CheckoutView extends GetView<CheckoutController> {
         filled: true,
         fillColor: Colors.grey.shade50,
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        hintText: 'Enter $label',
-        hintStyle: TextStyle(color: Colors.grey.shade300, fontSize: 13),
       ),
     );
   }
@@ -338,8 +394,8 @@ class CheckoutView extends GetView<CheckoutController> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Items Count', style: TextStyle(color: Colors.grey, fontSize: 14)),
-              Obx(() => Text('${cart.cartItems.length}', style: const TextStyle(fontWeight: FontWeight.bold))),
+              const Text('Subtotal', style: TextStyle(color: Colors.grey, fontSize: 14)),
+              Obx(() => Text('\$${cart.totalAmount.toStringAsFixed(2)}', style: const TextStyle(fontWeight: FontWeight.bold))),
             ],
           ),
           const SizedBox(height: 12),
@@ -347,7 +403,13 @@ class CheckoutView extends GetView<CheckoutController> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text('Shipping', style: TextStyle(color: Colors.grey, fontSize: 14)),
-              const Text('FREE', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.green)),
+              Obx(() => Text(
+                controller.isFreeShipping.value ? 'FREE' : '\$${controller.shippingCost.value.toStringAsFixed(2)}',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold, 
+                  color: controller.isFreeShipping.value ? Colors.green : AppTheme.textColor
+                ),
+              )),
             ],
           ),
           const Divider(height: 32),
@@ -355,10 +417,13 @@ class CheckoutView extends GetView<CheckoutController> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text('Grand Total', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-              Obx(() => Text(
-                '\$${cart.totalAmount.toStringAsFixed(2)}',
-                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppTheme.primaryColor),
-              )),
+              Obx(() {
+                final total = cart.totalAmount + controller.shippingCost.value;
+                return Text(
+                  '\$${total.toStringAsFixed(2)}',
+                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppTheme.primaryColor),
+                );
+              }),
             ],
           ),
         ],

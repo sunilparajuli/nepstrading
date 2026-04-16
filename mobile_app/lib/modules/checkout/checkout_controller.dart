@@ -12,26 +12,33 @@ class CheckoutController extends GetxController {
   final cityController = TextEditingController();
   final phoneController = TextEditingController();
   
-  // New Reactive Data
+  // Locations Data
   final states = <String>[].obs;
   final postcodes = <String>[].obs;
   final selectedState = Rxn<String>();
   final selectedPostcode = Rxn<String>();
+  
+  // Shipping Data
+  final shippingCost = 0.0.obs;
+  final shippingName = 'Calculated at checkout'.obs;
+  final isFreeShipping = false.obs;
+  final minOrderThreshold = 69.0;
   
   final addressSuggestions = <Map<String, dynamic>>[].obs;
   final isSearchingAddress = false.obs;
   Timer? _debounceTimer;
 
   final isLoading = false.obs;
-  final isBankTransfer = true.obs; // Default to top payment method
+  final isBankTransfer = true.obs;
 
   @override
   void onInit() {
     super.onInit();
     fetchStates();
-    
-    // Setup listener for address autocomplete
     addressController.addListener(_onAddressChanged);
+    
+    // Listen for subtotal changes from cart
+    ever(Get.find<CartController>().cartItems, (_) => calculateShipping());
   }
 
   @override
@@ -71,6 +78,7 @@ class CheckoutController extends GetxController {
   Future<void> fetchPostcodes(String state) async {
     selectedPostcode.value = null;
     postcodes.clear();
+    shippingCost.value = 0.0; // Reset
     try {
       final dio = Get.find<DioClient>().dio;
       final res = await dio.get('/locations/postcodes', queryParameters: {'state': state});
@@ -79,6 +87,29 @@ class CheckoutController extends GetxController {
       }
     } catch (e) {
       print('Fetch Postcodes Error: $e');
+    }
+  }
+
+  Future<void> calculateShipping() async {
+    if (selectedState.value == null || selectedPostcode.value == null) return;
+    
+    final subtotal = Get.find<CartController>().totalAmount;
+    
+    try {
+      final dio = Get.find<DioClient>().dio;
+      final res = await dio.post('/locations/calculate-shipping', data: {
+        'state': selectedState.value,
+        'postcode': selectedPostcode.value,
+        'subtotal': subtotal,
+      });
+      
+      if (res.statusCode == 200) {
+        shippingCost.value = (res.data['shipping_cost'] as num).toDouble();
+        shippingName.value = res.data['shipping_name'];
+        isFreeShipping.value = res.data['is_free'];
+      }
+    } catch (e) {
+      print('Calculate Shipping Error: $e');
     }
   }
 
@@ -109,7 +140,7 @@ class CheckoutController extends GetxController {
     final road = address['road'] ?? '';
     final houseNumber = address['house_number'] ?? '';
     
-    addressController.removeListener(_onAddressChanged); // Temporarily remove to avoid loop
+    addressController.removeListener(_onAddressChanged);
     addressController.text = houseNumber != '' ? '$houseNumber $road' : road;
     addressController.addListener(_onAddressChanged);
     
@@ -122,6 +153,7 @@ class CheckoutController extends GetxController {
         final pc = address['postcode'];
         if (pc != null && postcodes.contains(pc)) {
           selectedPostcode.value = pc;
+          calculateShipping(); // Trigger calculation
         }
       });
     }
@@ -139,12 +171,9 @@ class CheckoutController extends GetxController {
     if (s.contains('tasmania')) return 'TAS';
     if (s.contains('northern territory')) return 'NT';
     if (s.contains('australian capital territory')) return 'ACT';
-    
-    // If it's already a code
     final codes = ['NSW', 'VIC', 'QLD', 'SA', 'WA', 'TAS', 'NT', 'ACT'];
     final upper = stateName.toUpperCase();
     if (codes.contains(upper)) return upper;
-    
     return null;
   }
 
@@ -170,16 +199,14 @@ class CheckoutController extends GetxController {
       
       final dio = Get.find<DioClient>().dio;
       
-      // Sync local cart to Laravel Backend Cart
+      // Sync cart
       for (var item in cart) {
         try {
           await dio.post('/cart/add', data: {
             'product_id': item.product.id,
             'qty': item.qty,
           });
-        } catch (e) {
-          print('Cart sync warning: $e');
-        }
+        } catch (e) {}
       }
 
       final name = nameController.text.trim();
@@ -197,25 +224,17 @@ class CheckoutController extends GetxController {
         'billing_postcode': selectedPostcode.value,
         'billing_phone': phoneController.text.trim(),
         'payment_method': isBankTransfer.value ? 'bacs' : 'cod',
+        'shipping_total': shippingCost.value, // Send shipping total
       });
       
       if (response.statusCode == 200 || response.statusCode == 201) {
         Get.find<CartController>().clearCart();
         Get.snackbar('Success', 'Order placed successfully!');
         Get.offAllNamed('/home');
-      } else {
-        Get.snackbar('Error', 'Failed to place order: ${response.statusCode}');
       }
     } catch (e) {
       print('Checkout Error: $e');
-      String msg = 'An unexpected error occurred';
-      try {
-        final dynamic err = e;
-        if (err.response != null) {
-          msg = err.response.data['message'] ?? 'Check your connection or login';
-        }
-      } catch (_) {}
-      Get.snackbar('Checkout Failed', msg);
+      Get.snackbar('Checkout Failed', 'Please check your connection and login.');
     } finally {
       isLoading.value = false;
     }
