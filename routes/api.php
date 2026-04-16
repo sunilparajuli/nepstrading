@@ -43,6 +43,7 @@ Route::get('/settings', [SettingsApiController::class, 'index'])->name('api.sett
 // Locations (public)
 Route::get('/locations/states', [App\Http\Controllers\Api\LocationApiController::class, 'getStates']);
 Route::get('/locations/postcodes', [App\Http\Controllers\Api\LocationApiController::class, 'getPostcodes']);
+Route::post('/locations/calculate-shipping', [App\Http\Controllers\Api\LocationApiController::class, 'calculateShipping']);
 
 /*
 |--------------------------------------------------------------------------
