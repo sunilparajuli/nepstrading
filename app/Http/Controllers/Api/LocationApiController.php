@@ -13,12 +13,7 @@ class LocationApiController extends Controller
      */
     public function getStates()
     {
-        $states = ShippingLocation::where('type', 'state')
-            ->orderBy('code', 'asc')
-            ->pluck('code')
-            ->unique()
-            ->values();
-
+        $states = ['NSW', 'VIC', 'QLD', 'WA', 'SA', 'TAS', 'ACT', 'NT'];
         return response()->json($states);
     }
 

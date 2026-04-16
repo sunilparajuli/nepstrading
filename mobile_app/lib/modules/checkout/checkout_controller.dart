@@ -35,9 +35,8 @@ class CheckoutController extends GetxController {
   void onInit() {
     super.onInit();
     fetchStates();
+    fetchUserProfile(); // Autofill from profile
     addressController.addListener(_onAddressChanged);
-    
-    // Listen for subtotal changes from cart
     ever(Get.find<CartController>().cartItems, (_) => calculateShipping());
   }
 
@@ -50,6 +49,32 @@ class CheckoutController extends GetxController {
     phoneController.dispose();
     _debounceTimer?.cancel();
     super.onClose();
+  }
+
+  Future<void> fetchUserProfile() async {
+    try {
+      final dio = Get.find<DioClient>().dio;
+      final res = await dio.get('/user/profile');
+      if (res.statusCode == 200) {
+        final data = res.data;
+        if (nameController.text.isEmpty) nameController.text = data['name'] ?? '';
+        if (emailController.text.isEmpty) emailController.text = data['email'] ?? '';
+        if (phoneController.text.isEmpty) phoneController.text = data['phone'] ?? '';
+        if (addressController.text.isEmpty) addressController.text = data['address'] ?? '';
+        if (cityController.text.isEmpty) cityController.text = data['city'] ?? '';
+        
+        if (data['state'] != null && selectedState.value == null) {
+          selectedState.value = data['state'];
+          await fetchPostcodes(data['state']);
+          if (data['postcode'] != null && selectedPostcode.value == null) {
+            selectedPostcode.value = data['postcode'];
+            calculateShipping();
+          }
+        }
+      }
+    } catch (e) {
+      print('Fetch User Profile Error: $e');
+    }
   }
 
   void _onAddressChanged() {
@@ -78,7 +103,7 @@ class CheckoutController extends GetxController {
   Future<void> fetchPostcodes(String state) async {
     selectedPostcode.value = null;
     postcodes.clear();
-    shippingCost.value = 0.0; // Reset
+    shippingCost.value = 0.0;
     try {
       final dio = Get.find<DioClient>().dio;
       final res = await dio.get('/locations/postcodes', queryParameters: {'state': state});
@@ -92,9 +117,7 @@ class CheckoutController extends GetxController {
 
   Future<void> calculateShipping() async {
     if (selectedState.value == null || selectedPostcode.value == null) return;
-    
     final subtotal = Get.find<CartController>().totalAmount;
-    
     try {
       final dio = Get.find<DioClient>().dio;
       final res = await dio.post('/locations/calculate-shipping', data: {
@@ -102,7 +125,6 @@ class CheckoutController extends GetxController {
         'postcode': selectedPostcode.value,
         'subtotal': subtotal,
       });
-      
       if (res.statusCode == 200) {
         shippingCost.value = (res.data['shipping_cost'] as num).toDouble();
         shippingName.value = res.data['shipping_name'];
@@ -139,13 +161,10 @@ class CheckoutController extends GetxController {
     final address = suggestion['address'];
     final road = address['road'] ?? '';
     final houseNumber = address['house_number'] ?? '';
-    
     addressController.removeListener(_onAddressChanged);
     addressController.text = houseNumber != '' ? '$houseNumber $road' : road;
     addressController.addListener(_onAddressChanged);
-    
     cityController.text = address['city'] ?? address['town'] ?? address['suburb'] ?? '';
-    
     final stateCode = _mapState(address['state'] ?? '');
     if (stateCode != null) {
       selectedState.value = stateCode;
@@ -153,11 +172,10 @@ class CheckoutController extends GetxController {
         final pc = address['postcode'];
         if (pc != null && postcodes.contains(pc)) {
           selectedPostcode.value = pc;
-          calculateShipping(); // Trigger calculation
+          calculateShipping();
         }
       });
     }
-    
     addressSuggestions.clear();
   }
 
@@ -185,21 +203,14 @@ class CheckoutController extends GetxController {
         selectedPostcode.value == null || 
         cityController.text.isEmpty || 
         phoneController.text.isEmpty) {
-      Get.snackbar('Error', 'Please fill all shipping details including State and Postcode');
+      Get.snackbar('Error', 'Please fill all shipping details');
       return;
     }
 
     isLoading.value = true;
     try {
       final cart = Get.find<CartController>().cartItems;
-      if (cart.isEmpty) {
-        Get.snackbar('Error', 'Your cart is empty');
-        return;
-      }
-      
       final dio = Get.find<DioClient>().dio;
-      
-      // Sync cart
       for (var item in cart) {
         try {
           await dio.post('/cart/add', data: {
@@ -224,7 +235,7 @@ class CheckoutController extends GetxController {
         'billing_postcode': selectedPostcode.value,
         'billing_phone': phoneController.text.trim(),
         'payment_method': isBankTransfer.value ? 'bacs' : 'cod',
-        'shipping_total': shippingCost.value, // Send shipping total
+        'shipping_total': shippingCost.value,
       });
       
       if (response.statusCode == 200 || response.statusCode == 201) {
@@ -234,7 +245,7 @@ class CheckoutController extends GetxController {
       }
     } catch (e) {
       print('Checkout Error: $e');
-      Get.snackbar('Checkout Failed', 'Please check your connection and login.');
+      Get.snackbar('Checkout Failed', 'Details mismatch or server error.');
     } finally {
       isLoading.value = false;
     }
