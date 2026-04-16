@@ -40,6 +40,10 @@ Route::get('/pages/{page:slug}', [PageApiController::class, 'show'])->name('api.
 // Settings (public)
 Route::get('/settings', [SettingsApiController::class, 'index'])->name('api.settings');
 
+// Locations (public)
+Route::get('/locations/states', [App\Http\Controllers\Api\LocationApiController::class, 'getStates']);
+Route::get('/locations/postcodes', [App\Http\Controllers\Api\LocationApiController::class, 'getPostcodes']);
+
 /*
 |--------------------------------------------------------------------------
 | Protected API Routes (require Sanctum token)

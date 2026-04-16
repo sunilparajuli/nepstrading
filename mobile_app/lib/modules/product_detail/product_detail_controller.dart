@@ -103,13 +103,10 @@ class ProductDetailController extends GetxController {
 
   void addToCart() {
     if (product.value != null) {
-      final cartController = Get.find<CartController>();
-      // In a real app, we'd add the selected attributes to the cart item too.
-      // For now, we'll just add the product.
-      for (int i = 0; i < quantity.value; i++) {
-        cartController.addItem(product.value!);
-      }
-      Get.snackbar('Added', '${product.value!.name} added to cart', snackPosition: SnackPosition.BOTTOM);
+      Get.find<CartController>().addItem(
+        product.value!,
+        qty: quantity.value,
+      );
     }
   }
 }

@@ -49,13 +49,13 @@ class CartController extends GetxController {
     await prefs.setString(_cartKey, encoded);
   }
 
-  void addItem(Product product) {
+  void addItem(Product product, {int qty = 1}) {
     var existingItem = cartItems.firstWhereOrNull((item) => item.product.id == product.id);
     if (existingItem != null) {
-      existingItem.qty++;
+      existingItem.qty += qty;
       cartItems.refresh();
     } else {
-      cartItems.add(CartItem(product: product));
+      cartItems.add(CartItem(product: product, qty: qty));
     }
     _saveCart();
     Get.snackbar('Cart', '${product.name} added to cart', snackPosition: SnackPosition.BOTTOM);
