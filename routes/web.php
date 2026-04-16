@@ -35,6 +35,12 @@ Route::post('logout', [App\Http\Controllers\Auth\LoginController::class , 'logou
 Route::get('register', [App\Http\Controllers\Auth\RegisterController::class , 'showRegistrationForm'])->name('register');
 Route::post('register', [App\Http\Controllers\Auth\RegisterController::class , 'register']);
 
+// Password Reset Routes
+Route::get('forgot-password', [App\Http\Controllers\Auth\PasswordResetController::class, 'showLinkRequestForm'])->name('password.request');
+Route::post('forgot-password', [App\Http\Controllers\Auth\PasswordResetController::class, 'sendResetLinkEmail'])->name('password.email');
+Route::get('reset-password/{token}', [App\Http\Controllers\Auth\PasswordResetController::class, 'showResetForm'])->name('password.reset');
+Route::post('reset-password', [App\Http\Controllers\Auth\PasswordResetController::class, 'reset'])->name('password.update');
+
 Route::get('/cart', [CartController::class , 'index'])->name('cart.index');
 Route::post('/cart/add/{product}', [CartController::class , 'add'])->name('cart.add');
 Route::patch('/cart/{id}', [CartController::class , 'update'])->name('cart.update');
