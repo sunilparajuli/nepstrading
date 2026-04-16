@@ -51,6 +51,7 @@ class OrderApiController extends Controller
             'billing_last_name' => 'required|string|max:255',
             'billing_address' => 'required|string|max:255',
             'billing_city' => 'required|string|max:255',
+            'billing_state' => 'required|string|max:255',
             'billing_postcode' => 'required|string|max:20',
             'billing_phone' => 'required|string|max:20',
             'billing_email' => 'required|email|max:255',
@@ -58,9 +59,12 @@ class OrderApiController extends Controller
             'shipping_last_name' => 'nullable|string|max:255',
             'shipping_address' => 'nullable|string|max:255',
             'shipping_city' => 'nullable|string|max:255',
-            'shipping_postcode' => 'nullable|string|max:20',
             'shipping_state' => 'nullable|string|max:50',
+            'shipping_postcode' => 'nullable|string|max:20',
             'order_notes' => 'nullable|string',
+            'payment_method' => 'nullable|string|max:50',
+            'shipping_total' => 'nullable|numeric',
+            'shipping_name' => 'nullable|string|max:255',
         ]);
 
         $user = $request->user();
@@ -71,9 +75,13 @@ class OrderApiController extends Controller
         }
 
         try {
-            DB::beginTransaction();
+            $subtotal = (float)$cart->items->sum(fn($item) => $item->price * $item->qty);
 
-            $subtotal = $cart->items->sum(fn($item) => $item->price * $item->qty);
+            if ($subtotal < 69) {
+                return response()->json([
+                    'message' => 'You must have an order with a minimum of $69.00 to place your order.'
+                ], 422);
+            }
 
             // Discount
             $discount = 0;
@@ -97,19 +105,22 @@ class OrderApiController extends Controller
                 $taxName = $taxRate->name;
             }
 
-            $total = $taxableAmount + $taxTotal;
+            $shippingTotal = (float)($request->shipping_total ?? 0);
+            $total = $taxableAmount + $shippingTotal + $taxTotal;
 
             $order = Order::create(array_merge($validated, [
                 'user_id' => $user->id,
                 'status' => 'pending',
                 'subtotal' => $subtotal,
-                'shipping_total' => 0,
+                'shipping_total' => $shippingTotal,
+                'shipping_name' => $request->shipping_name ?? 'Standard Shipping',
                 'tax_total' => $taxTotal,
                 'tax_name' => $taxName,
                 'coupon_code' => $couponCode,
                 'discount_total' => $discount,
                 'total' => $total,
                 'currency' => 'AUD',
+                'payment_method' => $request->payment_method ?? 'bacs',
             ]));
 
             foreach ($cart->items as $item) {

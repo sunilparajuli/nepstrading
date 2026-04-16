@@ -11,9 +11,9 @@ class Order extends Model
         'shipping_total', 'shipping_name', 'tax_total', 'tax_name', 'currency',
         'coupon_code', 'discount_total',
         'billing_first_name', 'billing_last_name', 'billing_address',
-        'billing_city', 'billing_postcode', 'billing_phone', 'billing_email',
+        'billing_city', 'billing_state', 'billing_postcode', 'billing_phone', 'billing_email',
         'shipping_first_name', 'shipping_last_name', 'shipping_address',
-        'shipping_city', 'shipping_postcode', 'order_notes'
+        'shipping_city', 'shipping_state', 'shipping_postcode', 'order_notes', 'payment_method'
     ];
 
     public function user()

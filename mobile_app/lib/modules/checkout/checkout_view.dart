@@ -191,28 +191,38 @@ class CheckoutView extends GetView<CheckoutController> {
             _buildOrderSummary(cartController),
             
             const SizedBox(height: 40),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () => controller.isLoading.value ? null : controller.placeOrder(),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.primaryColor,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 18),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                  elevation: 0,
-                ),
-                child: Obx(() => controller.isLoading.value
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
-                      )
-                    : const Text(
-                        'PLACE ORDER',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 1),
-                      )),
-              ),
+            GetBuilder<CheckoutController>(
+              builder: (controller) {
+                final isValid = controller.isFormValid;
+                return SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: isValid && !controller.isLoading.value ? () => controller.placeOrder() : null,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: isValid ? AppTheme.primaryColor : Colors.grey.shade300,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 18),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                      elevation: isValid ? 4 : 0,
+                    ),
+                    child: Obx(() => controller.isLoading.value
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                          )
+                        : Text(
+                            'PLACE ORDER',
+                            style: TextStyle(
+                              fontSize: 16, 
+                              fontWeight: FontWeight.bold, 
+                              letterSpacing: 1,
+                              color: isValid ? Colors.white : Colors.grey.shade500
+                            ),
+                          )),
+                  ),
+                );
+              }
             ),
             const SizedBox(height: 40),
           ],

@@ -35,9 +35,31 @@ class CheckoutController extends GetxController {
   void onInit() {
     super.onInit();
     fetchStates();
-    fetchUserProfile(); // Autofill from profile
+    fetchUserProfile();
     addressController.addListener(_onAddressChanged);
+    
+    // Setup listeners for validation and shipping recalculation
+    nameController.addListener(_onFieldChanged);
+    emailController.addListener(_onFieldChanged);
+    addressController.addListener(_onFieldChanged);
+    cityController.addListener(_onFieldChanged);
+    phoneController.addListener(_onFieldChanged);
+    
     ever(Get.find<CartController>().cartItems, (_) => calculateShipping());
+  }
+
+  void _onFieldChanged() {
+    update(); // Trigger UI rebuild for button state
+  }
+
+  bool get isFormValid {
+    return nameController.text.isNotEmpty &&
+           emailController.text.isNotEmpty &&
+           addressController.text.isNotEmpty &&
+           cityController.text.isNotEmpty &&
+           phoneController.text.isNotEmpty &&
+           selectedState.value != null &&
+           selectedPostcode.value != null;
   }
 
   @override
@@ -71,6 +93,7 @@ class CheckoutController extends GetxController {
             calculateShipping();
           }
         }
+        update();
       }
     } catch (e) {
       print('Fetch User Profile Error: $e');
@@ -94,6 +117,7 @@ class CheckoutController extends GetxController {
       final res = await dio.get('/locations/states');
       if (res.statusCode == 200) {
         states.assignAll(List<String>.from(res.data));
+        update();
       }
     } catch (e) {
       print('Fetch States Error: $e');
@@ -104,11 +128,13 @@ class CheckoutController extends GetxController {
     selectedPostcode.value = null;
     postcodes.clear();
     shippingCost.value = 0.0;
+    update();
     try {
       final dio = Get.find<DioClient>().dio;
       final res = await dio.get('/locations/postcodes', queryParameters: {'state': state});
       if (res.statusCode == 200) {
         postcodes.assignAll(List<String>.from(res.data));
+        update();
       }
     } catch (e) {
       print('Fetch Postcodes Error: $e');
@@ -129,6 +155,7 @@ class CheckoutController extends GetxController {
         shippingCost.value = (res.data['shipping_cost'] as num).toDouble();
         shippingName.value = res.data['shipping_name'];
         isFreeShipping.value = res.data['is_free'];
+        update();
       }
     } catch (e) {
       print('Calculate Shipping Error: $e');
@@ -174,9 +201,11 @@ class CheckoutController extends GetxController {
           selectedPostcode.value = pc;
           calculateShipping();
         }
+        update();
       });
     }
     addressSuggestions.clear();
+    update();
   }
 
   String? _mapState(String stateName) {
@@ -196,16 +225,7 @@ class CheckoutController extends GetxController {
   }
 
   void placeOrder() async {
-    if (nameController.text.isEmpty || 
-        emailController.text.isEmpty || 
-        addressController.text.isEmpty || 
-        selectedState.value == null || 
-        selectedPostcode.value == null || 
-        cityController.text.isEmpty || 
-        phoneController.text.isEmpty) {
-      Get.snackbar('Error', 'Please fill all shipping details');
-      return;
-    }
+    if (!isFormValid) return;
 
     isLoading.value = true;
     try {
