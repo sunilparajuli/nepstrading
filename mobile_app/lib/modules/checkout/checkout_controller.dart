@@ -53,13 +53,15 @@ class CheckoutController extends GetxController {
   }
 
   bool get isFormValid {
+    final subtotal = Get.find<CartController>().totalAmount;
     return nameController.text.isNotEmpty &&
            emailController.text.isNotEmpty &&
            addressController.text.isNotEmpty &&
            cityController.text.isNotEmpty &&
            phoneController.text.isNotEmpty &&
            selectedState.value != null &&
-           selectedPostcode.value != null;
+           selectedPostcode.value != null &&
+           subtotal >= minOrderThreshold;
   }
 
   @override
@@ -270,7 +272,11 @@ class CheckoutController extends GetxController {
       }
     } catch (e) {
       print('Checkout Error: $e');
-      Get.snackbar('Checkout Failed', 'Details mismatch or server error.');
+      String errorMsg = 'Details mismatch or server error.';
+      if (e is dio_pkg.DioException && e.response?.data != null) {
+        errorMsg = e.response?.data['message'] ?? e.response?.statusMessage ?? errorMsg;
+      }
+      Get.snackbar('Checkout Failed', errorMsg);
     } finally {
       isLoading.value = false;
     }

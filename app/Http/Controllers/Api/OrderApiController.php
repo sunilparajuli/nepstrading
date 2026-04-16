@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\OrderConfirmation;
 use App\Mail\NewOrderAdmin;
+use Illuminate\Support\Facades\Log;
 
 class OrderApiController extends Controller
 {
@@ -40,6 +41,8 @@ class OrderApiController extends Controller
 
     public function store(Request $request)
     {
+        Log::info('Checkout API Started', ['user_id' => $request->user()->id, 'data' => $request->all()]);
+        
         if (\App\Models\SiteSetting::getValue('maintenance_mode', '0') == '1') {
             return response()->json([
                 'message' => 'The store is currently under maintenance. Please try again later.'
@@ -67,16 +70,21 @@ class OrderApiController extends Controller
             'shipping_name' => 'nullable|string|max:255',
         ]);
 
+        Log::info('Validation Passed');
+
         $user = $request->user();
         $cart = Cart::where('user_id', $user->id)->with('items.product')->first();
 
         if (!$cart || $cart->items->isEmpty()) {
+            Log::warning('Cart is empty on server', ['user_id' => $user->id]);
             return response()->json(['message' => 'Cart is empty.'], 422);
         }
 
         try {
             DB::beginTransaction();
             $subtotal = (float)$cart->items->sum(fn($item) => $item->price * $item->qty);
+            
+            Log::info('Subtotal Calculated', ['subtotal' => $subtotal]);
 
             if ($subtotal < 69) {
                 return response()->json([
@@ -124,6 +132,8 @@ class OrderApiController extends Controller
                 'payment_method' => $request->payment_method ?? 'bacs',
             ]));
 
+            Log::info('Order Created', ['order_id' => $order->id]);
+
             foreach ($cart->items as $item) {
                 OrderItem::create([
                     'order_id' => $order->id,
@@ -161,6 +171,10 @@ class OrderApiController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
+            Log::error('Order Save Failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
             return response()->json(['message' => 'Failed to create order: ' . $e->getMessage()], 500);
         }
     }

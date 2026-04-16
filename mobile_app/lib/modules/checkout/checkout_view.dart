@@ -190,6 +190,35 @@ class CheckoutView extends GetView<CheckoutController> {
             const SizedBox(height: 15),
             _buildOrderSummary(cartController),
             
+            GetBuilder<CheckoutController>(
+              builder: (controller) {
+                final subtotal = Get.find<CartController>().totalAmount;
+                final thresholdMet = subtotal >= controller.minOrderThreshold;
+                if (thresholdMet) return const SizedBox.shrink();
+                
+                return Container(
+                  margin: const EdgeInsets.only(top: 16),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.red.shade50,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.red.shade100),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.warning_amber_rounded, color: Colors.red.shade700, size: 20),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          'Minimum order of \$69.00 required. Please add more items.',
+                          style: TextStyle(color: Colors.red.shade900, fontSize: 13, fontWeight: FontWeight.w500),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }
+            ),
             const SizedBox(height: 40),
             GetBuilder<CheckoutController>(
               builder: (controller) {
