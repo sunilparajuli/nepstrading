@@ -70,21 +70,16 @@ class OrderApiController extends Controller
             'shipping_name' => 'nullable|string|max:255',
         ]);
 
-        Log::info('Validation Passed');
-
         $user = $request->user();
         $cart = Cart::where('user_id', $user->id)->with('items.product')->first();
 
         if (!$cart || $cart->items->isEmpty()) {
-            Log::warning('Cart is empty on server', ['user_id' => $user->id]);
             return response()->json(['message' => 'Cart is empty.'], 422);
         }
 
         try {
             DB::beginTransaction();
             $subtotal = (float)$cart->items->sum(fn($item) => $item->price * $item->qty);
-            
-            Log::info('Subtotal Calculated', ['subtotal' => $subtotal]);
 
             if ($subtotal < 69) {
                 return response()->json([
@@ -132,8 +127,6 @@ class OrderApiController extends Controller
                 'payment_method' => $request->payment_method ?? 'bacs',
             ]));
 
-            Log::info('Order Created', ['order_id' => $order->id]);
-
             foreach ($cart->items as $item) {
                 OrderItem::create([
                     'order_id' => $order->id,
@@ -167,7 +160,6 @@ class OrderApiController extends Controller
                 // Don't fail the order
             }
 
-            Log::info('Order Complete - Returning Success');
             return response()->json($order->load('items.product'), 201);
 
         } catch (\Exception $e) {
