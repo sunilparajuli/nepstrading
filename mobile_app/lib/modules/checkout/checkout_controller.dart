@@ -256,6 +256,11 @@ class CheckoutController extends GetxController {
         'billing_phone': phoneController.text.trim(),
         'payment_method': isBankTransfer.value ? 'bacs' : 'cod',
         'shipping_total': shippingCost.value,
+        'shipping_name': shippingName.value,
+        'shipping_state': selectedState.value,
+        'shipping_postcode': selectedPostcode.value,
+        'shipping_address': addressController.text.trim(),
+        'shipping_city': cityController.text.trim(),
       });
       
       if (response.statusCode == 200 || response.statusCode == 201) {

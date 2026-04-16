@@ -75,6 +75,7 @@ class OrderApiController extends Controller
         }
 
         try {
+            DB::beginTransaction();
             $subtotal = (float)$cart->items->sum(fn($item) => $item->price * $item->qty);
 
             if ($subtotal < 69) {
