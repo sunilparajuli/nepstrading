@@ -140,6 +140,9 @@ class ProductController extends Controller
             }
             $path = $request->file('image')->store('products', 'public');
             $validated['image'] = Storage::url($path);
+        } else {
+            // Remove image from validated data so it's not nullified in the DB
+            unset($validated['image']);
         }
 
         $validated['manage_stock'] = $request->has('manage_stock');
