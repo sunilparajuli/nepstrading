@@ -167,6 +167,7 @@ class OrderApiController extends Controller
                 // Don't fail the order
             }
 
+            Log::info('Order Complete - Returning Success');
             return response()->json($order->load('items.product'), 201);
 
         } catch (\Exception $e) {
