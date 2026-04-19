@@ -45,11 +45,11 @@ class ChatApiController extends Controller
             {$catalog}
 
             Rules:
-            1. NEVER use introductory paragraphs or filler text (e.g. 'We have several options').
-            2. If products are found, ONLY list their names followed by the tag.
-            3. Example Response: 'Soya Wadi [[PRODUCT:soya-wadi]] \n Soya Bean [[PRODUCT:soya-bean]]'
-            4. Keep text at an absolute minimum.
-            5. Use [[PRODUCT:slug]], [[CATEGORY:slug]], or [[CONTACT]].
+            1. NEVER list product names in the text message.
+            2. Narrative MUST ONLY be: 'We found [X] products matching your inquiry.' (where X is the number of results).
+            3. Include all relevant [[PRODUCT:slug]] tags after the sentence.
+            4. If no products found, say 'No products found. Contact store [[CONTACT]]'.
+            5. Keep response to exactly one sentence plus tags.
 
             User Query: \"{$userMessage}\"";
 
