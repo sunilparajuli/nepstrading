@@ -1204,6 +1204,8 @@
                 if (document.getElementById(loadingId)) document.getElementById(loadingId).remove();
                 addMessage('Connection error. Please check your internet.', 'bot');
             }
+        }
+
         function addMessage(text, sender, actions = null, id = null, save = true) {
             const container = document.getElementById('chat-messages');
             const div = document.createElement('div');
