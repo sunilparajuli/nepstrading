@@ -34,24 +34,24 @@ class ChatApiController extends Controller
             $contactPhone = SiteSetting::getValue('footer_phone', '+61 000 000 000');
             $contactEmail = SiteSetting::getValue('footer_email', 'info@nepstrading.com.au');
 
-            // 2. Prepare AI Prompt
-            $context = "Products in stock matching query: " . $products->map(fn($p) => "{$p->name} (\${$p->price})")->join(', ') . ". ";
-            $context .= "Categories matching query: " . $categories->pluck('name')->join(', ') . ". ";
-            $context .= "Store Contact: Phone {$contactPhone}, Email {$contactEmail}. ";
+            // 2. Load Global Catalog Context (Fast & Accurate)
+            $catalogPath = storage_path('app/catalog.json');
+            $catalog = file_exists($catalogPath) ? file_get_contents($catalogPath) : '[]';
 
-            $prompt = "You are a helpful Shop Assistant for Nepstrading, an authentic Indian and Nepali grocery store in Australia.
+            $prompt = "You are a helpful Shop Assistant for Nepstrading.
             
-            Current Inventory/Context: {$context}
+            FULL STORE CATALOG (JSON):
+            {$catalog}
 
             Rules:
-            1. If we have the product, guide the user warmly.
-            2. If we don't have it, apologize and suggest related items or give contact info.
-            3. Keep responses concise (2-3 sentences max).
-            4. Include a special tag [[PRODUCT:id]] if you are recommending a specific product from the context.
-            5. Include [[CATEGORY:slug]] if you recommend a category.
-            6. If you provide contact info, use [[CONTACT]].
+            1. Use the catalog above as your absolute source of truth for products.
+            2. If the user asks for something, perform fuzzy matching (e.g. 'Soya' -> 'Soya Wadi').
+            3. Responses MUST be concise (max 2 sentences).
+            4. Include [[PRODUCT:id]] for recommended products.
+            5. Include [[CATEGORY:slug]] for category suggestions.
+            6. If not found in catalog, suggest similar or give contact [[CONTACT]].
 
-            User says: \"{$userMessage}\"";
+            User Query: \"{$userMessage}\"";
 
             // 3. Call Gemini (Using gemini-flash-latest for best compatibility)
             $result = Gemini::generativeModel('gemini-flash-latest')->generateContent($prompt);
