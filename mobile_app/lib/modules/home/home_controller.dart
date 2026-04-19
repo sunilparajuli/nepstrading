@@ -10,7 +10,10 @@ class HomeController extends GetxController {
   final isLoading = true.obs;
   
   final categories = <Category>[].obs;
-  final products = <Product>[].obs;
+  final products = <Product>[].obs; // This will remain as "All/Popular" for the main grid
+  final latestProducts = <Product>[].obs;
+  final popularProducts = <Product>[].obs;
+  final seasonalProducts = <Product>[].obs;
   
   final searchQuery = ''.obs;
   final selectedCategoryId = Rxn<int>();
@@ -64,13 +67,31 @@ class HomeController extends GetxController {
             .toList());
       }
 
-      await fetchProducts(showLoader: false);
+      await Future.wait([
+        fetchProducts(showLoader: false),
+        fetchSectionProducts(latestProducts, {'sort': 'latest', 'per_page': 6}),
+        fetchSectionProducts(popularProducts, {'popular': true, 'per_page': 6}),
+        fetchSectionProducts(seasonalProducts, {'seasonal': true, 'per_page': 6}),
+      ]);
       
     } catch (e) {
       print('API Fetch Error: $e');
       Get.snackbar('Error', 'Could not sync with server.');
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  Future<void> fetchSectionProducts(RxList<Product> list, Map<String, dynamic> params) async {
+    try {
+      final dio = Get.find<DioClient>().dio;
+      final response = await dio.get('/products', queryParameters: params);
+      if (response.statusCode == 200) {
+        final List items = response.data['data'] ?? [];
+        list.assignAll(items.map((e) => Product.fromJson(e)).toList());
+      }
+    } catch (e) {
+      print('Section Fetch Error: $e');
     }
   }
 

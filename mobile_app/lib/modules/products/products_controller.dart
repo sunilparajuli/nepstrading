@@ -24,17 +24,27 @@ class ProductsController extends GetxController {
   final selectedCategoryId = Rxn<int>();
   final minPrice = Rxn<double>();
   final maxPrice = Rxn<double>();
-  final sortBy = 'featured'.obs; // featured, name_asc, price_asc, price_desc
+  final sortBy = 'featured'.obs; // featured, name_asc, price_asc, price_desc, latest
   final searchQuery = ''.obs;
   final stockStatus = 'all'.obs; // all, in, out
+  final isPopular = false.obs;
+  final isSeasonal = false.obs;
 
   @override
   void onInit() {
     super.onInit();
-    // Load arguments if passed from Home (e.g. selected category)
+    // Load arguments if passed from Home
     if (Get.arguments is int) {
       selectedCategoryId.value = Get.arguments;
+    } else if (Get.arguments is Map<String, dynamic>) {
+      final args = Get.arguments as Map<String, dynamic>;
+      if (args.containsKey('category')) selectedCategoryId.value = args['category'];
+      if (args.containsKey('sort')) sortBy.value = args['sort'];
+      if (args.containsKey('popular')) isPopular.value = args['popular'];
+      if (args.containsKey('seasonal')) isSeasonal.value = args['seasonal'];
+      if (args.containsKey('search')) searchQuery.value = args['search'];
     }
+    
     fetchInitialData();
     
     // Setup Scroll Listener
@@ -49,6 +59,8 @@ class ProductsController extends GetxController {
     ever(selectedCategoryId, (_) => resetAndFetch());
     ever(sortBy, (_) => resetAndFetch());
     ever(stockStatus, (_) => resetAndFetch());
+    ever(isPopular, (_) => resetAndFetch());
+    ever(isSeasonal, (_) => resetAndFetch());
   }
 
   @override
@@ -105,6 +117,8 @@ class ProductsController extends GetxController {
       if (sortBy.value != 'featured') queryParams['sort'] = sortBy.value;
       if (searchQuery.value.isNotEmpty) queryParams['search'] = searchQuery.value;
       if (stockStatus.value != 'all') queryParams['stock'] = stockStatus.value;
+      if (isPopular.value) queryParams['popular'] = true;
+      if (isSeasonal.value) queryParams['seasonal'] = true;
 
       final response = await dio.get('/products', queryParameters: queryParams);
       if (response.statusCode == 200) {
@@ -150,6 +164,8 @@ class ProductsController extends GetxController {
     sortBy.value = 'featured';
     searchQuery.value = '';
     stockStatus.value = 'all';
+    isPopular.value = false;
+    isSeasonal.value = false;
     fetchProducts();
   }
 

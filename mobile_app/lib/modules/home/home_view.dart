@@ -35,8 +35,37 @@ class HomeView extends GetView<HomeController> {
                     controller: controller.scrollController,
                     physics: const AlwaysScrollableScrollPhysics(),
                     slivers: [
+                      // New Arrivals Horizontal Section
                       SliverToBoxAdapter(
-                        child: _buildSectionTitle('Popular Product', context),
+                        child: Obx(() => controller.latestProducts.isNotEmpty 
+                          ? Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _buildSectionTitle('Newly Arrival', context, filter: {'sort': 'latest'}),
+                                _buildHorizontalProducts(controller.latestProducts, context),
+                                const SizedBox(height: 20),
+                              ],
+                            )
+                          : const SizedBox.shrink()),
+                      ),
+
+                      // Seasonal Specials Horizontal Section
+                      SliverToBoxAdapter(
+                        child: Obx(() => controller.seasonalProducts.isNotEmpty 
+                          ? Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _buildSectionTitle('Seasonal Specials', context, filter: {'seasonal': true}),
+                                _buildHorizontalProducts(controller.seasonalProducts, context),
+                                const SizedBox(height: 20),
+                              ],
+                            )
+                          : const SizedBox.shrink()),
+                      ),
+
+                      // Popular Products Main Grid
+                      SliverToBoxAdapter(
+                        child: _buildSectionTitle('Popular Product', context, filter: {'popular': true}),
                       ),
                       SliverPadding(
                         padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -80,7 +109,7 @@ class HomeView extends GetView<HomeController> {
                             ),
                           ),
                         ),
-                      const SliverToBoxAdapter(child: SizedBox(height: 20)),
+                      const SliverToBoxAdapter(child: SizedBox(height: 40)),
                     ],
                   ),
                 );
@@ -269,7 +298,7 @@ class HomeView extends GetView<HomeController> {
     });
   }
 
-  Widget _buildSectionTitle(String title, BuildContext context) {
+  Widget _buildSectionTitle(String title, BuildContext context, {Map<String, dynamic>? filter}) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       child: Row(
@@ -277,13 +306,34 @@ class HomeView extends GetView<HomeController> {
         children: [
           Text(
             title,
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold, fontSize: 20),
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold, fontSize: 18),
           ),
           TextButton(
-            onPressed: () => Get.toNamed('/products'),
-            child: const Text('View All', style: TextStyle(color: Colors.grey, fontSize: 14)),
+            onPressed: () => Get.toNamed('/products', arguments: filter),
+            child: const Text('View All', style: TextStyle(color: AppTheme.primaryColor, fontSize: 14, fontWeight: FontWeight.bold)),
           )
         ],
+      ),
+    );
+  }
+
+  Widget _buildHorizontalProducts(List<Product> products, BuildContext context) {
+    return SizedBox(
+      height: 240,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        itemCount: products.length,
+        itemBuilder: (context, index) {
+          final product = products[index];
+          return Padding(
+            padding: const EdgeInsets.only(right: 16),
+            child: SizedBox(
+              width: 160,
+              child: _buildProductCard(product, context),
+            ),
+          );
+        },
       ),
     );
   }

@@ -47,12 +47,21 @@ class ProductController extends Controller
             }
         }
 
+        // Popular/Seasonal Tags
+        if ($request->boolean('popular')) {
+            $query->where('is_popular', true);
+        }
+        if ($request->boolean('seasonal')) {
+            $query->where('is_seasonal', true);
+        }
+
         // Sorting
         $sort = $request->get('sort', 'featured');
         switch ($sort) {
             case 'price_asc': $query->orderBy('price', 'asc'); break;
             case 'price_desc': $query->orderBy('price', 'desc'); break;
             case 'name_asc': $query->orderBy('name', 'asc'); break;
+            case 'latest': $query->latest(); break;
             default: $query->orderBy('id', 'desc'); break;
         }
 

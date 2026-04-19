@@ -3,7 +3,16 @@
         <div class="flex items-center gap-3">
             <h2 class="text-2xl md:text-3xl font-bold tracking-tight text-gray-900" style="font-family: 'DM Serif Display', serif;">{{ $section->title }}</h2>
         </div>
-        <a href="/products" class="text-sm font-bold text-[#15803D] hover:opacity-80 transition-opacity flex items-center gap-1 group">
+        @php
+            $exploreUrl = match($section->type) {
+                'new_products' => route('products.index', ['sort' => 'latest']),
+                'popular_products' => route('products.index', ['popular' => 1]),
+                'featured_products' => route('products.index', ['seasonal' => 1]),
+                'weekly_special' => route('products.index', ['stock' => 'in']),
+                default => route('products.index'),
+            };
+        @endphp
+        <a href="{{ $exploreUrl }}" class="text-sm font-bold text-[#15803D] hover:opacity-80 transition-opacity flex items-center gap-1 group">
             Explore All
             <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
         </a>
