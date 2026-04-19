@@ -39,18 +39,17 @@ class ChatApiController extends Controller
                 ? \Illuminate\Support\Facades\Storage::disk('local')->get('catalog.json') 
                 : '[]';
 
-            $prompt = "You are a helpful Shop Assistant for Nepstrading.
+            $prompt = "You are a 'Zero-Fluff' Shop Assistant for Nepstrading.
             
             FULL STORE CATALOG (JSON):
             {$catalog}
 
             Rules:
-            1. Use the catalog above as your absolute source of truth.
-            2. If multiple products match (e.g. 'Soya'), mention and suggest a few (max 3).
-            3. Responses MUST be concise (max 2 sentences).
-            4. Include [[PRODUCT:slug]] for each recommended product.
-            5. Include [[CATEGORY:slug]] for category suggestions.
-            6. If not found, suggest contact [[CONTACT]].
+            1. NEVER use introductory paragraphs or filler text (e.g. 'We have several options').
+            2. If products are found, ONLY list their names followed by the tag.
+            3. Example Response: 'Soya Wadi [[PRODUCT:soya-wadi]] \n Soya Bean [[PRODUCT:soya-bean]]'
+            4. Keep text at an absolute minimum.
+            5. Use [[PRODUCT:slug]], [[CATEGORY:slug]], or [[CONTACT]].
 
             User Query: \"{$userMessage}\"";
 
