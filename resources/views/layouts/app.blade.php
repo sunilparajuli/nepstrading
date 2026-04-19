@@ -886,8 +886,12 @@
 
                 <div class="m-footerBottom">
                     <div class="m-footerBottomInner">
-                        <p class="m-copyright">&copy; {{ date('Y') }} {{ \App\Models\SiteSetting::getValue('footer_copyright_text', 'Nepstrading. Built for Excellence.') }} 
-                            | <span style="margin-left: 5px; opacity: 0.8;">Developed by </span><a href="https://tinker.com.np" target="_blank" style="color: hsl(var(--primary)); font-weight: 700; text-decoration: none;">tinker.com.np</a>
+                        <p class="m-copyright">
+                            &copy; {{ date('Y') }} {{ \App\Models\SiteSetting::getValue('footer_copyright_text', 'Nepstrading. Built for Excellence.') }} 
+                            | <span style="margin-left: 5px; opacity: 0.8;">Developed by </span>
+                            <a href="https://tinker.com.np" target="_blank" style="background: white; color: #1e3a8a; padding: 3px 10px; border-radius: 6px; font-weight: 800; text-decoration: none; display: inline-block; margin-left: 5px; font-size: 11px; letter-spacing: 0.05em; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                                tinker.com.np
+                            </a>
                         </p>
                         <div class="m-paymentIcons">
                             <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/200px-Visa_Inc._logo.svg.png" class="m-paymentIcon" alt="Visa">
