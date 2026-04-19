@@ -119,6 +119,11 @@ class HomeView extends GetView<HomeController> {
         ),
       ),
       bottomNavigationBar: _buildBottomNav(),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => Get.toNamed('/chatbot'),
+        backgroundColor: AppTheme.primaryColor,
+        child: const Icon(LucideIcons.messageSquare, color: Colors.white),
+      ),
     );
   }
 

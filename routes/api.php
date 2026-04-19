@@ -45,6 +45,9 @@ Route::get('/locations/states', [App\Http\Controllers\Api\LocationApiController:
 Route::get('/locations/postcodes', [App\Http\Controllers\Api\LocationApiController::class, 'getPostcodes']);
 Route::post('/locations/calculate-shipping', [App\Http\Controllers\Api\LocationApiController::class, 'calculateShipping']);
 
+// Chatbot (public)
+Route::post('/chatbot', [App\Http\Controllers\Api\ChatApiController::class, 'chat'])->name('api.chatbot');
+
 /*
 |--------------------------------------------------------------------------
 | Protected API Routes (require Sanctum token)

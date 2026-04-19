@@ -22,6 +22,8 @@ import '../modules/products/products_binding.dart';
 import '../modules/orders/orders_view.dart';
 import '../modules/orders/orders_binding.dart';
 import '../modules/maintenance/maintenance_view.dart';
+import '../modules/chatbot/chatbot_view.dart';
+import '../modules/chatbot/chatbot_binding.dart';
 
 class AppPages {
   static const INITIAL = Routes.SPLASH;
@@ -87,6 +89,11 @@ class AppPages {
     GetPage(
       name: Routes.MAINTENANCE,
       page: () => const MaintenanceView(),
+    ),
+    GetPage(
+      name: Routes.CHATBOT,
+      page: () => const ChatbotView(),
+      binding: ChatbotBinding(),
     ),
   ];
 }

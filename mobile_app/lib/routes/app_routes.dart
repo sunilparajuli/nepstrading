@@ -11,4 +11,5 @@ abstract class Routes {
   static const WISHLIST = '/wishlist';
   static const ORDERS = '/orders';
   static const MAINTENANCE = '/maintenance';
+  static const CHATBOT = '/chatbot';
 }
