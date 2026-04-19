@@ -886,7 +886,9 @@
 
                 <div class="m-footerBottom">
                     <div class="m-footerBottomInner">
-                        <p class="m-copyright">&copy; {{ date('Y') }} {{ \App\Models\SiteSetting::getValue('footer_copyright_text', 'Nepstrading. Built for Excellence.') }}</p>
+                        <p class="m-copyright">&copy; {{ date('Y') }} {{ \App\Models\SiteSetting::getValue('footer_copyright_text', 'Nepstrading. Built for Excellence.') }} 
+                            | <span style="margin-left: 5px; opacity: 0.8;">Developed by </span><a href="https://tinker.com.np" target="_blank" style="color: hsl(var(--primary)); font-weight: 700; text-decoration: none;">tinker.com.np</a>
+                        </p>
                         <div class="m-paymentIcons">
                             <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/200px-Visa_Inc._logo.svg.png" class="m-paymentIcon" alt="Visa">
                             <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/200px-Mastercard-logo.svg.png" class="m-paymentIcon" alt="Mastercard">
