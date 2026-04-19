@@ -54,7 +54,7 @@ class ChatApiController extends Controller
             User says: \"{$userMessage}\"";
 
             // 3. Call Gemini (Using 2.0-flash for maximum stability in 2026 environment)
-            $result = Gemini::model('gemini-2.0-flash')->generateContent($prompt);
+            $result = Gemini::generativeModel('gemini-2.0-flash')->generateContent($prompt);
             $botResponse = $result->text();
 
             // 4. Parse Actions (simple parsing for the mobile app)
