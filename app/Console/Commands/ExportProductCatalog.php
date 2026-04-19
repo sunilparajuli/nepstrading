@@ -15,15 +15,16 @@ class ExportProductCatalog extends Command
     {
         $this->info('Starting catalog export...');
 
-        $products = Product::with('category')
+        $products = Product::with('categories')
             ->where('status', 'publish')
             ->get()
             ->map(function ($product) {
+                $category = $product->categories->first();
                 return [
                     'id' => $product->id,
-                    'n' => $product->name, // Minified key
-                    'c' => $product->category ? $product->category->name : 'General', // Minified key
-                    's' => $product->slug // Needed for links
+                    'n' => $product->name,
+                    'c' => $category ? $category->name : 'General',
+                    's' => $product->slug
                 ];
             });
 
