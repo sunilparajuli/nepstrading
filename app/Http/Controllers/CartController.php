@@ -152,17 +152,33 @@ class CartController extends Controller
     public function add(Request $request, $productId)
     {
         $product = Product::findOrFail($productId);
-        $cart = session()->get('cart', []);
+        $variationId = $request->input('variation_id');
         $qty = $request->input('qty', 1);
+        $cart = session()->get('cart', []);
 
-        if(isset($cart[$product->id])) {
-            $cart[$product->id]['qty'] += $qty;
+        $cartKey = $variationId ? $productId . '-' . $variationId : $productId;
+        $price = $product->sale_price ?? $product->price;
+        $name = $product->name;
+        $image = $product->image;
+
+        if ($variationId) {
+            $variation = \App\Models\ProductVariation::findOrFail($variationId);
+            $price = $variation->sale_price ?? $variation->price;
+            $image = $variation->image ?? $product->image;
+            // Append variation attributes to name for clarity in cart
+            $name .= ' (' . $variation->formatted_attributes . ')';
+        }
+
+        if(isset($cart[$cartKey])) {
+            $cart[$cartKey]['qty'] += $qty;
         } else {
-            $cart[$product->id] = [
-                "name" => $product->name,
+            $cart[$cartKey] = [
+                "product_id" => $productId,
+                "variation_id" => $variationId,
+                "name" => $name,
                 "qty" => $qty,
-                "price" => $product->sale_price ?? $product->price,
-                "image" => $product->image ?? 'https://placehold.co/100x100?text=' . urlencode($product->name)
+                "price" => $price,
+                "image" => $image ?? 'https://placehold.co/100x100?text=' . urlencode($name)
             ];
         }
 

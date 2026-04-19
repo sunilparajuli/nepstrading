@@ -65,13 +65,14 @@ class ChatApiController extends Controller
             // Extract Product Slugs
             if (preg_match_all('/\[\[PRODUCT:([^\]]+)\]\]/', $botResponse, $matches)) {
                 $slugs = array_unique($matches[1]);
-                $foundProducts = Product::whereIn('slug', $slugs)->get(['id', 'slug', 'name']);
+                $foundProducts = Product::whereIn('slug', $slugs)->get(['id', 'slug', 'name', 'product_type']);
                 foreach ($foundProducts as $p) {
                     $actions[] = [
                         'type' => 'product', 
                         'id' => $p->id, 
                         'slug' => $p->slug,
-                        'name' => $p->name
+                        'name' => $p->name,
+                        'is_variable' => $p->product_type === 'variable'
                     ];
                 }
             }

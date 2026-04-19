@@ -629,6 +629,37 @@
             transition: all 0.2s;
         }
         .chat-action-btn:hover { background: hsl(var(--primary)); color: white; }
+        .variation-options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+        .var-option-card {
+            border: 2px solid hsl(var(--border));
+            border-radius: 12px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+        .var-option-card:hover {
+            border-color: hsl(var(--primary));
+            background: hsl(var(--primary) / 0.05);
+        }
+        .var-option-card.selected {
+            border-color: hsl(var(--primary));
+            background: hsl(var(--primary));
+            color: white !important;
+        }
+        .var-option-card .price {
+            font-weight: 700;
+            display: block;
+            margin-top: 4px;
+        }
+        .var-option-card.selected * {
+            color: white !important;
+        }
     </style>
 </head>
 <body>
@@ -1141,6 +1172,24 @@
                 <button class="s-modalBtn" onclick="closeInquiryModal()">Understood</button>
             </div>
         </div>
+        <!-- Variations Modal -->
+        <div id="variationModal" class="s-modal">
+            <div class="s-modalBg" onclick="closeVariationModal()"></div>
+            <div class="s-modalPanel">
+                <div style="text-align: center; margin-bottom: 16px;">
+                    <div style="font-size: 14px; text-transform: uppercase; color: hsl(var(--muted-fg)); letter-spacing: 0.1em; margin-bottom: 4px;">Available Choices</div>
+                    <h3 class="s-modalTitle" id="varModalTitle" style="margin: 0;">Select Options</h3>
+                </div>
+                <div id="variationOptions" class="variation-options-grid">
+                    <!-- Dynamic Options -->
+                </div>
+                <div style="margin-top: 24px; display: flex; gap: 12px;">
+                    <button class="s-modalBtn" style="background: #f3f4f6; color: #4b5563; flex: 1;" onclick="closeVariationModal()">Cancel</button>
+                    <button class="s-modalBtn" id="addVarToCartBtn" style="flex: 2;" disabled onclick="submitVariationAddToCart()">Add to Cart</button>
+                </div>
+            </div>
+        </div>
+
         <!-- AI Chatbot Widget -->
     <div id="chatbot-widget">
         <div class="chat-header">
@@ -1245,8 +1294,14 @@
                     const btn = document.createElement('a');
                     btn.className = 'chat-action-btn';
                     if (action.type === 'product') {
-                        btn.href = `/products/${action.slug}`;
-                        btn.textContent = (action.name || 'Product') + ' (View)';
+                        if (action.is_variable) {
+                            btn.href = 'javascript:void(0)';
+                            btn.onclick = () => openVariationModal(action.id, action.name);
+                            btn.textContent = (action.name || 'Product') + ' (Select Sizes)';
+                        } else {
+                            btn.href = `/products/${action.slug}`;
+                            btn.textContent = (action.name || 'Product') + ' (View)';
+                        }
                     } else if (action.type === 'category') {
                         btn.href = `/categories/${action.slug}`;
                         btn.textContent = 'Explore Category';
@@ -1265,6 +1320,86 @@
                 saveToHistory(text, sender, actions);
             }
         }
+
+        let selectedVariationId = null;
+        let activeVariantProductId = null;
+
+        window.openVariationModal = async function(productId, productName) {
+            activeVariantProductId = productId;
+            selectedVariationId = null;
+            document.getElementById('varModalTitle').textContent = productName;
+            const container = document.getElementById('variationOptions');
+            const addBtn = document.getElementById('addVarToCartBtn');
+            
+            container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 20px;">Loading options...</div>';
+            addBtn.disabled = true;
+            document.getElementById('variationModal').classList.add('show');
+
+            try {
+                const response = await fetch(`/api/products/${productId}`);
+                const data = await response.json();
+                
+                container.innerHTML = '';
+                if (data.variations && data.variations.length > 0) {
+                    data.variations.forEach(v => {
+                        const card = document.createElement('div');
+                        card.className = 'var-option-card';
+                        card.innerHTML = `
+                            <div style="font-size: 13px; font-weight: 600;">${v.formatted_attributes}</div>
+                            <div class="price">$${v.price}</div>
+                        `;
+                        card.onclick = () => {
+                            document.querySelectorAll('.var-option-card').forEach(c => c.classList.remove('selected'));
+                            card.classList.add('selected');
+                            selectedVariationId = v.id;
+                            addBtn.disabled = false;
+                        };
+                        container.appendChild(card);
+                    });
+                } else {
+                    container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: red;">No options available for this product.</div>';
+                }
+            } catch (error) {
+                container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: red;">Error loading options.</div>';
+            }
+        };
+
+        window.closeVariationModal = function() {
+            document.getElementById('variationModal').classList.remove('show');
+        };
+
+        window.submitVariationAddToCart = async function() {
+            if (!selectedVariationId || !activeVariantProductId) return;
+            
+            const addBtn = document.getElementById('addVarToCartBtn');
+            const originalText = addBtn.textContent;
+            addBtn.disabled = true;
+            addBtn.textContent = 'Adding...';
+
+            try {
+                const response = await fetch(`/cart/${activeVariantProductId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ variation_id: selectedVariationId, qty: 1 })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    showToast('Added to cart!');
+                    closeVariationModal();
+                    if (typeof updateCartUI === 'function') updateCartUI(data);
+                }
+            } catch (error) {
+                showToast('Error adding to cart', 'error');
+            } finally {
+                addBtn.disabled = false;
+                addBtn.textContent = originalText;
+            }
+        };
 
         document.addEventListener('DOMContentLoaded', function() {
             loadHistory();

@@ -24,4 +24,19 @@ class ProductVariation extends Model
     {
         return $this->belongsTo(Product::class);
     }
+
+    public function getFormattedAttributesAttribute()
+    {
+        if (!$this->attribute_combination || !is_array($this->attribute_combination)) return '';
+        
+        $parts = [];
+        foreach ($this->attribute_combination as $key => $value) {
+            if (is_numeric($key)) {
+                $parts[] = $value;
+            } else {
+                $parts[] = "$key: $value";
+            }
+        }
+        return implode(', ', $parts);
+    }
 }

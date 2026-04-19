@@ -15,7 +15,7 @@ class ExportProductCatalog extends Command
     {
         $this->info('Starting catalog export...');
 
-        $products = Product::with('categories')
+        $products = Product::with(['categories', 'variations'])
             ->whereIn('status', ['active', 'publish'])
             ->get()
             ->map(function ($product) {
@@ -24,7 +24,9 @@ class ExportProductCatalog extends Command
                     'id' => $product->id,
                     'n' => $product->name,
                     'c' => $category ? $category->name : 'General',
-                    's' => $product->slug
+                    's' => $product->slug,
+                    't' => $product->product_type,
+                    'v' => $product->variations->count()
                 ];
             });
 
