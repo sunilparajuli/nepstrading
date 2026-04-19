@@ -1196,8 +1196,8 @@
                     const btn = document.createElement('a');
                     btn.className = 'chat-action-btn';
                     if (action.type === 'product') {
-                        btn.href = `/products/${action.id}`; // Assuming URL pattern
-                        btn.textContent = 'View Product';
+                        btn.href = `/products/${action.slug}`;
+                        btn.textContent = 'View ' + (action.name || 'Product');
                     } else if (action.type === 'category') {
                         btn.href = `/categories/${action.slug}`;
                         btn.textContent = 'Explore Category';

@@ -45,12 +45,12 @@ class ChatApiController extends Controller
             {$catalog}
 
             Rules:
-            1. Use the catalog above as your absolute source of truth for products.
-            2. If the user asks for something, perform fuzzy matching (e.g. 'Soya' -> 'Soya Wadi').
+            1. Use the catalog above as your absolute source of truth.
+            2. If multiple products match (e.g. 'Soya'), mention and suggest a few (max 3).
             3. Responses MUST be concise (max 2 sentences).
-            4. Include [[PRODUCT:id]] for recommended products.
+            4. Include [[PRODUCT:slug]] for each recommended product.
             5. Include [[CATEGORY:slug]] for category suggestions.
-            6. If not found in catalog, suggest similar or give contact [[CONTACT]].
+            6. If not found, suggest contact [[CONTACT]].
 
             User Query: \"{$userMessage}\"";
 
@@ -58,14 +58,30 @@ class ChatApiController extends Controller
             $result = Gemini::generativeModel('gemini-flash-latest')->generateContent($prompt);
             $botResponse = $result->text();
 
-            // 4. Parse Actions (simple parsing for the mobile app)
+            // 4. Parse Actions (Improved for multiple slugs/ids)
             $actions = [];
-            if (preg_match('/\[\[PRODUCT:(\d+)\]\]/', $botResponse, $matches)) {
-                $actions[] = ['type' => 'product', 'id' => (int)$matches[1]];
+            
+            // Extract Product Slugs
+            if (preg_match_all('/\[\[PRODUCT:([^\]]+)\]\]/', $botResponse, $matches)) {
+                $slugs = array_unique($matches[1]);
+                $foundProducts = Product::whereIn('slug', $slugs)->get(['id', 'slug', 'name']);
+                foreach ($foundProducts as $p) {
+                    $actions[] = [
+                        'type' => 'product', 
+                        'id' => $p->id, 
+                        'slug' => $p->slug,
+                        'name' => $p->name
+                    ];
+                }
             }
-            if (preg_match('/\[\[CATEGORY:([^\]]+)\]\]/', $botResponse, $matches)) {
-                $actions[] = ['type' => 'category', 'slug' => $matches[1]];
+
+            // Extract Category Slugs
+            if (preg_match_all('/\[\[CATEGORY:([^\]]+)\]\]/', $botResponse, $matches)) {
+                foreach (array_unique($matches[1]) as $slug) {
+                    $actions[] = ['type' => 'category', 'slug' => $slug];
+                }
             }
+
             if (str_contains($botResponse, '[[CONTACT]]')) {
                 $actions[] = ['type' => 'contact', 'phone' => $contactPhone];
             }
