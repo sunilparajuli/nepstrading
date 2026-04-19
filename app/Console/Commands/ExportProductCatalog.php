@@ -16,7 +16,7 @@ class ExportProductCatalog extends Command
         $this->info('Starting catalog export...');
 
         $products = Product::with('category')
-            ->where('status', 1)
+            ->where('status', 'publish')
             ->get()
             ->map(function ($product) {
                 return [
