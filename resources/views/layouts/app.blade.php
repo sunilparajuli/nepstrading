@@ -1183,7 +1183,7 @@
 
             // Loading indicator
             const loadingId = 'loading-' + Date.now();
-            addMessage('Thinking...', 'bot', null, loadingId);
+            addMessage('Searching store...', 'bot', null, loadingId);
 
             try {
                 const response = await fetch('/api/chatbot', {

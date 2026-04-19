@@ -34,10 +34,12 @@ class ChatApiController extends Controller
             $contactPhone = SiteSetting::getValue('footer_phone', '+61 000 000 000');
             $contactEmail = SiteSetting::getValue('footer_email', 'info@nepstrading.com.au');
 
-            // 2. Load Global Catalog Context (Using Laravel Storage for correct path resolution)
-            $catalog = \Illuminate\Support\Facades\Storage::disk('local')->exists('catalog.json') 
-                ? \Illuminate\Support\Facades\Storage::disk('local')->get('catalog.json') 
-                : '[]';
+            // 2. Load Global Catalog Context (Cached for performance)
+            $catalog = \Illuminate\Support\Facades\Cache::remember('ai_product_catalog', 3600, function () {
+                return \Illuminate\Support\Facades\Storage::disk('local')->exists('catalog.json') 
+                    ? \Illuminate\Support\Facades\Storage::disk('local')->get('catalog.json') 
+                    : '[]';
+            });
 
             $prompt = "You are a 'Zero-Fluff' Shop Assistant for Nepstrading.
             
