@@ -877,6 +877,10 @@
                             <svg class="m-contactIcon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
                             <span>{{ \App\Models\SiteSetting::getValue('footer_phone', '+61 4XX XXX XXX') }}</span>
                         </div>
+                        <div class="m-contactItem">
+                            <svg class="m-contactIcon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                            <span>info@tinker.com.np</span>
+                        </div>
                         <form action="#" method="POST" class="m-newsletterForm" onsubmit="event.preventDefault(); alert('Successfully Subscribed!');">
                             <input type="email" placeholder="Email address" class="m-newsletterInput" required>
                             <button type="submit" class="m-newsletterBtn">Join</button>
@@ -894,10 +898,10 @@
                             </a>
                         </p>
                         <div class="m-paymentIcons">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/200px-Visa_Inc._logo.svg.png" class="m-paymentIcon" alt="Visa">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/200px-Mastercard-logo.svg.png" class="m-paymentIcon" alt="Mastercard">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" class="m-paymentIcon" alt="Visa">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" class="m-paymentIcon" alt="Mastercard">
                             @if($paypalEnabled)
-                                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/PayPal.svg/200px-PayPal.svg.png" class="m-paymentIcon" alt="PayPal">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg" class="m-paymentIcon" alt="PayPal">
                             @endif
                             @if($bankEnabled)
                                 <div class="m-paymentIcon m-bankBadge">
