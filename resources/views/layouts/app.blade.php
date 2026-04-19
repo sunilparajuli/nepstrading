@@ -1151,6 +1151,25 @@
         function toggleChat() {
             const widget = document.getElementById('chatbot-widget');
             widget.classList.toggle('show');
+            if (widget.classList.contains('show')) {
+                const container = document.getElementById('chat-messages');
+                container.scrollTop = container.scrollHeight;
+            }
+        }
+
+        // Persistent History Logic
+        function saveToHistory(text, sender, actions = null) {
+            let history = JSON.parse(localStorage.getItem('nepstrading_chat_history') || '[]');
+            history.push({ text, sender, actions });
+            if (history.length > 20) history.shift(); // Keep last 20
+            localStorage.setItem('nepstrading_chat_history', JSON.stringify(history));
+        }
+
+        function loadHistory() {
+            const history = JSON.parse(localStorage.getItem('nepstrading_chat_history') || '[]');
+            history.forEach(item => {
+                addMessage(item.text, item.sender, item.actions, null, false); // false = don't save again
+            });
         }
 
         async function sendChatMessage(e) {
@@ -1185,9 +1204,7 @@
                 if (document.getElementById(loadingId)) document.getElementById(loadingId).remove();
                 addMessage('Connection error. Please check your internet.', 'bot');
             }
-        }
-
-        function addMessage(text, sender, actions = null, id = null) {
+        function addMessage(text, sender, actions = null, id = null, save = true) {
             const container = document.getElementById('chat-messages');
             const div = document.createElement('div');
             div.className = `chat-bubble ${sender}`;
@@ -1214,8 +1231,14 @@
 
             container.appendChild(div);
             container.scrollTop = container.scrollHeight;
+
+            if (save && sender !== 'loading') {
+                saveToHistory(text, sender, actions);
+            }
         }
+
         document.addEventListener('DOMContentLoaded', function() {
+            loadHistory();
             // Initialize Product Carousels
             const productSwipers = document.querySelectorAll('.product-swiper');
             productSwipers.forEach((swiperEl, index) => {
