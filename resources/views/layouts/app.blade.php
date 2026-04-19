@@ -44,14 +44,14 @@
     <!-- Schema.org JSON-LD -->
     <script type="application/ld+json">
     {
-      "@context": "https://schema.org",
-      "@type": "Organization",
+      "@@context": "https://schema.org",
+      "@@type": "Organization",
       "name": "{{ $appName }}",
       "url": "{{ url('/') }}",
       "logo": "{{ $siteLogo }}",
       "contactPoint": {
-        "@type": "ContactPoint",
-        "telephone": "{{ \App\Models\SiteSetting::getValue('footer_phone') }}",
+        "@@type": "ContactPoint",
+        "telephone": "{{ \App\Models\SiteSetting::getValue('footer_phone', '0390189566') }}",
         "contactType": "customer service"
       }
     }
