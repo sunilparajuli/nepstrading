@@ -21,45 +21,50 @@ class ChatApiController extends Controller
         $userMessage = $request->message;
 
         try {
-            // 1. Get Context: Search for relevant products based on query
-            $products = Product::where('name', 'like', "%{$userMessage}%")
+            // 1. Smart Filtering: Get top 100 most relevant items locally first
+            // This prevents hitting Gemini token/rate limits with the full catalog
+            $products = Product::with('categories')
+                ->where('name', 'like', "%{$userMessage}%")
                 ->orWhere('description', 'like', "%{$userMessage}%")
-                ->limit(5)
-                ->get(['id', 'name', 'price', 'slug']);
+                ->limit(100)
+                ->get();
+
+            $relevantCatalog = $products->map(function ($p) {
+                return [
+                    'id' => $p->id,
+                    'n' => $p->name,
+                    'c' => $p->categories->first()?->name ?? 'General',
+                    's' => $p->slug,
+                    't' => $p->product_type,
+                    'v' => $p->variations->count()
+                ];
+            })->values();
 
             $categories = Category::where('name', 'like', "%{$userMessage}%")
-                ->limit(3)
+                ->limit(5)
                 ->get(['id', 'name', 'slug']);
 
-            $contactPhone = SiteSetting::getValue('footer_phone', '+61 000 000 000');
-            $contactEmail = SiteSetting::getValue('footer_email', 'info@nepstrading.com.au');
-
-            // 2. Load Global Catalog Context (Cached for performance)
-            $catalog = \Illuminate\Support\Facades\Cache::remember('ai_product_catalog', 3600, function () {
-                return \Illuminate\Support\Facades\Storage::disk('local')->exists('catalog.json') 
-                    ? \Illuminate\Support\Facades\Storage::disk('local')->get('catalog.json') 
-                    : '[]';
-            });
+            $contactPhone = SiteSetting::getValue('footer_phone', '+61 4XX XXX XXX');
 
             $prompt = "You are a 'Zero-Fluff' Shop Assistant for Nepstrading.
             
-            FULL STORE CATALOG (JSON):
-            {$catalog}
+            RELEVANT PRODUCTS (JSON):
+            " . json_encode($relevantCatalog) . "
 
             Rules:
             1. NEVER list product names in the text message.
-            2. Narrative MUST ONLY be: 'We found [X] products matching your inquiry.' (where X is the number of results).
+            2. Narrative MUST ONLY be: 'We found [X] productsmatching your inquiry.' (where X is the number of results).
             3. Include all relevant [[PRODUCT:slug]] tags after the sentence.
-            4. If no products found, say 'No products found. Contact store [[CONTACT]]'.
+            4. If no products found, say 'No products found matching your search. Contact store [[CONTACT]]'.
             5. Keep response to exactly one sentence plus tags.
 
             User Query: \"{$userMessage}\"";
 
-            // 3. Call Gemini (Using gemini-flash-latest for best compatibility)
-            $result = Gemini::generativeModel('gemini-flash-latest')->generateContent($prompt);
+            // 2. Call Gemini (Using gemini-flash-latest for best speed/cost)
+            $result = Gemini::generativeModel('gemini-1.5-flash')->generateContent($prompt);
             $botResponse = $result->text();
 
-            // 4. Parse Actions (Improved for multiple slugs/ids)
+            // 3. Parse Actions
             $actions = [];
             
             // Extract Product Slugs
