@@ -864,6 +864,7 @@
                         <a href="/page/contact" class="m-footerLink">Contact Us</a>
                         <a href="/page/delivery-info" class="m-footerLink">Shipping Info</a>
                         <a href="/page/returns-policy" class="m-footerLink">Returns Policy</a>
+                        <a href="/page/privacy-policy" class="m-footerLink">Privacy Policy</a>
                     </div>
 
                     <div class="m-newsletter">
