@@ -13,10 +13,20 @@ class ProductController extends Controller
 
         // Search Filter
         if ($request->filled('search')) {
-            $query->where(function($q) use ($request) {
-                $q->where('name', 'like', '%' . $request->search . '%')
-                  ->orWhere('description', 'like', '%' . $request->search . '%');
-            });
+            $keywords = collect(explode(' ', $request->search))
+                ->filter(fn($w) => strlen($w) > 1)
+                ->values();
+
+            if ($keywords->isNotEmpty()) {
+                $query->where(function($q) use ($keywords) {
+                    foreach ($keywords as $word) {
+                        $q->orWhere('name', 'like', "%{$word}%")
+                          ->orWhere('description', 'like', "%{$word}%");
+                    }
+                });
+            } else {
+                $query->where('name', 'like', '%' . $request->search . '%');
+            }
         }
 
         // Category Filter

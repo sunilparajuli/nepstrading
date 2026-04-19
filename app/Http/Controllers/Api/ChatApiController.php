@@ -20,15 +20,28 @@ class ChatApiController extends Controller
         $userMessage = trim($request->message);
 
         try {
-            // 1. Database Search (Replacing AI for 100% reliability)
-            $products = Product::where('status', 'publish')
-                ->where(function($q) use ($userMessage) {
-                    $q->where('name', 'like', "%{$userMessage}%")
-                      ->orWhere('description', 'like', "%{$userMessage}%")
-                      ->orWhere('slug', 'like', "%{$userMessage}%");
-                })
-                ->limit(15)
-                ->get(['id', 'name', 'slug', 'product_type']);
+            // 1. Database Search (Optimized for accuracy)
+            // Split message into keywords and remove filler words
+            $stopWords = ['i', 'want', 'to', 'buy', 'find', 'me', 'some', 'is', 'available', 'the', 'a', 'an', 'please', 'can', 'you', 'show'];
+            $keywords = collect(explode(' ', strtolower($userMessage)))
+                ->filter(fn($w) => strlen($w) > 1 && !in_array($w, $stopWords))
+                ->values();
+
+            $query = Product::where('status', 'publish');
+            
+            if ($keywords->isNotEmpty()) {
+                $query->where(function($q) use ($keywords) {
+                    foreach ($keywords as $word) {
+                        $q->orWhere('name', 'like', "%{$word}%")
+                          ->orWhere('description', 'like', "%{$word}%");
+                    }
+                });
+            } else {
+                // Fallback to strict match if no quality keywords found
+                $query->where('name', 'like', "%{$userMessage}%");
+            }
+
+            $products = $query->limit(15)->get(['id', 'name', 'slug', 'product_type']);
 
             $categories = Category::where('name', 'like', "%{$userMessage}%")
                 ->limit(5)
