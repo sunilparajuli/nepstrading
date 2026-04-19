@@ -566,9 +566,42 @@
             color: white;
             transform: scale(1.1);
         }
-        .swiper-pagination-bullet-active {
-            background: #15803D !important;
+        /* Chat Widget Styles */
+        #chatbot-widget {
+            position: fixed; bottom: 90px; right: 24px; width: 350px; height: 500px;
+            background: white; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            display: none; flex-direction: column; z-index: 2000; overflow: hidden;
+            border: 1px solid rgba(0,0,0,0.05); transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            transform: translateY(20px); opacity: 0;
         }
+        #chatbot-widget.show { display: flex; transform: translateY(0); opacity: 1; }
+        .chat-header {
+            background: hsl(var(--primary)); color: white; padding: 16px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .chat-messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; background: #f8fafc; }
+        .chat-bubble {
+            max-width: 80%; padding: 10px 14px; border-radius: 12px; font-size: 14px; line-height: 1.5;
+        }
+        .chat-bubble.bot { background: white; color: hsl(var(--fg)); align-self: flex-start; border-bottom-left-radius: 2px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .chat-bubble.user { background: hsl(var(--primary)); color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
+        .chat-input-area { padding: 12px; border-top: 1px solid #eee; display: flex; gap: 8px; background: white; }
+        .chat-input { flex: 1; border: 1px solid #ddd; border-radius: 20px; padding: 8px 16px; font-size: 14px; outline: none; }
+        .chat-send { background: hsl(var(--primary)); color: white; border: none; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .chat-btn-float {
+            position: fixed; bottom: 24px; right: 24px; width: 56px; height: 56px;
+            background: hsl(var(--primary)); color: white; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 2001; transition: transform 0.2s;
+        }
+        .chat-btn-float:hover { transform: scale(1.1); }
+        .chat-action-btn {
+            display: block; width: 100%; padding: 8px; margin-top: 8px; background: white;
+            border: 1px solid hsl(var(--primary)); color: hsl(var(--primary));
+            border-radius: 6px; font-weight: 600; text-align: center; text-decoration: none; font-size: 12px;
+            transition: all 0.2s;
+        }
+        .chat-action-btn:hover { background: hsl(var(--primary)); color: white; }
     </style>
 </head>
 <body>
@@ -1081,9 +1114,104 @@
                 <button class="s-modalBtn" onclick="closeInquiryModal()">Understood</button>
             </div>
         </div>
+        <!-- AI Chatbot Widget -->
+    <div id="chatbot-widget">
+        <div class="chat-header">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <div style="width: 8px; height: 8px; background: #4ade80; border-radius: 50%;"></div>
+                <span style="font-weight: 700;">Shop Assistant</span>
+            </div>
+            <button onclick="toggleChat()" style="background: none; border: none; color: white; cursor: pointer;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            </button>
+        </div>
+        <div class="chat-messages" id="chat-messages">
+            <div class="chat-bubble bot">
+                Namaste! I'm your Nepstrading Assistant. How can I help you find what you need today?
+            </div>
+        </div>
+        <form class="chat-input-area" onsubmit="sendChatMessage(event)">
+            <input type="text" id="chat-user-input" class="chat-input" placeholder="Ask about products..." autocomplete="off">
+            <button type="submit" class="chat-send">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+            </button>
+        </form>
+    </div>
 
+    <div class="chat-btn-float" onclick="toggleChat()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
+    </div>
+
+    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <script>
+        function toggleChat() {
+            const widget = document.getElementById('chatbot-widget');
+            widget.classList.toggle('show');
+        }
+
+        async function sendChatMessage(e) {
+            e.preventDefault();
+            const input = document.getElementById('chat-user-input');
+            const message = input.value.trim();
+            if (!message) return;
+
+            input.value = '';
+            addMessage(message, 'user');
+
+            // Loading indicator
+            const loadingId = 'loading-' + Date.now();
+            addMessage('Thinking...', 'bot', null, loadingId);
+
+            try {
+                const response = await fetch('/api/chatbot', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                    body: JSON.stringify({ message: message })
+                });
+
+                const data = await response.json();
+                document.getElementById(loadingId).remove();
+
+                if (response.ok) {
+                    addMessage(data.message, 'bot', data.actions);
+                } else {
+                    addMessage('Sorry, I encountered an error. Please try again.', 'bot');
+                }
+            } catch (error) {
+                if (document.getElementById(loadingId)) document.getElementById(loadingId).remove();
+                addMessage('Connection error. Please check your internet.', 'bot');
+            }
+        }
+
+        function addMessage(text, sender, actions = null, id = null) {
+            const container = document.getElementById('chat-messages');
+            const div = document.createElement('div');
+            div.className = `chat-bubble ${sender}`;
+            if (id) div.id = id;
+            div.textContent = text;
+            
+            if (actions && actions.length > 0) {
+                actions.forEach(action => {
+                    const btn = document.createElement('a');
+                    btn.className = 'chat-action-btn';
+                    if (action.type === 'product') {
+                        btn.href = `/products/${action.id}`; // Assuming URL pattern
+                        btn.textContent = 'View Product';
+                    } else if (action.type === 'category') {
+                        btn.href = `/categories/${action.slug}`;
+                        btn.textContent = 'Explore Category';
+                    } else if (action.type === 'contact') {
+                        btn.href = `tel:${action.phone}`;
+                        btn.textContent = 'Call Store: ' + action.phone;
+                    }
+                    div.appendChild(btn);
+                });
+            }
+
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+        }
         document.addEventListener('DOMContentLoaded', function() {
             // Initialize Product Carousels
             const productSwipers = document.querySelectorAll('.product-swiper');
