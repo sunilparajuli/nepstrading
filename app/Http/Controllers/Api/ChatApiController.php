@@ -27,7 +27,7 @@ class ChatApiController extends Controller
                 ->filter(fn($w) => strlen($w) > 1 && !in_array($w, $stopWords))
                 ->values();
 
-            $query = Product::where('status', 'publish');
+            $query = Product::whereIn('status', ['active', 'publish']);
             
             if ($keywords->isNotEmpty()) {
                 $query->where(function($q) use ($keywords) {
