@@ -4,31 +4,58 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- Primary Meta Tags -->
-    @php $appName = \App\Models\SiteSetting::getValue('app_name', 'Nepstrading'); @endphp
-    <title>@yield('meta_title', $appName)</title>
-    <meta name="title" content="@yield('meta_title', $appName)">
-    <meta name="description" content="@yield('meta_description', 'Your authentic Indian and Nepali store, delivering fresh produce and quality goods right to your door.')">
+    @php 
+        $appName = \App\Models\SiteSetting::getValue('app_name', 'Nepstrading'); 
+        $siteLogo = \App\Models\SiteSetting::getValue('logo', asset('favicon.ico'));
+        $sections = View::getSections();
+        $metaTitle = $sections['meta_title'] ?? $appName;
+        $metaDesc = $sections['meta_description'] ?? 'Your authentic Indian and Nepali store, delivering fresh grocery and quality goods right to your door.';
+    @endphp
+    <title>{{ $metaTitle }}</title>
+    <meta name="title" content="{{ $metaTitle }}">
+    <meta name="description" content="{{ $metaDesc }}">
     <meta name="keywords" content="@yield('meta_keywords', 'indian groceries, nepali spices, authentic nepalese, indian delivery, ' . strtolower($appName) . ', online shopping')">
+    <meta name="robots" content="index, follow">
+    <meta name="language" content="English">
 
-    @php $sections = View::getSections(); @endphp
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ $siteLogo }}">
+
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="@yield('og_type', 'website')">
     <meta property="og:url" content="{{ url()->current() }}">
-    <meta property="og:title" content="@yield('og_title', $sections['meta_title'] ?? config('app.name'))">
-    <meta property="og:description" content="@yield('og_description', $sections['meta_description'] ?? 'Your authentic Indian and Nepali store.')">
-    <meta property="og:image" content="@yield('og_image', asset('images/og-default.jpg'))">
+    <meta property="og:site_name" content="{{ $appName }}">
+    <meta property="og:title" content="{{ $metaTitle }}">
+    <meta property="og:description" content="{{ $metaDesc }}">
+    <meta property="og:image" content="@yield('og_image', $siteLogo)">
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="{{ url()->current() }}">
-    <meta property="twitter:title" content="@yield('og_title', $sections['meta_title'] ?? config('app.name'))">
-    <meta property="twitter:description" content="@yield('og_description', $sections['meta_description'] ?? 'Your authentic Indian and Nepali store.')">
-    <meta property="twitter:image" content="@yield('og_image', asset('images/og-default.jpg'))">
+    <meta property="twitter:title" content="{{ $metaTitle }}">
+    <meta property="twitter:description" content="{{ $metaDesc }}">
+    <meta property="twitter:image" content="@yield('og_image', $siteLogo)">
 
     <!-- Canonical URL -->
     <link rel="canonical" href="{{ url()->current() }}">
 
     <!-- Schema.org JSON-LD -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "{{ $appName }}",
+      "url": "{{ url('/') }}",
+      "logo": "{{ $siteLogo }}",
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "telephone": "{{ \App\Models\SiteSetting::getValue('footer_phone') }}",
+        "contactType": "customer service"
+      }
+    }
+    </script>
     @stack('seo_schema')
     <!-- Tailwind CSS (for base utilities if needed, though we will port the exact CSS) -->
     <script src="https://cdn.tailwindcss.com"></script>
