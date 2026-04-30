@@ -73,9 +73,23 @@
                         <span class="font-medium">${{ number_format($order->subtotal, 2) }}</span>
                     </div>
                     <div class="flex justify-between text-sm">
-                        <span class="text-gray-400">Shipping:</span>
-                        <span class="font-medium">$0.00</span>
+                        <span class="text-gray-400">Shipping ({{ $order->shipping_name ?? 'Standard' }}):</span>
+                        <div class="text-right">
+                            <div class="font-medium">${{ number_format($order->shipping_total, 2) }}</div>
+                            @php 
+                                $shipCity = $order->shipping_city ?: $order->billing_city;
+                                $shipState = $order->shipping_state ?: $order->billing_state;
+                                $shipPost = $order->shipping_postcode ?: $order->billing_postcode;
+                            @endphp
+                            <div class="text-[10px] text-gray-400 uppercase tracking-tight">{{ $shipCity }}, {{ $shipState }} {{ $shipPost }}</div>
+                        </div>
                     </div>
+                    @if($order->tax_total > 0)
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-400">Tax ({{ $order->tax_name }}):</span>
+                        <span class="font-medium">${{ number_format($order->tax_total, 2) }}</span>
+                    </div>
+                    @endif
                     <div class="flex justify-between border-t border-gray-200 pt-4 font-bold text-lg">
                         <span>Total:</span>
                         <span class="text-red-500">${{ number_format($order->total, 2) }}</span>

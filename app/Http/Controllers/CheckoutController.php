@@ -62,7 +62,11 @@ class CheckoutController extends Controller
 
         $total = $taxableAmount + ($shipping['cost'] ?? 0) + $taxTotal;
 
-        return view('shop.checkout', compact('cart', 'subtotal', 'total', 'shipping', 'location', 'discount', 'coupon', 'taxTotal', 'taxName'));
+        $states = \Illuminate\Support\Facades\Cache::remember('location_states', 86400, function () {
+            return \App\Models\Location::states()->where('is_enabled', true)->get();
+        });
+
+        return view('shop.checkout', compact('cart', 'subtotal', 'total', 'shipping', 'location', 'discount', 'coupon', 'taxTotal', 'taxName', 'states'));
     }
 
     public function store(Request $request)
@@ -77,6 +81,7 @@ class CheckoutController extends Controller
             'billing_last_name' => 'required|string|max:255',
             'billing_address' => 'required|string|max:255',
             'billing_city' => 'required|string|max:255',
+            'billing_state' => 'required|string|max:255',
             'billing_postcode' => 'required|string|max:20',
             'billing_phone' => 'required|string|max:20',
             'billing_email' => 'required|email|max:255',
@@ -84,6 +89,7 @@ class CheckoutController extends Controller
             'shipping_last_name' => 'nullable|string|max:255',
             'shipping_address' => 'nullable|string|max:255',
             'shipping_city' => 'nullable|string|max:255',
+            'shipping_state' => 'nullable|string|max:255',
             'shipping_postcode' => 'nullable|string|max:20',
             'order_notes' => 'nullable|string',
         ]);

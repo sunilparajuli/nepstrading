@@ -6,6 +6,7 @@ This file serves as a memory store for future AI sessions to immediately underst
 - **Server Address**: `170.64.175.81`
 - **User**: `root`
 - **Password**: `OnePiece@2026!`
+- **SSH Access**: `ssh root@170.64.175.81`
 - **Root Directory**: `/var/www/nepstrading`
 - **Web Server**: Nginx (Replaced Apache to resolve high memory usage and crashes)
 - **PHP Version**: 8.3

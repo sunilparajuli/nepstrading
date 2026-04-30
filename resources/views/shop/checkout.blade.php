@@ -163,7 +163,14 @@
 
             <div class="ch-group" style="margin-bottom: 0;">
                 <label class="ch-label">State</label>
-                <input type="text" name="billing_state" id="billing_state" readonly value="{{ $location['state'] ?? '' }}" class="ch-input" style="background: var(--checkout-muted); cursor: not-allowed;">
+                <select name="billing_state" id="billing_state" class="ch-input">
+                    <option value="">Select State</option>
+                    @foreach($states as $state)
+                        <option value="{{ $state->code }}" {{ (old('billing_state') ?? ($location['state'] ?? '')) == $state->code ? 'selected' : '' }}>
+                            {{ $state->name }} ({{ $state->code }})
+                        </option>
+                    @endforeach
+                </select>
             </div>
         </div>
 
@@ -324,6 +331,20 @@
         document.getElementById('billing_city').value = addr.city || addr.town || addr.suburb || addr.village || '';
         document.getElementById('billing_postcode').value = addr.postcode || '';
         
+        // Update State Dropdown
+        if (addr.state) {
+            const stateSelect = document.getElementById('billing_state');
+            for (let i = 0; i < stateSelect.options.length; i++) {
+                const opt = stateSelect.options[i];
+                // Match by name (text contains state name) or value (code)
+                if (opt.text.toLowerCase().includes(addr.state.toLowerCase()) || 
+                    opt.value.toLowerCase() === addr.state.toLowerCase()) {
+                    stateSelect.selectedIndex = i;
+                    break;
+                }
+            }
+        }
+
         // Hide suggestions
         suggestionsBox.classList.remove('active');
     }
