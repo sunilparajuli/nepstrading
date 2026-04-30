@@ -121,12 +121,15 @@ class CartController extends Controller
             return ['cost' => 0, 'name' => 'Please calculate shipping', 'method' => null];
         }
 
-        $userPostcode = $location['postcode'] ?? '';
+        $userPostcode = trim($location['postcode'] ?? '');
         $userState = \App\Helpers\LocationHelper::normalizeState($location['state'] ?? '');
         $userCountry = strtoupper(trim($location['country'] ?? ''));
 
-        // Fetch all postcode-type locations once to avoid multiple queries
-        $postcodeLocations = \App\Models\ShippingLocation::where('type', 'postcode')->with('zone.rates')->get();
+        // Fetch all postcode-type locations with caching
+        $postcodeLocations = \Illuminate\Support\Facades\Cache::remember('shipping_postcode_locations', 86400, function() {
+            return \App\Models\ShippingLocation::where('type', 'postcode')->with('zone.rates')->get();
+        });
+
         $foundLocation = null;
 
         // 1. Try to find a zone by postcode (highest priority)
@@ -140,19 +143,37 @@ class CartController extends Controller
         // 2. If no postcode match, try to find a zone by state/country
         if (!$foundLocation) {
             $foundLocation = \App\Models\ShippingLocation::where(function($q) use ($userState) {
-                $q->where('type', 'state')->where('code', $userState);
+                if ($userState) $q->where('type', 'state')->where('code', $userState);
+                else $q->where('id', 0);
             })->orWhere(function($q) use ($userCountry) {
-                $q->where('type', 'country')->where('code', $userCountry);
+                if ($userCountry) $q->where('type', 'country')->where('code', $userCountry);
+                else $q->where('id', 0);
             })->first();
         }
 
         if ($foundLocation && $foundLocation->zone) {
-            $rate = \App\Models\ShippingRate::where('shipping_zone_id', $foundLocation->shipping_zone_id)
-                                ->orderBy('cost', 'asc') // Pick cheapest
-                                ->first();
+            $savedMethod = session('shipping_info.method');
+            $rate = null;
+            
+            if ($savedMethod) {
+                $rate = \App\Models\ShippingRate::where('shipping_zone_id', $foundLocation->shipping_zone_id)
+                                    ->where('id', $savedMethod)
+                                    ->first();
+            }
+
+            if (!$rate) {
+                $rate = \App\Models\ShippingRate::where('shipping_zone_id', $foundLocation->shipping_zone_id)
+                                    ->orderBy('cost', 'asc')
+                                    ->first();
+            }
             
             if ($rate) {
-                $info = ['cost' => (float)$rate->cost, 'name' => $rate->name . ' (' . $foundLocation->zone->name . ')', 'method' => $rate->id];
+                $info = [
+                    'cost' => (float)$rate->cost, 
+                    'name' => $rate->name . ' (' . $foundLocation->zone->name . ')',
+                    'zone' => $foundLocation->zone->name,
+                    'method' => $rate->id
+                ];
                 session()->put('shipping_info', $info);
                 return $info;
             }
