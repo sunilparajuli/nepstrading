@@ -176,15 +176,28 @@
     </div>
     <div class="hp-cat-row">
         @foreach($categories as $cat)
+            @php
+                $lowerName = strtolower($cat->name);
+                $defaultImg = 'https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=200&auto=format&fit=crop'; // Default grocery
+                
+                if (str_contains($lowerName, 'rice')) $defaultImg = 'https://images.unsplash.com/photo-1586201375761-83865001e31c?q=80&w=200&auto=format&fit=crop';
+                elseif (str_contains($lowerName, 'lentil')) $defaultImg = 'https://images.unsplash.com/photo-1515942400420-2b98fed1f515?q=80&w=200&auto=format&fit=crop';
+                elseif (str_contains($lowerName, 'spice')) $defaultImg = 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?q=80&w=200&auto=format&fit=crop';
+                elseif (str_contains($lowerName, 'momo') || str_contains($lowerName, 'dumpling')) $defaultImg = 'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?q=80&w=200&auto=format&fit=crop';
+                elseif (str_contains($lowerName, 'noodle')) $defaultImg = 'https://images.unsplash.com/photo-1552611052-d59a0d9741bc?q=80&w=200&auto=format&fit=crop';
+                elseif (str_contains($lowerName, 'meat')) $defaultImg = 'https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?q=80&w=200&auto=format&fit=crop';
+                elseif (str_contains($lowerName, 'oil') || str_contains($lowerName, 'ghee')) $defaultImg = 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?q=80&w=200&auto=format&fit=crop';
+                elseif (str_contains($lowerName, 'sweet') || str_contains($lowerName, 'biscuit')) $defaultImg = 'https://images.unsplash.com/photo-1532347921448-338425dfb88d?q=80&w=200&auto=format&fit=crop';
+                elseif (str_contains($lowerName, 'snack')) $defaultImg = 'https://images.unsplash.com/photo-1599490659213-e2b9527bb087?q=80&w=200&auto=format&fit=crop';
+                elseif (str_contains($lowerName, 'drink') || str_contains($lowerName, 'juice')) $defaultImg = 'https://images.unsplash.com/photo-1600271886399-d449075a7304?q=80&w=200&auto=format&fit=crop';
+                elseif (str_contains($lowerName, 'puja') || str_contains($lowerName, 'incense')) $defaultImg = 'https://images.unsplash.com/photo-1609139006981-d072433065c8?q=80&w=200&auto=format&fit=crop';
+            @endphp
             <a href="{{ route('products.index', ['category' => $cat->id]) }}" class="hp-cat-item">
                 <div class="hp-cat-circle">
-                    @if($cat->image)
-                        <img src="{{ asset('storage/' . $cat->image) }}" alt="{{ $cat->name }}" class="hp-cat-img" />
-                    @else
-                        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="hsl({{ ($cat->id * 43) % 360 }}, 60%, 45%)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/>
-                        </svg>
-                    @endif
+                    @php
+                        $imgSrc = $cat->image ? asset('storage/' . $cat->image) : $defaultImg;
+                    @endphp
+                    <img src="{{ $imgSrc }}" alt="{{ $cat->name }}" class="hp-cat-img" loading="lazy" />
                 </div>
                 <span class="hp-cat-label">{{ $cat->name }}</span>
             </a>
