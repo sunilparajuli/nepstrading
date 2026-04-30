@@ -12,8 +12,8 @@
         <div class="flex marquee-track">
             {{-- Double the brands for infinite scroll effect --}}
             @foreach($brands->concat($brands) as $brand)
-                <div class="flex-shrink-0 px-12 grayscale hover:grayscale-0 transition-all duration-300 flex items-center justify-center">
-                    <img src="{{ $brand->logo }}" alt="{{ $brand->name }}" class="h-10 md:h-12 w-auto object-contain opacity-70 hover:opacity-100">
+                <div class="flex-shrink-0 px-12 transition-all duration-300 flex items-center justify-center">
+                    <img src="{{ $brand->logo }}" alt="{{ $brand->name }}" class="h-10 md:h-12 w-auto object-contain">
                 </div>
             @endforeach
         </div>
