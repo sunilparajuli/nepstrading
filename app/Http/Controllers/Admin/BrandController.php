@@ -29,12 +29,12 @@ class BrandController extends Controller
             'sort_order' => 'integer',
         ]);
 
+        $validated['is_enabled'] = $request->has('is_enabled');
+
         if ($request->hasFile('logo')) {
             $path = $request->file('logo')->store('brands', 'public');
             $validated['logo'] = Storage::url($path);
         }
-
-        $validated['is_enabled'] = $request->has('is_enabled');
 
         Brand::create($validated);
 
@@ -55,6 +55,8 @@ class BrandController extends Controller
             'sort_order' => 'integer',
         ]);
 
+        $validated['is_enabled'] = $request->has('is_enabled');
+
         if ($request->hasFile('logo')) {
             if ($brand->logo) {
                 $oldPath = str_replace('/storage/', '', $brand->logo);
@@ -65,8 +67,6 @@ class BrandController extends Controller
         } else {
             unset($validated['logo']);
         }
-
-        $validated['is_enabled'] = $request->has('is_enabled');
 
         $brand->update($validated);
 
