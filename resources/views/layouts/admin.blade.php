@@ -77,6 +77,9 @@
                 <a href="{{ route('admin.tax.index') }}" class="sidebar-item flex items-center px-6 py-3 space-x-3 {{ request()->routeIs('admin.tax.*') ? 'active' : '' }}">
                     <span>💰</span> <span>Tax</span>
                 </a>
+                <a href="{{ route('admin.locations.index') }}" class="sidebar-item flex items-center px-6 py-3 space-x-3 {{ request()->routeIs('admin.locations.*') ? 'active' : '' }}">
+                    <span>📍</span> <span>Locations</span>
+                </a>
                 <a href="{{ route('admin.homepage.index') }}" class="sidebar-item flex items-center px-6 py-3 space-x-3 {{ request()->routeIs('admin.homepage.*') ? 'active' : '' }}">
                     <span>🏠</span> <span>Home Layout</span>
                 </a>

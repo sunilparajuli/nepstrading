@@ -219,20 +219,31 @@
                         <div class="ct-formGroup" style="margin-bottom: 0;">
                             <label class="ct-formLabel">State</label>
                             @php $selState = is_array(session('shipping_location')) ? (session('shipping_location')['state'] ?? '') : ''; @endphp
-                            <select name="state" id="state-selector" class="ct-select" onchange="filterPostcodes()">
+                            <select name="state" id="state-selector" class="ct-select" onchange="filterCities()">
                                 <option value="">Select State</option>
-                                @foreach(['NSW' => 'NSW', 'VIC' => 'VIC', 'QLD' => 'QLD', 'WA' => 'WA', 'SA' => 'SA', 'TAS' => 'TAS', 'ACT' => 'ACT', 'NT' => 'NT'] as $code => $name)
-                                    <option value="{{ $code }}" {{ $selState == $code ? 'selected' : '' }}>{{ $name }}</option>
+                                @foreach($states as $state)
+                                    <option value="{{ $state->code }}" data-id="{{ $state->id }}" {{ $selState == $state->code ? 'selected' : '' }}>{{ $state->name }} ({{ $state->code }})</option>
                                 @endforeach
                             </select>
                         </div>
                         <div class="ct-formGroup" style="margin-bottom: 0;">
-                            <label class="ct-formLabel">Postcode</label>
-                            <select name="postcode" id="postcode-selector" class="ct-select">
-                                <option value="">Select Postcode</option>
+                            <label class="ct-formLabel">City/Suburb</label>
+                            @php $selCity = is_array(session('shipping_location')) ? (session('shipping_location')['city'] ?? '') : ''; @endphp
+                            <select name="city" id="city-selector" class="ct-select" onchange="filterPostcodes()">
+                                <option value="">Select City</option>
                                 {{-- populated by JS --}}
                             </select>
                         </div>
+                    </div>
+                    <div class="ct-formGroup">
+                        <label class="ct-formLabel">Postcode</label>
+                        @php $selPostcode = is_array(session('shipping_location')) ? (session('shipping_location')['postcode'] ?? '') : ''; @endphp
+                        <select name="postcode" id="postcode-selector" class="ct-select">
+                            <option value="">Select Postcode</option>
+                            @foreach($postcodes as $pc)
+                                <option value="{{ $pc }}" {{ $selPostcode == $pc ? 'selected' : '' }}>{{ $pc }}</option>
+                            @endforeach
+                        </select>
                     </div>
                     <div class="ct-formGroup">
                         <label class="ct-formLabel">Country</label>
@@ -295,51 +306,79 @@
 
 <script>
     const allPostcodes = @json($postcodes);
+    const allLocations = @json($allLocations);
     const savedPostcode = @json(is_array(session('shipping_location')) ? (session('shipping_location')['postcode'] ?? '') : '');
+    const savedCity = @json(is_array(session('shipping_location')) ? (session('shipping_location')['city'] ?? '') : '');
 
-    console.log('Cart Script Init:', { postcodeCount: allPostcodes.length, savedPostcode });
+    function filterCities() {
+        const stateSelect = document.getElementById('state-selector');
+        const stateId = stateSelect.options[stateSelect.selectedIndex].dataset.id;
+        const citySelector = document.getElementById('city-selector');
+        
+        citySelector.innerHTML = '<option value="">Select City</option>';
+
+        if (!stateId) return;
+
+        const cities = allLocations.filter(loc => loc.type === 'city' && loc.parent_id == stateId);
+        cities.forEach(city => {
+            const opt = document.createElement('option');
+            opt.value = city.name;
+            opt.textContent = city.name;
+            opt.dataset.id = city.id;
+            if (city.name === savedCity) opt.selected = true;
+            citySelector.appendChild(opt);
+        });
+
+        filterPostcodes();
+    }
 
     function filterPostcodes() {
         const state = document.getElementById('state-selector').value;
+        const citySelect = document.getElementById('city-selector');
+        const cityId = citySelect.options[citySelect.selectedIndex].dataset.id;
         const selector = document.getElementById('postcode-selector');
         
-        console.log('Filtering postcodes for state:', state);
+        // If we have specific postcodes for this city in our database, we could filter them.
+        // For now, we still use the general postcode list filtering by state prefix if no city-specific ones exist.
         
-        selector.innerHTML = '<option value="">Select Postcode</option>';
+        const citySpecificPostcodes = allLocations.filter(loc => loc.type === 'postcode' && loc.parent_id == cityId);
+        
+        if (citySpecificPostcodes.length > 0) {
+            selector.innerHTML = '<option value="">Select Postcode</option>';
+            citySpecificPostcodes.forEach(pc => {
+                const opt = document.createElement('option');
+                opt.value = pc.code;
+                opt.textContent = pc.code;
+                if (pc.code === savedPostcode) opt.selected = true;
+                selector.appendChild(opt);
+            });
+            return;
+        }
 
-        if (!state) return;
-
-        // Prefix map based on standard Australian states
+        // Fallback to prefix-based filtering if no specific postcodes for city
         const prefixes = {
-            'NSW': ['1', '2'],
-            'VIC': ['3'],
-            'QLD': ['4', '9'],
-            'SA': ['5'],
-            'WA': ['6'],
-            'TAS': ['7'],
-            'NT': ['0'],
-            'ACT': ['0', '2']
+            'NSW': ['1', '2'], 'VIC': ['3'], 'QLD': ['4', '9'], 'SA': ['5'], 'WA': ['6'], 'TAS': ['7'], 'NT': ['0'], 'ACT': ['0', '2']
         };
-
         const allowedPrefixes = prefixes[state] || [];
 
+        // Keep current selection if valid
+        const currentVal = selector.value;
+        selector.innerHTML = '<option value="">Select Postcode</option>';
         allPostcodes.forEach(pc => {
-            // Check if pc starts with any of the allowed prefixes for the state
-            const matches = allowedPrefixes.some(pref => pc.startsWith(pref));
+            const matches = allowedPrefixes.some(pref => pc.toString().startsWith(pref));
             if (matches) {
                 const opt = document.createElement('option');
                 opt.value = pc;
                 opt.textContent = pc;
-                if (pc === savedPostcode) opt.selected = true;
+                if (pc.toString() === savedPostcode.toString()) opt.selected = true;
                 selector.appendChild(opt);
             }
         });
     }
 
-    // Initialize postcodes on load
+    // Initialize on load
     document.addEventListener('DOMContentLoaded', () => {
-        console.log('DOM Content Loaded - filtering postcodes');
-        filterPostcodes();
+        filterCities();
     });
 
     async function updateQtyAJAX(id, change) {

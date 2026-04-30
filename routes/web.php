@@ -85,6 +85,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::resource('attributes', App\Http\Controllers\Admin\AttributeController::class);
     Route::resource('attribute-terms', App\Http\Controllers\Admin\AttributeTermController::class);
     Route::resource('pages', App\Http\Controllers\Admin\PageController::class);
+    Route::resource('locations', App\Http\Controllers\Admin\LocationController::class);
 
     // Coupons
     Route::resource('coupons', App\Http\Controllers\Admin\CouponController::class);

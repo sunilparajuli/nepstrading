@@ -42,16 +42,36 @@
                     <li class="text-xs text-gray-400 italic">No locations added.</li>
                     @endforelse
                 </ul>
-                <form action="{{ route('admin.shipping.locations.store', $zone) }}" method="POST" class="flex gap-2">
+                <form action="{{ route('admin.shipping.locations.store', $zone) }}" method="POST" class="space-y-2">
                     @csrf
-                    <select name="type" class="text-xs border border-gray-200 p-1 rounded bg-gray-50">
-                        <option value="state">State</option>
-                        <option value="country">Country</option>
-                        <option value="postcode">Postcode</option>
-                    </select>
-                    <input type="text" name="code" placeholder="Code (e.g. NSW)" class="flex-grow text-xs border border-gray-200 p-1 rounded bg-gray-50">
-                    <button type="submit" class="bg-blue-600 text-white px-3 py-1 rounded text-xs">Add</button>
+                    <div class="flex gap-2">
+                        <select name="location_id" class="flex-grow text-xs border border-gray-200 p-1 rounded bg-gray-50 outline-none focus:border-blue-400" onchange="updateLocationFields(this)">
+                            <option value="">Select from Master List...</option>
+                            @foreach($allLocations->sortBy(['type', 'name']) as $masterLoc)
+                                <option value="{{ $masterLoc->id }}" data-type="{{ $masterLoc->type }}" data-code="{{ $masterLoc->code ?? $masterLoc->name }}">
+                                    [{{ strtoupper($masterLoc->type) }}] {{ $masterLoc->name }} {{ $masterLoc->parent ? '('.$masterLoc->parent->name.')' : '' }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <button type="submit" class="bg-blue-600 text-white px-3 py-1 rounded text-xs">Add</button>
+                    </div>
+                    <div class="flex gap-2">
+                        <select name="type" id="manual-type" class="text-xs border border-gray-200 p-1 rounded bg-gray-50">
+                            <option value="state">State</option>
+                            <option value="country">Country</option>
+                            <option value="postcode">Postcode</option>
+                        </select>
+                        <input type="text" name="code" id="manual-code" placeholder="Manual Code (e.g. 2000)" class="flex-grow text-xs border border-gray-200 p-1 rounded bg-gray-50">
+                    </div>
                 </form>
+                <script>
+                    function updateLocationFields(select) {
+                        const opt = select.options[select.selectedIndex];
+                        if (!opt.value) return;
+                        document.getElementById('manual-type').value = opt.dataset.type;
+                        document.getElementById('manual-code').value = opt.dataset.code;
+                    }
+                </script>
             </div>
 
             <!-- Rates -->

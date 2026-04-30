@@ -20,7 +20,14 @@ class CartController extends Controller
             ->orderBy('code')
             ->pluck('code');
 
-        return view('cart.index', array_merge($data, ['postcodes' => $postcodes]));
+        $states = \App\Models\Location::states()->where('is_enabled', true)->get();
+        $allLocations = \App\Models\Location::where('is_enabled', true)->get();
+
+        return view('cart.index', array_merge($data, [
+            'postcodes' => $postcodes,
+            'states' => $states,
+            'allLocations' => $allLocations
+        ]));
     }
 
     private function getCartViewData()
@@ -65,7 +72,7 @@ class CartController extends Controller
 
     public function setLocation(Request $request)
     {
-        $location = $request->only(['state', 'country', 'postcode']);
+        $location = $request->only(['state', 'country', 'postcode', 'city']);
         session()->put('shipping_location', $location);
         
         // Find best rate
