@@ -267,7 +267,7 @@
             background: transparent; border: none; color: white; padding: 8px 12px; 
             font-size: 14px; flex: 1; outline: none;
         }
-        .m-newsletterInput::placeholder { color: rgba(255,255,255,0.3); }
+        .m-newsletterInput::placeholder { color: rgba(255,255,255,0.7); }
         .m-newsletterBtn { 
             background: hsl(var(--primary)); color: white; border: none; padding: 8px 16px;
             border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; transition: opacity 0.2s;
@@ -817,7 +817,7 @@
                         <h3 class="m-footerLogo">
                             @php $siteLogo = \App\Models\SiteSetting::getValue('logo'); @endphp
                             @if($siteLogo)
-                                <img src="{{ $siteLogo }}" alt="Nepstrading" style="height: 42px; filter: brightness(0) invert(1); object-fit: contain;">
+                                <img src="{{ $siteLogo }}" alt="Nepstrading" style="height: 48px; object-fit: contain;">
                             @else
                                 <span style="font-style: italic;">Nepstrading</span>
                             @endif
