@@ -64,6 +64,9 @@
                 <a href="{{ route('admin.attributes.index') }}" class="sidebar-item flex items-center px-6 py-3 space-x-3 {{ request()->routeIs('admin.attributes.*') ? 'active' : '' }}">
                     <span>⚙️</span> <span>Attributes</span>
                 </a>
+                <a href="{{ route('admin.brands.index') }}" class="sidebar-item flex items-center px-6 py-3 space-x-3 {{ request()->routeIs('admin.brands.*') ? 'active' : '' }}">
+                    <span>🏷️</span> <span>Brands</span>
+                </a>
                 <a href="{{ route('admin.inventory.index') }}" class="sidebar-item flex items-center px-6 py-3 space-x-3 {{ request()->routeIs('admin.inventory.*') ? 'active' : '' }}">
                     <span>📊</span> <span>Inventory</span>
                 </a>

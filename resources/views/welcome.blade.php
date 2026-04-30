@@ -30,11 +30,11 @@
 
 @section('content')
     <div class="homepage-content">
-        @include('partials.home.popular-categories')
         @forelse ($sections as $section)
             @switch($section->type)
                 @case('hero')
                     @include('partials.home.hero', ['section' => $section])
+                    @include('partials.home.pooja-banner')
                     @break
                 @case('featured_products')
                 @case('popular_products')
@@ -52,5 +52,7 @@
                 <p class="text-gray-500">Visit the admin panel to customize your homepage layout.</p>
             </div>
         @endforelse
+        
+        @include('partials.home.brands-marquee')
     </div>
 @endsection
