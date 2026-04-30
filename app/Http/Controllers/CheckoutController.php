@@ -62,8 +62,16 @@ class CheckoutController extends Controller
 
         $total = $taxableAmount + ($shipping['cost'] ?? 0) + $taxTotal;
 
-        $states = \Illuminate\Support\Facades\Cache::remember('location_states', 86400, function () {
-            return \App\Models\Location::states()->where('is_enabled', true)->get();
+        $states = \Illuminate\Support\Facades\Cache::remember('location_states', 3600, function () {
+            $locs = \App\Models\Location::states()->where('is_enabled', true)->get()->map(function($l) {
+                return (object)['id' => $l->id, 'name' => $l->name, 'code' => $l->code];
+            });
+            
+            $zones = \App\Models\ShippingZone::where('is_enabled', true)->get()->map(function($z) {
+                return (object)['id' => 'z' . $z->id, 'name' => $z->name, 'code' => $z->name];
+            });
+            
+            return $locs->concat($zones)->unique('name');
         });
 
         return view('shop.checkout', compact('cart', 'subtotal', 'total', 'shipping', 'location', 'discount', 'coupon', 'taxTotal', 'taxName', 'states'));
