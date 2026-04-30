@@ -7,6 +7,16 @@
     <div class="p-6 border-b border-gray-50">
         <h2 class="text-lg font-bold">New Brand</h2>
     </div>
+
+    @if ($errors->any())
+        <div class="p-6 bg-red-50 border-b border-red-100">
+            <ul class="list-disc list-inside text-sm text-red-600 font-bold">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
     
     <form action="{{ route('admin.brands.store') }}" method="POST" enctype="multipart/form-data" class="p-6 space-y-6">
         @csrf

@@ -24,7 +24,7 @@ class BrandController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|max:255',
-            'logo' => 'nullable|image|max:2048',
+            'logo' => 'nullable|image|max:5120',
             'is_enabled' => 'boolean',
             'sort_order' => 'integer',
         ]);
@@ -50,7 +50,7 @@ class BrandController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|max:255',
-            'logo' => 'nullable|image|max:2048',
+            'logo' => 'nullable|image|max:5120',
             'is_enabled' => 'boolean',
             'sort_order' => 'integer',
         ]);
