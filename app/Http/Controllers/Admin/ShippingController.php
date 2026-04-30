@@ -13,7 +13,9 @@ class ShippingController extends Controller
     public function index()
     {
         $zones = ShippingZone::with(['locations', 'rates'])->get();
-        $allLocations = \App\Models\Location::with('parent')->where('is_enabled', true)->get();
+        $allLocations = \Illuminate\Support\Facades\Cache::remember('location_all_with_parent', 86400, function () {
+            return \App\Models\Location::with('parent')->where('is_enabled', true)->get();
+        });
         return view('admin.shipping.index', compact('zones', 'allLocations'));
     }
 

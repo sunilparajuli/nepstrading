@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Location;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class LocationController extends Controller
 {
@@ -25,6 +26,11 @@ class LocationController extends Controller
         ]);
 
         Location::create($validated);
+
+        Cache::forget('location_states');
+        Cache::forget('location_all');
+        Cache::forget('location_all_with_parent');
+
         return redirect()->back()->with('success', 'Location created successfully.');
     }
 
@@ -45,12 +51,22 @@ class LocationController extends Controller
         ]);
 
         $location->update($validated);
+        
+        Cache::forget('location_states');
+        Cache::forget('location_all');
+        Cache::forget('location_all_with_parent');
+
         return redirect()->route('admin.locations.index')->with('success', 'Location updated successfully.');
     }
 
     public function destroy(Location $location)
     {
         $location->delete();
+        
+        Cache::forget('location_states');
+        Cache::forget('location_all');
+        Cache::forget('location_all_with_parent');
+
         return redirect()->back()->with('success', 'Location deleted successfully.');
     }
 }

@@ -20,8 +20,13 @@ class CartController extends Controller
             ->orderBy('code')
             ->pluck('code');
 
-        $states = \App\Models\Location::states()->where('is_enabled', true)->get();
-        $allLocations = \App\Models\Location::where('is_enabled', true)->get();
+        $states = \Illuminate\Support\Facades\Cache::remember('location_states', 86400, function () {
+            return \App\Models\Location::states()->where('is_enabled', true)->get();
+        });
+        
+        $allLocations = \Illuminate\Support\Facades\Cache::remember('location_all', 86400, function () {
+            return \App\Models\Location::where('is_enabled', true)->get();
+        });
 
         return view('cart.index', array_merge($data, [
             'postcodes' => $postcodes,

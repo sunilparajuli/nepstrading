@@ -1,4 +1,4 @@
-package com.nepstrading.ecommerce.mobile_app
+package com.nepstrading.ecommerce
 
 import io.flutter.embedding.android.FlutterActivity
 
