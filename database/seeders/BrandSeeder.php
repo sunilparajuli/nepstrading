@@ -13,23 +13,25 @@ class BrandSeeder extends Seeder
     public function run(): void
     {
         $brands = [
-            ['name' => 'Britannia', 'logo' => 'https://upload.wikimedia.org/wikipedia/en/thumb/d/d4/Britannia_Industries_logo.svg/1200px-Britannia_Industries_logo.svg.png'],
-            ['name' => "Haldiram's", 'logo' => 'https://upload.wikimedia.org/wikipedia/en/thumb/d/d3/Haldiram%27s_Logo.svg/1200px-Haldiram%27s_Logo.svg.png'],
-            ['name' => 'Daawat', 'logo' => 'https://daawat.com/wp-content/themes/daawat/images/logo.png'],
-            ['name' => 'MDH Masala', 'logo' => 'https://mdhspices.com/wp-content/uploads/2018/06/logo.png'],
-            ['name' => 'GRB', 'logo' => 'https://grb.co.in/wp-content/uploads/2021/04/grb-logo-1.png'],
-            ['name' => 'Shan Foods', 'logo' => 'https://www.shanfoods.com/wp-content/themes/shanfoods/assets/images/logo.png'],
-            ['name' => 'Bikano', 'logo' => 'https://www.bikano.com/img/logo.png'],
-            ['name' => 'India Gate', 'logo' => 'https://indiagatefoods.com/wp-content/uploads/2022/06/india-gate-logo.png'],
+            ['name' => 'Britannia', 'logo' => 'https://placehold.co/200x80?text=Britannia'],
+            ['name' => "Haldiram's", 'logo' => 'https://placehold.co/200x80?text=Haldirams'],
+            ['name' => 'Daawat', 'logo' => 'https://placehold.co/200x80?text=Daawat'],
+            ['name' => 'MDH Masala', 'logo' => 'https://placehold.co/200x80?text=MDH+Masala'],
+            ['name' => 'GRB', 'logo' => 'https://placehold.co/200x80?text=GRB'],
+            ['name' => 'Shan Foods', 'logo' => 'https://placehold.co/200x80?text=Shan+Foods'],
+            ['name' => 'Bikano', 'logo' => 'https://placehold.co/200x80?text=Bikano'],
+            ['name' => 'India Gate', 'logo' => 'https://placehold.co/200x80?text=India+Gate'],
         ];
 
         foreach ($brands as $index => $brand) {
-            \App\Models\Brand::create([
-                'name' => $brand['name'],
-                'logo' => $brand['logo'],
-                'sort_order' => $index * 10,
-                'is_enabled' => true,
-            ]);
+            \App\Models\Brand::updateOrCreate(
+                ['name' => $brand['name']],
+                [
+                    'logo' => $brand['logo'],
+                    'sort_order' => $index * 10,
+                    'is_enabled' => true,
+                ]
+            );
         }
     }
 }
