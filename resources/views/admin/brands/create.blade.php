@@ -37,7 +37,7 @@
                 <input type="number" name="sort_order" value="0" class="w-full border-gray-200 rounded-sm text-sm focus:ring-primary focus:border-primary">
             </div>
             <div class="flex items-center gap-2 pt-6">
-                <input type="checkbox" name="is_enabled" checked id="is_enabled" class="rounded-sm border-gray-300 text-primary focus:ring-primary">
+                <input type="checkbox" name="is_enabled" checked id="is_enabled" value="1" class="rounded-sm border-gray-300 text-primary focus:ring-primary">
                 <label for="is_enabled" class="text-sm font-bold text-gray-700">Enabled</label>
             </div>
         </div>
