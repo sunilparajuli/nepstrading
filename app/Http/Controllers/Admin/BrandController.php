@@ -62,6 +62,8 @@ class BrandController extends Controller
             }
             $path = $request->file('logo')->store('brands', 'public');
             $validated['logo'] = Storage::url($path);
+        } else {
+            unset($validated['logo']);
         }
 
         $validated['is_enabled'] = $request->has('is_enabled');

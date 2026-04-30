@@ -16,7 +16,7 @@
             </p>
             
             <div class="flex flex-wrap gap-4 items-center">
-                <a href="{{ route('products.index', ['category' => 'incense-pooja']) }}" class="bg-white text-black px-8 py-4 rounded-sm text-xs font-black uppercase tracking-widest hover:bg-[#fcb800] transition-colors shadow-xl">
+                <a href="https://new.nepstrading.com.au/categories/puja-decor-items" class="bg-white text-black px-8 py-4 rounded-sm text-xs font-black uppercase tracking-widest hover:bg-[#fcb800] transition-colors shadow-xl">
                     Explore Collection
                 </a>
                 <div class="text-white/80 text-[10px] font-black uppercase tracking-widest border-l-2 border-[#fcb800] pl-4">
