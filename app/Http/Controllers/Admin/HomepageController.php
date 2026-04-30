@@ -53,7 +53,26 @@ class HomepageController extends Controller
 
     public function update(Request $request, HomepageSection $section)
     {
-        $section->update($request->only(['title', 'subtitle', 'is_active', 'data', 'order']));
+        $data = $request->input('data', []);
+
+        if ($request->hasFile('bg_image_file')) {
+            // Delete old image if it exists and is local
+            if (isset($section->data['bg_image']) && str_starts_with($section->data['bg_image'], '/storage/banners/')) {
+                $oldPath = str_replace('/storage/', '', $section->data['bg_image']);
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($oldPath);
+            }
+            
+            $path = $request->file('bg_image_file')->store('banners', 'public');
+            $data['bg_image'] = \Illuminate\Support\Facades\Storage::url($path);
+        }
+
+        $section->update([
+            'title' => $request->title,
+            'subtitle' => $request->subtitle,
+            'is_active' => $request->has('is_active') ? $request->is_active : $section->is_active,
+            'data' => $data,
+            'order' => $request->order ?? $section->order
+        ]);
 
         return back()->with('success', 'Section updated successfully');
     }

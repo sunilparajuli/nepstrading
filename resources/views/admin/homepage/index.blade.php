@@ -59,7 +59,7 @@
             </div>
 
             <div class="p-6">
-                <form action="{{ route('admin.homepage.update', $section) }}" method="POST" class="space-y-4">
+                <form action="{{ route('admin.homepage.update', $section) }}" method="POST" enctype="multipart/form-data" class="space-y-4">
                     @csrf @method('PATCH')
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
@@ -85,8 +85,16 @@
                                     <input type="text" name="data[button_link]" value="{{ $section->data['button_link'] ?? '/products' }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
                                 </div>
                                 <div class="md:col-span-2">
-                                    <label class="block text-xs text-gray-400 mb-1">Background Image URL</label>
-                                    <input type="text" name="data[bg_image]" value="{{ $section->data['bg_image'] ?? '' }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="https://...">
+                                    <label class="block text-xs text-gray-400 mb-1">Background Image</label>
+                                    @if($section->data['bg_image'] ?? '')
+                                        <div class="mb-2">
+                                            <img src="{{ $section->data['bg_image'] }}" class="h-20 rounded-lg border border-gray-200">
+                                        </div>
+                                    @endif
+                                    <div class="flex gap-2">
+                                        <input type="file" name="bg_image_file" class="flex-1 text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                                        <input type="text" name="data[bg_image]" value="{{ $section->data['bg_image'] ?? '' }}" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="Or enter URL directly...">
+                                    </div>
                                 </div>
                             </div>
                         </div>
