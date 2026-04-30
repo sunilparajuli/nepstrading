@@ -5,104 +5,121 @@
 
 @section('content')
 <style>
-    /* === MAHALMART-STYLE PREMIUM DESIGN === */
     .hp-section { max-width: 1400px; margin: 0 auto; padding: 48px 24px; }
+    .hp-sectionHeader { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px; }
+    .hp-sectionTitle { font-family: 'DM Serif Display', serif; font-size: 26px; font-weight: 700; color: hsl(var(--fg)); margin: 0; text-transform: uppercase; letter-spacing: 0.03em; }
+    .hp-viewAll { font-size: 14px; font-weight: 600; color: hsl(var(--fg)); text-decoration: underline; text-underline-offset: 3px; white-space: nowrap; }
+    .hp-viewAll:hover { color: hsl(var(--primary)); }
 
-    /* Section Header */
-    .hp-sectionHeader { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 28px; padding-bottom: 14px; border-bottom: 2px solid #f3f4f6; }
-    .hp-sectionTitle { font-family: 'DM Serif Display', serif; font-size: 28px; font-weight: 700; color: #1a3c34; margin: 0; text-transform: uppercase; letter-spacing: 0.03em; }
-    .hp-viewAll { font-size: 14px; font-weight: 600; color: #111; text-decoration: underline; text-underline-offset: 4px; white-space: nowrap; }
-    .hp-viewAll:hover { color: #118443; }
-
-    /* Slider */
-    .hp-sliderWrapper { position: relative; }
-    .hp-slider { display: flex; overflow-x: auto; scroll-behavior: smooth; scrollbar-width: none; gap: 0; }
+    /* Slider wrapper */
+    .hp-sliderWrapper { position: relative; background: hsl(var(--bg)); border: 1px solid hsl(var(--border)); border-radius: 4px; overflow: visible; }
+    .hp-slider { display: flex; overflow-x: auto; scroll-behavior: smooth; scrollbar-width: none; }
     .hp-slider::-webkit-scrollbar { display: none; }
+
+    /* Nav arrows */
     .hp-navBtn {
-        position: absolute; top: 50%; transform: translateY(-50%);
-        width: 44px; height: 44px; background: #fff; border: 1px solid #e5e7eb;
+        position: absolute; top: 40%; transform: translateY(-50%);
+        width: 40px; height: 40px; background: hsl(var(--bg)); border: 1px solid hsl(var(--border));
         border-radius: 50%; display: flex; align-items: center; justify-content: center;
-        cursor: pointer; z-index: 10; box-shadow: 0 4px 16px rgba(0,0,0,0.1);
-        color: #111; font-size: 18px; transition: all 0.2s;
+        cursor: pointer; z-index: 20; box-shadow: 0 2px 12px rgba(0,0,0,0.12);
+        color: hsl(var(--fg)); font-size: 16px; transition: all 0.2s;
     }
-    .hp-navBtn:hover { background: #118443; color: #fff; border-color: #118443; }
-    .hp-navBtn.prev { left: -22px; }
-    .hp-navBtn.next { right: -22px; }
+    .hp-navBtn:hover { background: hsl(var(--primary)); color: hsl(var(--primary-fg)); border-color: hsl(var(--primary)); }
+    .hp-navBtn.prev { left: -20px; }
+    .hp-navBtn.next { right: -20px; }
     @media(max-width:768px) { .hp-navBtn { display: none; } }
 
-    /* Product Card */
+    /* Card — exact Mahalmart proportions */
     .hp-prodCard {
-        flex: 0 0 12.5%; min-width: 180px;
+        flex: 0 0 calc(100% / 7); min-width: 160px; max-width: 200px;
         display: flex; flex-direction: column;
-        border-right: 1px solid #f3f4f6;
-        position: relative; transition: all 0.2s;
-        cursor: pointer;
+        border-right: 1px solid hsl(var(--border));
+        background: hsl(var(--bg));
+        cursor: pointer; position: relative;
     }
+    .hp-prodCard:last-child { border-right: none; }
     @media(max-width:1200px){ .hp-prodCard { flex: 0 0 20%; } }
-    @media(max-width:900px){ .hp-prodCard { flex: 0 0 33.33%; } }
-    @media(max-width:640px){ .hp-prodCard { flex: 0 0 50%; } }
+    @media(max-width:900px) { .hp-prodCard { flex: 0 0 33.33%; } }
+    @media(max-width:600px) { .hp-prodCard { flex: 0 0 50%; } }
 
-    .hp-prodInner { padding: 16px; display: flex; flex-direction: column; height: 100%; }
-    .hp-prodCard:hover .hp-prodInner { box-shadow: 0 8px 32px rgba(0,0,0,0.08); background: #fff; }
+    /* Badge */
+    .hp-badge {
+        position: absolute; top: 10px; left: 10px; z-index: 5;
+        background: hsl(var(--primary)); color: hsl(var(--primary-fg));
+        font-size: 9px; font-weight: 700; padding: 3px 7px;
+        border-radius: 2px; text-transform: uppercase; letter-spacing: 0.05em;
+        display: flex; align-items: center; gap: 4px;
+    }
+    .hp-badge.sale { background: hsl(0 84% 50%); color: #fff; left: auto; right: 10px; }
 
-    .hp-badge { position: absolute; top: 16px; left: 16px; z-index: 5;
-        background: #2563eb; color: #fff; font-size: 10px; font-weight: 700;
-        padding: 4px 8px; border-radius: 2px; text-transform: uppercase; letter-spacing: 0.05em; }
-    .hp-badge.sale { background: #dc2626; }
+    /* Image area — light grey like Mahalmart */
+    .hp-imgWrap {
+        width: 100%; aspect-ratio: 1;
+        background: #f7f7f5;
+        display: flex; align-items: center; justify-content: center;
+        padding: 16px; overflow: hidden;
+    }
+    .hp-img { max-width: 100%; max-height: 100%; object-fit: contain; transition: transform 0.35s ease; }
+    .hp-prodCard:hover .hp-img { transform: scale(1.06); }
 
-    .hp-imgWrap { width: 100%; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; margin-bottom: 14px; overflow: hidden; }
-    .hp-img { max-width: 100%; max-height: 100%; object-fit: contain; transition: transform 0.4s ease; }
-    .hp-prodCard:hover .hp-img { transform: scale(1.07); }
+    /* Info below image */
+    .hp-prodInner { padding: 12px 14px 14px; display: flex; flex-direction: column; flex: 1; }
+    .hp-prodName {
+        font-size: 13px; font-weight: 700; color: hsl(var(--fg));
+        line-height: 1.45; margin-bottom: 6px;
+        display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 38px;
+    }
 
-    .hp-prodName { font-size: 14px; font-weight: 700; color: #111827; line-height: 1.4; margin-bottom: 8px; min-height: 40px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-    
-    .hp-stock { font-size: 12px; font-weight: 600; margin-bottom: 10px; display: flex; align-items: center; gap: 5px; }
-    .hp-stockDot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
-    .hp-instock { color: #118443; } .hp-instock .hp-stockDot { background: #118443; }
+    /* Stock */
+    .hp-stock { font-size: 11px; font-weight: 600; margin-bottom: 10px; display: flex; align-items: center; gap: 5px; }
+    .hp-stockDot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+    .hp-instock { color: hsl(var(--primary)); } .hp-instock .hp-stockDot { background: hsl(var(--primary)); }
     .hp-lowstock { color: #d97706; } .hp-lowstock .hp-stockDot { background: #d97706; }
 
-    .hp-priceRow { margin-bottom: 14px; }
-    .hp-price { font-size: 22px; font-weight: 800; color: #111827; }
-    .hp-priceOld { font-size: 13px; color: #9ca3af; text-decoration: line-through; margin-left: 6px; }
+    /* Price — dollar sign small, number big, cents superscript */
+    .hp-priceRow { margin-bottom: 12px; display: flex; align-items: baseline; gap: 8px; }
+    .hp-price { font-size: 20px; font-weight: 800; color: hsl(var(--fg)); }
+    .hp-priceOld { font-size: 12px; color: hsl(var(--muted-fg)); text-decoration: line-through; }
 
+    /* Add to Cart button — full width dark green */
     .hp-addBtn {
-        margin-top: auto; width: 100%; background: #118443; color: #fff;
-        border: none; padding: 11px 0; font-size: 12px; font-weight: 800;
-        text-transform: uppercase; letter-spacing: 0.06em; border-radius: 4px;
-        cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px;
+        width: 100%; background: hsl(var(--primary)); color: hsl(var(--primary-fg));
+        border: none; padding: 10px 0; font-size: 11px; font-weight: 800;
+        text-transform: uppercase; letter-spacing: 0.07em; border-radius: 3px;
+        cursor: pointer; transition: background 0.2s, transform 0.15s;
+        margin-top: auto;
     }
-    .hp-addBtn:hover { background: #0d6b35; transform: translateY(-2px); }
+    .hp-addBtn:hover { background: hsl(145 63% 28%); transform: translateY(-1px); }
 
     /* Category Row */
-    .hp-catRow { display: flex; gap: 16px; overflow-x: auto; padding: 8px 0 16px; scrollbar-width: none; }
+    .hp-catRow { display: flex; gap: 12px; overflow-x: auto; padding: 8px 2px 16px; scrollbar-width: none; }
     .hp-catRow::-webkit-scrollbar { display: none; }
-    .hp-catCard { flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: 12px; text-decoration: none; }
+    .hp-catCard { flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: 10px; text-decoration: none; }
     .hp-catCircle {
-        width: 110px; height: 110px; border-radius: 50%; background: #fff;
-        border: 1.5px solid #e5e7eb; display: flex; align-items: center; justify-content: center;
-        padding: 18px; transition: all 0.3s;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        width: 100px; height: 100px; border-radius: 50%;
+        background: hsl(var(--muted)); border: 1.5px solid hsl(var(--border));
+        display: flex; align-items: center; justify-content: center; padding: 16px;
+        transition: all 0.25s;
     }
-    .hp-catCard:hover .hp-catCircle { border-color: #118443; transform: translateY(-5px); box-shadow: 0 12px 24px rgba(17,132,67,0.12); }
+    .hp-catCard:hover .hp-catCircle { border-color: hsl(var(--primary)); transform: translateY(-4px); box-shadow: 0 10px 20px rgba(0,0,0,0.08); }
     .hp-catImg { max-width: 100%; max-height: 100%; object-fit: contain; }
     .hp-catImgFallback { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; }
-    .hp-catLabel { font-size: 13px; font-weight: 700; color: #111827; text-align: center; max-width: 110px; line-height: 1.3; }
+    .hp-catLabel { font-size: 12px; font-weight: 700; color: hsl(var(--fg)); text-align: center; max-width: 100px; line-height: 1.3; }
 
     /* Features bar */
-    .hp-features { background: #f9fafb; border-top: 1px solid #f3f4f6; border-bottom: 1px solid #f3f4f6; padding: 32px 0; }
+    .hp-features { background: hsl(var(--muted)); border-top: 1px solid hsl(var(--border)); border-bottom: 1px solid hsl(var(--border)); padding: 28px 0; }
     .hp-featuresInner { max-width: 1400px; margin: 0 auto; padding: 0 24px; display: grid; grid-template-columns: repeat(4,1fr); gap: 24px; }
     @media(max-width:768px) { .hp-featuresInner { grid-template-columns: repeat(2,1fr); } }
-    .hp-featureItem { display: flex; align-items: center; gap: 16px; }
-    .hp-featureIcon { width: 48px; height: 48px; background: #118443; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .hp-featureTitle { font-weight: 700; font-size: 15px; color: #111827; margin: 0 0 2px; }
-    .hp-featureDesc { font-size: 13px; color: #6b7280; margin: 0; }
+    .hp-featureItem { display: flex; align-items: center; gap: 14px; }
+    .hp-featureIcon { width: 44px; height: 44px; background: hsl(var(--primary)); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .hp-featureTitle { font-weight: 700; font-size: 14px; color: hsl(var(--fg)); margin: 0 0 2px; }
+    .hp-featureDesc { font-size: 12px; color: hsl(var(--muted-fg)); margin: 0; }
 
     /* Marquee */
-    .hp-marquee { overflow: hidden; white-space: nowrap; background: #1a3c34; padding: 18px 0; margin-top: 64px; }
+    .hp-marquee { overflow: hidden; white-space: nowrap; background: hsl(var(--fg)); padding: 16px 0; margin-top: 56px; }
     .hp-marqueeTrack { display: inline-flex; animation: hp-marquee 35s linear infinite; }
-    .hp-marqueeItem { display: inline-flex; align-items: center; gap: 12px; padding: 0 48px; font-size: 14px; font-weight: 700; color: rgba(255,255,255,0.75); text-transform: uppercase; letter-spacing: 0.1em; }
-    .hp-marqueeItem svg { color: rgba(255,255,255,0.5); }
-    @keyframes hp-marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+    .hp-marqueeItem { display: inline-flex; align-items: center; gap: 10px; padding: 0 40px; font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 0.12em; }
+    @keyframes hp-marquee { 0%{ transform: translateX(0); } 100%{ transform: translateX(-50%); } }
 </style>
 
 @php
