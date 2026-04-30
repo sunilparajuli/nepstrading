@@ -12,7 +12,7 @@
         </div>
     @endif
 
-    <form action="{{ route('admin.categories.update', $category) }}" method="POST">
+    <form action="{{ route('admin.categories.update', $category) }}" method="POST" enctype="multipart/form-data">
         @csrf
         @method('PUT')
         <div class="bg-white p-8 rounded-sm shadow-sm border border-gray-100 space-y-6">
@@ -38,6 +38,17 @@
                         @endif
                     @endforeach
                 </select>
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Category Icon / Image</label>
+                @if($category->image)
+                    <div class="mb-4 flex items-center gap-4">
+                        <img src="{{ asset('storage/' . $category->image) }}" class="w-20 h-20 rounded-sm object-cover border border-gray-200" alt="">
+                        <span class="text-[10px] text-gray-400">Current Image</span>
+                    </div>
+                @endif
+                <input type="file" name="image" class="w-full border border-gray-200 rounded-sm text-sm p-4 bg-gray-50 focus:border-primary focus:ring-1 focus:ring-primary outline-none">
+                <p class="text-[10px] text-gray-400 mt-2 italic">Leave empty to keep existing image. Recommended: 200x200px</p>
             </div>
             <div class="flex items-center gap-4 pt-6 border-t border-gray-50">
                 <button type="submit" class="bg-primary text-black px-8 py-4 rounded-sm text-xs font-black uppercase tracking-widest hover:bg-black hover:text-primary transition-all shadow-md">Update Category</button>

@@ -46,8 +46,36 @@
     .s-catRow::-webkit-scrollbar { height: 4px; }
     .s-catRow::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
     .s-catCard { display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; flex-shrink: 0; text-decoration: none; }
-    .s-catImg { width: 112px; height: 112px; border-radius: 50%; object-fit: cover; border: 2px solid hsl(var(--border)); transition: transform 0.2s; }
-    .s-catCard:hover .s-catImg { transform: scale(1.05); }
+    .s-catImg { width: 112px; height: 112px; border-radius: 50%; object-fit: cover; border: 2px solid hsl(var(--border)); transition: transform 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    .s-catImgPlaceholder { 
+        width: 112px; height: 112px; border-radius: 50%; 
+        display: flex; align-items: center; justify-content: center; 
+        font-size: 36px; font-family: 'DM Serif Display', serif; 
+        border: 2px solid hsl(var(--border)); transition: transform 0.2s;
+    }
+    .s-catCard:hover .s-catImg, .s-catCard:hover .s-catImgPlaceholder { transform: scale(1.05); border-color: hsl(var(--primary)); }
+
+    /* Bottom Marquee */
+    .s-marquee {
+        width: 100%; overflow: hidden; white-space: nowrap; 
+        background: hsl(var(--muted)); padding: 40px 0;
+        border-top: 1px solid hsl(var(--border)); border-bottom: 1px solid hsl(var(--border));
+        margin-top: 64px;
+    }
+    .s-marqueeContent {
+        display: inline-flex; align-items: center; gap: 64px;
+        animation: marquee 40s linear infinite;
+    }
+    .s-marqueeItem {
+        display: flex; align-items: center; gap: 16px;
+        color: hsl(var(--muted-fg)); font-size: 18px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em;
+    }
+    .s-marqueeIcon { width: 40px; height: 40px; opacity: 0.5; filter: grayscale(1); }
+    
+    @keyframes marquee {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(-50%); }
+    }
     .s-catLabel { font-size: 14px; font-weight: 500; color: hsl(var(--fg)); text-align: center; }
 
     .s-prodGrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
@@ -136,9 +164,15 @@
         <a href="{{ route('products.index') }}" class="s-viewAll">View all</a>
     </div>
     <div class="s-catRow">
-        @foreach (\App\Models\Category::whereNull('parent_id')->take(7)->get() as $cat)
+        @foreach (\App\Models\Category::whereNull('parent_id')->where('is_enabled', true)->take(12)->get() as $cat)
             <a href="{{ route('products.index', ['category' => $cat->id]) }}" class="s-catCard">
-                <img src="https://placehold.co/200x200?text={{ urlencode($cat->name) }}" alt="{{ $cat->name }}" class="s-catImg" />
+                @if($cat->image)
+                    <img src="{{ asset('storage/' . $cat->image) }}" alt="{{ $cat->name }}" class="s-catImg" />
+                @else
+                    <div class="s-catImgPlaceholder" style="background: hsl({{ 20 * $cat->id % 360 }}, 70%, 90%); color: hsl({{ 20 * $cat->id % 360 }}, 70%, 30%);">
+                        {{ substr($cat->name, 0, 1) }}
+                    </div>
+                @endif
                 <span class="s-catLabel">{{ $cat->name }}</span>
             </a>
         @endforeach
@@ -176,4 +210,17 @@
         @endforeach
     </div>
 </section>
+
+<!-- Bottom Scrollable Brands/Trust Bar -->
+<div class="s-marquee">
+    <div class="s-marqueeContent">
+        @foreach (range(1, 4) as $i) {{-- Duplicate for seamless loop --}}
+            <div class="s-marqueeItem"><img src="https://placehold.co/120x40?text=NEPALI+FOOD" class="s-marqueeIcon"> AUTHENTIC PRODUCTS</div>
+            <div class="s-marqueeItem"><img src="https://placehold.co/120x40?text=FRESH" class="s-marqueeIcon"> FRESH GROCERIES</div>
+            <div class="s-marqueeItem"><img src="https://placehold.co/120x40?text=FREE+SHIP" class="s-marqueeIcon"> FREE DELIVERY</div>
+            <div class="s-marqueeItem"><img src="https://placehold.co/120x40?text=SECURE" class="s-marqueeIcon"> SECURE PAYMENT</div>
+            <div class="s-marqueeItem"><img src="https://placehold.co/120x40?text=24/7" class="s-marqueeIcon"> 24/7 SUPPORT</div>
+        @endforeach
+    </div>
+</div>
 @endsection

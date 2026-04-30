@@ -8,7 +8,7 @@
     <div class="w-full lg:w-1/3">
         <div class="bg-white p-8 rounded-sm shadow-sm border border-gray-100">
             <h3 class="font-bold text-gray-700 mb-6 uppercase tracking-wide text-xs border-b border-gray-50 pb-2">Add New Category</h3>
-            <form action="{{ route('admin.categories.store') }}" method="POST">
+            <form action="{{ route('admin.categories.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="space-y-6">
                     <div>
@@ -33,6 +33,11 @@
                                 <option value="{{ $parent->id }}" {{ old('parent_id') == $parent->id ? 'selected' : '' }}>{{ $parent->name }}</option>
                             @endforeach
                         </select>
+                    </div>
+                    <div class="mb-6">
+                        <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Category Icon / Image</label>
+                        <input type="file" name="image" class="w-full border border-gray-200 rounded-sm text-sm p-3 bg-gray-50 focus:border-primary focus:ring-1 focus:ring-primary outline-none">
+                        <p class="text-[10px] text-gray-400 mt-1 italic">Recommended size: 200x200px</p>
                     </div>
                     <button type="submit" class="bg-primary text-black px-6 py-4 rounded-sm text-xs font-black w-full uppercase tracking-widest hover:bg-black hover:text-primary transition-all shadow-sm">Add New Category</button>
                 </div>
@@ -83,8 +88,8 @@
                         <td class="px-6 py-4">
                             <div class="flex items-center gap-4">
                                 @if($category->image)
-                                    <div class="relative group">
-                                        <img src="{{ $category->image }}" class="w-10 h-10 rounded-sm object-cover border border-gray-100 shadow-sm">
+                                    <div class="w-10 h-10 rounded-sm overflow-hidden border border-gray-200">
+                                        <img src="{{ asset('storage/' . $category->image) }}" class="w-full h-full object-cover" alt="">
                                     </div>
                                 @else
                                     <div class="w-10 h-10 rounded-sm bg-gray-50 border border-dashed border-gray-200 flex items-center justify-center">
