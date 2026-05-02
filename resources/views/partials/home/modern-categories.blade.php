@@ -1,7 +1,7 @@
 @php
     $showcaseCategories = \App\Models\Category::whereNull('parent_id')
         ->withCount('products')
-        ->orderBy('sort_order')
+        ->orderBy('name')
         ->limit(5)
         ->get();
 @endphp
