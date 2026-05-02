@@ -32,9 +32,6 @@
     <div class="homepage-content">
         @include('partials.home.pooja-banner')
 
-        {{-- Modern Categories Showcase --}}
-        @include('partials.home.modern-categories')
-
         @forelse ($sections as $section)
             @switch($section->type)
                 @case('featured_products')
