@@ -12,6 +12,12 @@
         $metaDesc = $sections['meta_description'] ?? 'Your authentic Indian and Nepali store, delivering fresh grocery and quality goods right to your door.';
     @endphp
     <title>{{ $metaTitle }}</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+
     <meta name="title" content="{{ $metaTitle }}">
     <meta name="description" content="{{ $metaDesc }}">
     <meta name="keywords" content="@yield('meta_keywords', 'indian groceries, nepali spices, authentic nepalese, indian delivery, ' . strtolower($appName) . ', online shopping')">
@@ -108,16 +114,22 @@
     @endphp
     <style>
         :root {
-            --primary: {{ $primaryVar }};
-            --primary-fg: 0, 0%, 100%;
-            --fg: 220, 15%, 10%;
-            --bg: 210, 20%, 96%; /* #F3F4F6 */
-            --card-bg: 0, 0%, 100%;
-            --muted: 210, 20%, 98%;
-            --muted-fg: 215, 15%, 45%;
-            --border: 214, 20%, 92%;
-            --accent: 28, 90%, 55%;
-            --accent-fg: 0, 0%, 100%;
+            /* Creamy Aesthetic Palette */
+            --bg: 40 30% 98%; /* #FDFBF7 */
+            --fg: 20 20% 15%; /* Deep Charcoal Brown */
+            --muted: 40 25% 95%; /* Soft Cream */
+            --muted-fg: 20 10% 45%;
+            --border: 35 20% 90%;
+            
+            --primary: 35 40% 45%; /* Warm Tan/Camel */
+            --primary-fg: 40 30% 98%;
+            
+            --accent: 35 50% 92%; /* Light Sand */
+            --accent-fg: 35 40% 25%;
+            
+            --sale: 15 60% 50%; /* Soft Terracotta */
+            
+            --radius: 1rem;
             --promo-bg: {{ $promoVar }};
             --promo-fg: 0, 0%, 100%;
             --footer-bg: {{ $footerBgVar }};
@@ -132,13 +144,18 @@
             --shadow-lg: 0 25px 50px -12px rgba(0,0,0,0.08);
         }
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Outfit', sans-serif;
             background: hsl(var(--bg));
             color: hsl(var(--fg));
             margin: 0;
             padding: 0;
             min-height: 100vh;
             -webkit-font-smoothing: antialiased;
+        }
+
+        h1, h2, h3, .font-serif {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
         }
 
         /* --- React Inline Styles Ported to CSS --- */
