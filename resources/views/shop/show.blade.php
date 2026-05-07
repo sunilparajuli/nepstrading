@@ -507,6 +507,53 @@
     @endauth
 </div>
 
+{{-- Similar Products --}}
+@php
+    $similarProducts = \App\Models\Product::where('status', 'active')
+        ->where('id', '!=', $product->id)
+        ->whereHas('categories', function($q) use ($product) {
+            $q->whereIn('categories.id', $product->categories->pluck('id'));
+        })
+        ->inRandomOrder()
+        ->take(4)
+        ->get();
+@endphp
+
+@if($similarProducts->count() > 0)
+<section style="max-width: 1200px; margin: 0 auto; padding: 0 16px 80px;">
+    <h2 style="font-family: 'DM Serif Display', serif; font-size: 24px; color: hsl(var(--fg)); margin-bottom: 32px; border-top: 1px solid hsl(var(--border)); padding-top: 48px;">You May Also Like</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 24px;">
+        @foreach($similarProducts as $p)
+            @php
+                $price = $p->sale_price ?: $p->price;
+                $parts = explode('.', number_format($price, 2));
+            @endphp
+            <div class="hp-card" onclick="window.location='{{ route('products.show', $p) }}'" style="flex: none; min-width: 0; border: 1px solid hsl(var(--border)); border-radius: 12px; overflow: hidden; background: #fff;">
+                <div class="hp-img-wrap" style="background: #f7f7f5;">
+                    <img src="{{ $p->image ?: 'https://placehold.co/400x400/f7f7f5/1a3c34?text='.urlencode($p->name) }}" alt="{{ $p->name }}" class="hp-img" loading="lazy" />
+                </div>
+                <div class="hp-content" style="padding: 16px;">
+                    <h3 class="hp-name" style="font-size: 15px; font-weight: 700; color: var(--mahal-text); margin-bottom: 8px; line-height: 1.4; height: 42px; overflow: hidden;">{{ $p->name }}</h3>
+                    <div class="hp-price-row" style="margin-bottom: 16px; display: flex; align-items: baseline;">
+                        <span class="hp-currency" style="font-size: 14px; font-weight: 800;">$</span>
+                        <span class="hp-price-main" style="font-size: 22px; font-weight: 800; color: var(--mahal-text);">{{ $parts[0] }}</span>
+                        <sup class="hp-price-cents" style="font-size: 12px; font-weight: 800;">{{ $parts[1] }}</sup>
+                        @if($p->sale_price)
+                            <span class="hp-price-old" style="font-size: 14px; color: var(--mahal-muted); text-decoration: line-through; margin-left: 8px;">${{ number_format($p->price, 2) }}</span>
+                        @endif
+                    </div>
+                    <form action="{{ route('cart.add', $p) }}" method="POST" onclick="event.stopPropagation();">
+                        @csrf
+                        <input type="hidden" name="qty" value="1">
+                        <button type="submit" class="hp-add-btn" style="width: 100%; background: var(--mahal-green); color: #fff; border: none; padding: 10px; border-radius: 6px; font-size: 13px; font-weight: 700; cursor: pointer;">+ Add to Cart</button>
+                    </form>
+                </div>
+            </div>
+        @endforeach
+    </div>
+</section>
+@endif
+
 <script>
 function pdQty(delta) {
     const input = document.getElementById('pdQtyInput');
