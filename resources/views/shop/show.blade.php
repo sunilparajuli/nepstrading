@@ -68,10 +68,23 @@
     @media (max-width: 768px) { .pd-grid { grid-template-columns: 1fr; gap: 32px; } }
 
     .pd-gallery { position: sticky; top: 32px; }
-    .pd-mainImg {
-        width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 12px;
+    .pd-mainImg-container {
+        position: relative; width: 100%; aspect-ratio: 1; border-radius: 12px;
         border: 1px solid hsl(var(--border)); background: hsl(var(--muted)); margin-bottom: 12px;
+        overflow: hidden; cursor: zoom-in;
     }
+    .pd-mainImg {
+        width: 100%; height: 100%; object-fit: cover;
+        transition: transform 0.1s ease-out;
+    }
+    .pd-magnifier-lens {
+        position: absolute; width: 150px; height: 150px; border: 2px solid #fff;
+        border-radius: 50%; box-shadow: 0 0 0 100vw rgba(0,0,0,0.1), 0 5px 15px rgba(0,0,0,0.2);
+        pointer-events: none; opacity: 0; transition: opacity 0.2s;
+        z-index: 10; display: none;
+    }
+    .pd-mainImg-container:hover .pd-magnifier-lens { opacity: 1; display: block; }
+    
     .pd-thumbRow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
     .pd-thumb {
         aspect-ratio: 1; border-radius: 8px; overflow: hidden; border: 2px solid transparent;
@@ -79,6 +92,7 @@
     }
     .pd-thumb.active, .pd-thumb:hover { border-color: hsl(var(--primary)); }
     .pd-thumb img { width: 100%; height: 100%; object-fit: cover; }
+
 
     .pd-cat {
         font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;
@@ -204,7 +218,10 @@
         
         <!-- Image Gallery -->
         <div class="pd-gallery">
-            <img src="{{ $product->image ?: 'https://placehold.co/800x800/f7f5ed/1f332a?text='.urlencode($product->name) }}" class="pd-mainImg" alt="{{ $product->name }}">
+            <div class="pd-mainImg-container" id="magnifierContainer">
+                <img src="{{ $product->image ?: 'https://placehold.co/800x800/f7f5ed/1f332a?text='.urlencode($product->name) }}" class="pd-mainImg" id="mainImg" alt="{{ $product->name }}">
+                <div class="pd-magnifier-lens" id="magnifierLens"></div>
+            </div>
             
             <div class="pd-thumbRow">
                 <button class="pd-thumb active">
@@ -520,5 +537,46 @@ if (timerEl) {
     updateTimer();
     setInterval(updateTimer, 1000);
 }
+
+// Magnifier Logic
+(function() {
+    const container = document.getElementById('magnifierContainer');
+    const mainImg = document.getElementById('mainImg');
+    const lens = document.getElementById('magnifierLens');
+
+    if (container && mainImg && lens) {
+        container.addEventListener('mousemove', (e) => {
+            const rect = container.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            // Calculate lens position
+            let lensX = x - lens.offsetWidth / 2;
+            let lensY = y - lens.offsetHeight / 2;
+
+            // Boundary checks
+            if (lensX < 0) lensX = 0;
+            if (lensY < 0) lensY = 0;
+            if (lensX > container.offsetWidth - lens.offsetWidth) lensX = container.offsetWidth - lens.offsetWidth;
+            if (lensY > container.offsetHeight - lens.offsetHeight) lensY = container.offsetHeight - lens.offsetHeight;
+
+            lens.style.left = lensX + 'px';
+            lens.style.top = lensY + 'px';
+
+            // Calculate zoom (2.5x zoom)
+            const zoom = 2.5;
+            const zX = (x / container.offsetWidth) * 100;
+            const zY = (y / container.offsetHeight) * 100;
+
+            mainImg.style.transformOrigin = `${zX}% ${zY}%`;
+            mainImg.style.transform = `scale(${zoom})`;
+        });
+
+        container.addEventListener('mouseleave', () => {
+            mainImg.style.transform = 'scale(1)';
+            mainImg.style.transformOrigin = 'center center';
+        });
+    }
+})();
 </script>
 @endsection
