@@ -15,6 +15,8 @@ class SettingController extends Controller
         $appVersion = SiteSetting::getValue('app_version', '1.0.0');
         $minAppVersion = SiteSetting::getValue('min_app_version', '1.0.0');
         $appUpdateUrl = SiteSetting::getValue('app_update_url', 'https://play.google.com/store/apps/details?id=com.sunil.nepstrading.ecommerce.app');
+        $siteLogo = SiteSetting::getValue('site_logo', '');
+
         
         $paypalEnabled = SiteSetting::getValue('payment_paypal_enabled', '0');
         $bankEnabled = SiteSetting::getValue('payment_bank_enabled', '0');
@@ -30,7 +32,7 @@ class SettingController extends Controller
         $footerCopyrightText = SiteSetting::getValue('footer_copyright_text', 'Nepstrading. Built for Excellence.');
 
         return view('admin.settings.index', compact(
-            'maintenanceMode', 'primaryColor', 'appVersion', 'minAppVersion', 'appUpdateUrl',
+            'maintenanceMode', 'primaryColor', 'appVersion', 'minAppVersion', 'appUpdateUrl', 'siteLogo',
             'paypalEnabled', 'bankEnabled', 'bankDetails',
             'footerAboutText', 'footerAddress', 'footerPhone', 'footerFacebookUrl', 'footerInstagramUrl', 'footerYoutubeUrl', 'footerCopyrightText'
         ));
@@ -43,6 +45,12 @@ class SettingController extends Controller
         if ($request->has('primary_color')) {
             SiteSetting::setValue('primary_color', $request->primary_color);
         }
+
+        if ($request->hasFile('site_logo')) {
+            $path = $request->file('site_logo')->store('site', 'public');
+            SiteSetting::setValue('site_logo', $path);
+        }
+
 
         if ($request->has('app_version')) {
             SiteSetting::setValue('app_version', $request->app_version);

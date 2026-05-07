@@ -9,12 +9,37 @@
         <p class="text-gray-500 text-sm">Manage global configurations for your store.</p>
     </div>
     
-    <form action="{{ route('admin.settings.update') }}" method="POST" class="p-6">
+    <form action="{{ route('admin.settings.update') }}" method="POST" enctype="multipart/form-data" class="p-6">
         @csrf
         @method('PUT')
         
         <div class="space-y-6 max-w-2xl">
+            <div class="space-y-4">
+                <label class="block text-sm font-medium text-gray-700">Site Logo</label>
+                <div class="flex items-center gap-6 p-4 bg-gray-50 rounded-lg border border-gray-100">
+                    <div class="w-32 h-32 bg-white rounded-md border border-gray-200 flex items-center justify-center overflow-hidden">
+                        @if($siteLogo)
+                            <img src="{{ asset('storage/' . $siteLogo) }}" class="max-w-full max-h-full object-contain" alt="Current Logo">
+                        @else
+                            <div class="text-gray-300 text-xs font-bold uppercase tracking-widest">No Logo</div>
+                        @endif
+                    </div>
+                    <div class="flex-1 space-y-2">
+                        <input type="file" name="site_logo" class="block w-full text-xs text-gray-500
+                            file:mr-4 file:py-2 file:px-4
+                            file:rounded-full file:border-0
+                            file:text-xs file:font-semibold
+                            file:bg-black file:text-white
+                            hover:file:bg-gray-800 transition-all cursor-pointer">
+                        <p class="text-[10px] text-gray-400">Recommended: PNG or SVG with transparent background. Max 2MB.</p>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="border-gray-200">
+
             <div class="flex items-start">
+
                 <div class="flex items-center h-5">
                     <input id="maintenance_mode" name="maintenance_mode" type="checkbox" value="1" {{ $maintenanceMode == '1' ? 'checked' : '' }} class="focus:ring-black h-4 w-4 text-black border-gray-300 rounded">
                 </div>
