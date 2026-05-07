@@ -12,6 +12,12 @@
         $metaDesc = $sections['meta_description'] ?? 'Your authentic Indian and Nepali store, delivering fresh grocery and quality goods right to your door.';
     @endphp
     <title>{{ $metaTitle }}</title>
+    
+    <!-- Shopify-inspired Typography: Assistant & Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@200;300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
     <meta name="title" content="{{ $metaTitle }}">
     <meta name="description" content="{{ $metaDesc }}">
     <meta name="keywords" content="@yield('meta_keywords', 'indian groceries, nepali spices, authentic nepalese, indian delivery, ' . strtolower($appName) . ', online shopping')">
@@ -110,12 +116,12 @@
         :root {
             --primary: {{ $primaryVar }};
             --primary-fg: 0, 0%, 100%;
-            --fg: 220, 15%, 10%;
-            --bg: 210, 20%, 96%; /* #F3F4F6 */
+            --fg: 220, 15%, 12%;
+            --bg: 0, 0%, 98%; /* Very light grey for contrast */
             --card-bg: 0, 0%, 100%;
             --muted: 210, 20%, 98%;
             --muted-fg: 215, 15%, 45%;
-            --border: 214, 20%, 92%;
+            --border: 214, 20%, 90%;
             --accent: 28, 90%, 55%;
             --accent-fg: 0, 0%, 100%;
             --promo-bg: {{ $promoVar }};
@@ -132,14 +138,30 @@
             --shadow-lg: 0 25px 50px -12px rgba(0,0,0,0.08);
         }
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Assistant', sans-serif;
             background: hsl(var(--bg));
             color: hsl(var(--fg));
             margin: 0;
             padding: 0;
             min-height: 100vh;
             -webkit-font-smoothing: antialiased;
+            letter-spacing: -0.01em;
+            line-height: 1.5;
         }
+
+        h1, h2, h3, h4, h5, h6, .s-logo {
+            font-family: 'Assistant', sans-serif;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+        }
+
+        .m-navLink, .s-navBar {
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
 
         /* --- React Inline Styles Ported to CSS --- */
         .s-announcementBar {
@@ -161,9 +183,9 @@
             display: flex; align-items: center; gap: 16px; padding: 12px 0;
         }
         .s-logo {
-            font-family: 'DM Serif Display', serif; font-size: 26px; color: hsl(var(--fg));
-            flex-shrink: 0; margin-right: 24px; text-decoration: none; font-weight: 500;
-            letter-spacing: -0.02em;
+            font-family: 'Assistant', sans-serif; font-size: 24px; color: hsl(var(--fg));
+            flex-shrink: 0; margin-right: 24px; text-decoration: none; font-weight: 700;
+            letter-spacing: -0.04em; text-transform: uppercase;
         }
         .s-searchWrap {
             flex: 1; display: flex; max-width: 512px;
