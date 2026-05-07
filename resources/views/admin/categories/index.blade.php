@@ -65,9 +65,11 @@
                 </thead>
                 <tbody class="divide-y divide-gray-50">
                     @php
-                        function renderCategoryRow($cat, $level = 0) {
-                            $prefix = str_repeat('— ', $level);
-                            return [$cat, $prefix, $level];
+                        if (!function_exists('renderCategoryRow')) {
+                            function renderCategoryRow($cat, $level = 0) {
+                                $prefix = str_repeat('— ', $level);
+                                return [$cat, $prefix, $level];
+                            }
                         }
                         
                         $flatList = [];
