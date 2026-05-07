@@ -137,25 +137,33 @@
     .hp-feature-desc { font-size: 12px; color: var(--mahal-muted); margin: 0; }
 
     /* Welcome Animation */
+    .hp-title-anim {
+        opacity: 0;
+        transform: translateY(15px);
+        animation: shopifyEntrance 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+    }
+
     .hp-welcome-anim {
         font-family: 'Assistant', sans-serif;
         font-size: 16px;
         color: var(--mahal-green);
         font-weight: 500;
-        margin-top: -16px;
-        margin-bottom: 24px;
+        margin-top: 8px;
+        margin-bottom: 32px;
         opacity: 0;
         transform: translateY(10px);
-        animation: fadeInUp 1s ease forwards;
-        animation-delay: 0.5s;
+        animation: shopifyEntrance 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        animation-delay: 0.3s;
     }
-    @keyframes fadeInUp {
+
+    @keyframes shopifyEntrance {
         to {
             opacity: 1;
             transform: translateY(0);
         }
     }
 </style>
+
 
 
 @php
@@ -191,13 +199,14 @@
 
 {{-- Shop By Category --}}
 <section class="hp-section">
-    <div class="hp-header">
-        <h2 class="hp-title">Shop By Category</h2>
+    <div class="hp-header" style="border-bottom: none; margin-bottom: 0;">
+        <h2 class="hp-title hp-title-anim">Shop By Category</h2>
         <a href="{{ route('products.index') }}" class="hp-view-all">View all &rarr;</a>
     </div>
     <div class="hp-welcome-anim">
         Welcome to Nepstrading, Indian and Nepali products
     </div>
+
 
     <div class="hp-cat-row">
         @foreach($categories as $cat)
