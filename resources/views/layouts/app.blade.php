@@ -6,7 +6,8 @@
     <!-- Primary Meta Tags -->
     @php 
         $appName = \App\Models\SiteSetting::getValue('app_name', 'Nepstrading'); 
-        $siteLogo = \App\Models\SiteSetting::getValue('logo', asset('favicon.ico'));
+        $siteLogoPath = \App\Models\SiteSetting::getValue('site_logo');
+        $siteLogo = $siteLogoPath ? asset('storage/' . $siteLogoPath) : asset('favicon.ico');
         $sections = View::getSections();
         $metaTitle = $sections['meta_title'] ?? $appName;
         $metaDesc = $sections['meta_description'] ?? 'Your authentic Indian and Nepali store, delivering fresh grocery and quality goods right to your door.';
@@ -151,8 +152,12 @@
             background: hsl(var(--primary));
             border-bottom: 1px solid hsl(var(--border));
             position: sticky;
-            top: 0;
+            top: 12px;
             z-index: 1000;
+            max-width: 1200px;
+            margin: 0 auto 12px;
+            border-radius: 99px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
         .s-navInner {
             max-width: 1200px; margin: 0 auto; padding: 0 16px; position: relative;
@@ -683,9 +688,9 @@
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
                         </button>
                         <a href="{{ url('/') }}" class="s-logo" style="color: hsl(var(--primary-fg));">
-                            @php $siteLogo = \App\Models\SiteSetting::getValue('logo'); @endphp
+                            @php $siteLogo = \App\Models\SiteSetting::getValue('site_logo'); @endphp
                             @if($siteLogo)
-                                <img src="{{ $siteLogo }}" alt="Nepstrading" style="height: 40px; width: auto; object-fit: contain;">
+                                <img src="{{ asset('storage/' . $siteLogo) }}" alt="Nepstrading" style="height: 40px; width: auto; object-fit: contain;">
                             @else
                                 Nepstrading
                             @endif
@@ -815,9 +820,9 @@
                 <div class="m-footerInner">
                     <div>
                         <h3 class="m-footerLogo">
-                            @php $siteLogo = \App\Models\SiteSetting::getValue('logo'); @endphp
+                            @php $siteLogo = \App\Models\SiteSetting::getValue('site_logo'); @endphp
                             @if($siteLogo)
-                                <img src="{{ $siteLogo }}" alt="Nepstrading" style="height: 48px; object-fit: contain;">
+                                <img src="{{ asset('storage/' . $siteLogo) }}" alt="Nepstrading" style="height: 48px; object-fit: contain;">
                             @else
                                 <span style="font-style: italic;">Nepstrading</span>
                             @endif
@@ -1149,7 +1154,7 @@
   "@type": "Organization",
   "name": "Nepstrading",
   "url": "{{ url('/') }}",
-  "logo": "{{ \App\Models\SiteSetting::getValue('logo') ?: asset('images/logo.png') }}",
+  "logo": "{{ \App\Models\SiteSetting::getValue('site_logo') ? asset('storage/' . \App\Models\SiteSetting::getValue('site_logo')) : asset('images/logo.png') }}",
   "contactPoint": {
     "@type": "ContactPoint",
     "telephone": "+61-XXXX-XXXX",
