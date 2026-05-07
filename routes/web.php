@@ -81,7 +81,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::resource('orders', App\Http\Controllers\Admin\OrderController::class);
     Route::resource('customers', App\Http\Controllers\Admin\CustomerController::class);
     Route::resource('products', App\Http\Controllers\Admin\ProductController::class);
-    Route::resource('categories', App\Http\Controllers\Admin\CategoryController::class);
+    Route::resource('categories', App\Http\Controllers\Admin\CategoryController::class)->except(['show', 'create']);
     Route::resource('attributes', App\Http\Controllers\Admin\AttributeController::class);
     Route::resource('attribute-terms', App\Http\Controllers\Admin\AttributeTermController::class);
     Route::resource('pages', App\Http\Controllers\Admin\PageController::class);
