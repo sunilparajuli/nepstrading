@@ -122,8 +122,8 @@
             --muted-fg: 20 10% 45%;
             --border: 35 20% 90%;
             
-            --primary: 35 40% 45%; /* Warm Tan/Camel */
-            --primary-fg: 40 30% 98%;
+            --primary: {{ $primaryVar }};
+            --primary-fg: 0, 0%, 100%;
             
             --accent: 35 50% 92%; /* Light Sand */
             --accent-fg: 35 40% 25%;
