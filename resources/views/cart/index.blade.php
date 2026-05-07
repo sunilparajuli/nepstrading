@@ -194,7 +194,21 @@
                 </div>
 
                 <div id="checkout-button-section" style="{{ $minOrderMet ? '' : 'display:none;' }}">
-                    <a href="{{ route('checkout.index') }}" class="ct-checkoutBtn">Checkout Now</a>
+                    @php 
+                        $shippingReady = is_array(session('shipping_location')) && 
+                                        !empty(session('shipping_location')['state']) && 
+                                        !empty(session('shipping_location')['city']) && 
+                                        !empty(session('shipping_location')['postcode']);
+                    @endphp
+                    
+                    <div id="shipping-required-msg" style="{{ $shippingReady ? 'display:none;' : '' }} margin-bottom: 12px; padding: 12px; background: hsl(200 84% 97%); border: 1px solid hsl(200 84% 90%); border-radius: 8px; color: hsl(200 84% 30%); font-size: 13px; font-weight: 500; line-height: 1.4;">
+                        <svg style="width: 16px; height: 16px; display: inline-block; vertical-align: middle; margin-right: 4px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16h.01"/><path d="M12 8v4"/></svg>
+                        Please select <strong>State, City and Postcode</strong> to calculate shipping and proceed.
+                    </div>
+
+                    <a href="{{ route('checkout.index') }}" id="actual-checkout-btn" class="ct-checkoutBtn" style="{{ $shippingReady ? '' : 'opacity: 0.5; pointer-events: none; background: #94a3b8;' }}">
+                        Checkout Now
+                    </a>
                 </div>
 
                 <p style="text-align: center; font-size: 11px; color: hsl(var(--muted-fg)); margin-top: 16px;">Tax calculated at checkout</p>
@@ -238,7 +252,7 @@
                     <div class="ct-formGroup">
                         <label class="ct-formLabel">Postcode</label>
                         @php $selPostcode = is_array(session('shipping_location')) ? (session('shipping_location')['postcode'] ?? '') : ''; @endphp
-                        <select name="postcode" id="postcode-selector" class="ct-select">
+                        <select name="postcode" id="postcode-selector" class="ct-select" onchange="checkAutoUpdateShipping()">
                             <option value="">Select Postcode</option>
                             @foreach($postcodes as $pc)
                                 <option value="{{ $pc }}" {{ $selPostcode == $pc ? 'selected' : '' }}>{{ $pc }}</option>
@@ -251,7 +265,7 @@
                             <option value="AU">Australia</option>
                         </select>
                     </div>
-                    <button type="submit" class="ct-updateBtn">Update Shipping</button>
+                    <button type="submit" class="ct-updateBtn" id="update-shipping-btn" style="display: none;">Update Shipping</button>
                 </form>
             </div>
 
@@ -330,6 +344,7 @@
         });
 
         filterPostcodes();
+        checkAutoUpdateShipping();
     }
 
     function filterPostcodes() {
@@ -374,12 +389,53 @@
                 selector.appendChild(opt);
             }
         });
+
+        checkAutoUpdateShipping();
     }
 
     // Initialize on load
     document.addEventListener('DOMContentLoaded', () => {
         filterCities();
+        checkCheckoutButtonState();
     });
+
+    function checkAutoUpdateShipping() {
+        const state = document.getElementById('state-selector').value;
+        const city = document.getElementById('city-selector').value;
+        const postcode = document.getElementById('postcode-selector').value;
+
+        if (state && city && postcode) {
+            // Trigger the form submission automatically
+            document.getElementById('shipping-form').dispatchEvent(new Event('submit', { 'cancelable': true, 'bubbles': true }));
+        }
+        
+        checkCheckoutButtonState();
+    }
+
+    function checkCheckoutButtonState() {
+        const state = document.getElementById('state-selector').value;
+        const city = document.getElementById('city-selector').value;
+        const postcode = document.getElementById('postcode-selector').value;
+        
+        const btn = document.getElementById('actual-checkout-btn');
+        const msg = document.getElementById('shipping-required-msg');
+        
+        if (state && city && postcode && !msg.getAttribute('data-calculating')) {
+            if (btn) {
+                btn.style.opacity = '1';
+                btn.style.pointerEvents = 'auto';
+                btn.style.background = 'hsl(var(--primary))';
+            }
+            if (msg) msg.style.display = 'none';
+        } else {
+            if (btn) {
+                btn.style.opacity = '0.5';
+                btn.style.pointerEvents = 'none';
+                btn.style.background = '#94a3b8';
+            }
+            if (msg) msg.style.display = 'block';
+        }
+    }
 
     async function updateQtyAJAX(id, change) {
         console.log('Update Qty Request:', id, change);
@@ -464,6 +520,10 @@
 
         summaryPanel.classList.add('loading');
         shippingPanel.classList.add('loading');
+        
+        const msg = document.getElementById('shipping-required-msg');
+        if (msg) msg.setAttribute('data-calculating', 'true');
+        checkCheckoutButtonState();
 
         try {
             const response = await fetch('{{ route('cart.shipping.set') }}', {
@@ -492,6 +552,10 @@
         } finally {
             summaryPanel.classList.remove('loading');
             shippingPanel.classList.remove('loading');
+            
+            const msg = document.getElementById('shipping-required-msg');
+            if (msg) msg.removeAttribute('data-calculating');
+            checkCheckoutButtonState();
         }
     }
 
