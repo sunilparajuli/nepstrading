@@ -5,7 +5,22 @@
                 <span class="italic">{{ $section->title ?: 'Shop By Aisle' }}</span>
             </h2>
             @if($section->subtitle)
-            <p class="text-gray-500 max-w-2xl mx-auto hp-subtitle-anim">{{ $section->subtitle }}</p>
+            <p class="text-gray-500 max-w-2xl mx-auto hp-subtitle-anim typewriter-text" id="typewriter-{{ $section->id }}" data-text="{{ $section->subtitle }}"></p>
+            <script>
+                (function() {
+                    const el = document.getElementById('typewriter-{{ $section->id }}');
+                    const text = el.getAttribute('data-text');
+                    let i = 0;
+                    function type() {
+                        if (i < text.length) {
+                            el.innerHTML += text.charAt(i);
+                            i++;
+                            setTimeout(type, 50);
+                        }
+                    }
+                    setTimeout(type, 1000);
+                })();
+            </script>
             @endif
         </div>
         

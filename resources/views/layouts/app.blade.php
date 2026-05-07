@@ -177,6 +177,18 @@
             }
         }
 
+        /* Typewriter Effect */
+        .typewriter-text::after {
+            content: '|';
+            animation: blink 0.7s infinite;
+            margin-left: 2px;
+            color: var(--mahal-green);
+        }
+
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+
         .m-navLink, .s-navBar {
             font-family: 'Inter', sans-serif;
             font-weight: 500;
