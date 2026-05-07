@@ -686,7 +686,7 @@
                         <a href="{{ url('/') }}" class="s-logo" style="color: hsl(var(--primary-fg));">
                             @php $siteLogoPath = \App\Models\SiteSetting::getValue('site_logo'); @endphp
                             @if($siteLogoPath)
-                                <img src="{{ asset('storage/' . $siteLogoPath) }}" alt="Nepstrading" style="height: 40px; width: auto; object-fit: contain;">
+                                <img src="{{ asset('storage/' . $siteLogoPath) }}" alt="Nepstrading" style="height: 64px; width: auto; object-fit: contain; margin: 4px 0;">
                             @else
                                 Nepstrading
                             @endif
@@ -815,10 +815,10 @@
             <footer class="m-footer">
                 <div class="m-footerInner">
                     <div>
-                        <h3 class="m-footerLogo">
+                        <h3 class="m-footerLogo" style="margin-bottom: 24px;">
                             @php $siteLogoPath = \App\Models\SiteSetting::getValue('site_logo'); @endphp
                             @if($siteLogoPath)
-                                <img src="{{ asset('storage/' . $siteLogoPath) }}" alt="Nepstrading" style="height: 48px; object-fit: contain;">
+                                <img src="{{ asset('storage/' . $siteLogoPath) }}" alt="Nepstrading" style="height: 72px; width: auto; object-fit: contain;">
                             @else
                                 <span style="font-style: italic;">Nepstrading</span>
                             @endif
