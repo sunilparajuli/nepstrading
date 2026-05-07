@@ -12,7 +12,6 @@
             </h2>
             <p class="text-lg text-white/90 mb-8 max-w-md font-medium leading-relaxed">
                 Authentic ritual supplies for your spiritual needs. 
-                <span class="block mt-2 text-[#fcb800] font-bold italic text-sm">"Store is also upstairs"</span>
             </p>
             
             <div class="flex flex-wrap gap-4 items-center">
