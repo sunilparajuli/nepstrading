@@ -135,7 +135,28 @@
     .hp-feature-icon svg { width: 22px; height: 22px; stroke: #fff; }
     .hp-feature-title { font-weight: 700; font-size: 15px; color: var(--mahal-text); margin: 0; }
     .hp-feature-desc { font-size: 12px; color: var(--mahal-muted); margin: 0; }
+
+    /* Welcome Animation */
+    .hp-welcome-anim {
+        font-family: 'Assistant', sans-serif;
+        font-size: 16px;
+        color: var(--mahal-green);
+        font-weight: 500;
+        margin-top: -16px;
+        margin-bottom: 24px;
+        opacity: 0;
+        transform: translateY(10px);
+        animation: fadeInUp 1s ease forwards;
+        animation-delay: 0.5s;
+    }
+    @keyframes fadeInUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
 </style>
+
 
 @php
     $newArrivals = \App\Models\Product::where('status', 'active')->latest()->take(14)->get();
@@ -174,6 +195,10 @@
         <h2 class="hp-title">Shop By Category</h2>
         <a href="{{ route('products.index') }}" class="hp-view-all">View all &rarr;</a>
     </div>
+    <div class="hp-welcome-anim">
+        Welcome to Nepstrading, Indian and Nepali products
+    </div>
+
     <div class="hp-cat-row">
         @foreach($categories as $cat)
             @php
