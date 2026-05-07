@@ -6,19 +6,12 @@
     <!-- Primary Meta Tags -->
     @php 
         $appName = \App\Models\SiteSetting::getValue('app_name', 'Nepstrading'); 
-        $siteLogoPath = \App\Models\SiteSetting::getValue('site_logo');
-        $siteLogo = $siteLogoPath ? asset('storage/' . $siteLogoPath) : asset('favicon.ico');
+        $siteLogo = \App\Models\SiteSetting::getValue('logo', asset('favicon.ico'));
         $sections = View::getSections();
         $metaTitle = $sections['meta_title'] ?? $appName;
         $metaDesc = $sections['meta_description'] ?? 'Your authentic Indian and Nepali store, delivering fresh grocery and quality goods right to your door.';
     @endphp
     <title>{{ $metaTitle }}</title>
-    
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
-
     <meta name="title" content="{{ $metaTitle }}">
     <meta name="description" content="{{ $metaDesc }}">
     <meta name="keywords" content="@yield('meta_keywords', 'indian groceries, nepali spices, authentic nepalese, indian delivery, ' . strtolower($appName) . ', online shopping')">
@@ -115,22 +108,16 @@
     @endphp
     <style>
         :root {
-            /* Creamy Aesthetic Palette */
-            --bg: 40 30% 98%; /* #FDFBF7 */
-            --fg: 20 20% 15%; /* Deep Charcoal Brown */
-            --muted: 40 25% 95%; /* Soft Cream */
-            --muted-fg: 20 10% 45%;
-            --border: 35 20% 90%;
-            
             --primary: {{ $primaryVar }};
             --primary-fg: 0, 0%, 100%;
-            
-            --accent: 35 50% 92%; /* Light Sand */
-            --accent-fg: 35 40% 25%;
-            
-            --sale: 15 60% 50%; /* Soft Terracotta */
-            
-            --radius: 1rem;
+            --fg: 220, 15%, 10%;
+            --bg: 210, 20%, 96%; /* #F3F4F6 */
+            --card-bg: 0, 0%, 100%;
+            --muted: 210, 20%, 98%;
+            --muted-fg: 215, 15%, 45%;
+            --border: 214, 20%, 92%;
+            --accent: 28, 90%, 55%;
+            --accent-fg: 0, 0%, 100%;
             --promo-bg: {{ $promoVar }};
             --promo-fg: 0, 0%, 100%;
             --footer-bg: {{ $footerBgVar }};
@@ -145,18 +132,13 @@
             --shadow-lg: 0 25px 50px -12px rgba(0,0,0,0.08);
         }
         body {
-            font-family: 'Outfit', sans-serif;
+            font-family: 'Inter', sans-serif;
             background: hsl(var(--bg));
             color: hsl(var(--fg));
             margin: 0;
             padding: 0;
             min-height: 100vh;
             -webkit-font-smoothing: antialiased;
-        }
-
-        h1, h2, h3, .font-serif {
-            font-family: 'Playfair Display', serif;
-            font-weight: 700;
         }
 
         /* --- React Inline Styles Ported to CSS --- */
@@ -700,10 +682,10 @@
                         <button class="s-mobileMenuBtn" onclick="toggleMobileMenu()">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
                         </button>
-                        <a href="{{ url('/') }}" class="s-logo" style="color: hsl(var(--fg));">
-                            @php $siteLogo = \App\Models\SiteSetting::getValue('site_logo'); @endphp
+                        <a href="{{ url('/') }}" class="s-logo" style="color: hsl(var(--primary-fg));">
+                            @php $siteLogo = \App\Models\SiteSetting::getValue('logo'); @endphp
                             @if($siteLogo)
-                                <img src="{{ asset('storage/' . $siteLogo) }}" alt="Nepstrading" style="height: 40px; width: auto; object-fit: contain;">
+                                <img src="{{ $siteLogo }}" alt="Nepstrading" style="height: 40px; width: auto; object-fit: contain;">
                             @else
                                 Nepstrading
                             @endif
@@ -833,9 +815,9 @@
                 <div class="m-footerInner">
                     <div>
                         <h3 class="m-footerLogo">
-                            @php $siteLogo = \App\Models\SiteSetting::getValue('site_logo'); @endphp
+                            @php $siteLogo = \App\Models\SiteSetting::getValue('logo'); @endphp
                             @if($siteLogo)
-                                <img src="{{ asset('storage/' . $siteLogo) }}" alt="Nepstrading" style="height: 48px; object-fit: contain;">
+                                <img src="{{ $siteLogo }}" alt="Nepstrading" style="height: 48px; object-fit: contain;">
                             @else
                                 <span style="font-style: italic;">Nepstrading</span>
                             @endif
@@ -1167,7 +1149,7 @@
   "@type": "Organization",
   "name": "Nepstrading",
   "url": "{{ url('/') }}",
-  "logo": "{{ \App\Models\SiteSetting::getValue('site_logo') ? asset('storage/' . \App\Models\SiteSetting::getValue('site_logo')) : asset('images/logo.png') }}",
+  "logo": "{{ \App\Models\SiteSetting::getValue('logo') ?: asset('images/logo.png') }}",
   "contactPoint": {
     "@type": "ContactPoint",
     "telephone": "+61-XXXX-XXXX",
