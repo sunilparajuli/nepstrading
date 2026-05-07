@@ -20,7 +20,9 @@
                         <a href="{{ route('categories.show', $category) }}" class="group flex flex-col items-center justify-start text-center h-full w-full">
                             <div class="w-24 h-24 sm:w-28 sm:h-28 md:w-36 md:h-36 mb-4 rounded-full border-4 border-white shadow-[0_4px_20px_rgba(0,0,0,0.08)] group-hover:shadow-[0_8px_25px_rgba(21,128,61,0.2)] group-hover:border-[#15803D]/10 overflow-hidden relative transition-all duration-300 bg-gray-50 flex-shrink-0">
                                 @php
-                                    $imgUrl = $category->image ? (Str::startsWith($category->image, 'http') ? $category->image : asset($category->image)) : 'https://placehold.co/400x400';
+                                    $imgUrl = $category->image 
+                                        ? (Str::startsWith($category->image, 'http') ? $category->image : asset('storage/' . $category->image)) 
+                                        : 'https://placehold.co/400x400';
                                 @endphp
                                 <img src="{{ $imgUrl }}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" alt="{{ $category->name }}">
                             </div>
