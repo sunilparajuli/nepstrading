@@ -1,11 +1,11 @@
 <section class="py-16">
     <div class="max-w-7xl mx-auto px-6">
         <div class="text-center mb-12">
-            <h2 class="text-3xl md:text-4xl font-medium tracking-tight text-[#002B2B] mb-4" style="font-family: 'DM Serif Display', serif;">
+            <h2 class="text-3xl md:text-4xl font-medium tracking-tight text-[#002B2B] mb-4 hp-title-anim" style="font-family: 'DM Serif Display', serif;">
                 <span class="italic">{{ $section->title ?: 'Shop By Aisle' }}</span>
             </h2>
             @if($section->subtitle)
-            <p class="text-gray-500 max-w-2xl mx-auto">{{ $section->subtitle }}</p>
+            <p class="text-gray-500 max-w-2xl mx-auto hp-subtitle-anim">{{ $section->subtitle }}</p>
             @endif
         </div>
         

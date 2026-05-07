@@ -136,33 +136,9 @@
     .hp-feature-title { font-weight: 700; font-size: 15px; color: var(--mahal-text); margin: 0; }
     .hp-feature-desc { font-size: 12px; color: var(--mahal-muted); margin: 0; }
 
-    /* Welcome Animation */
-    .hp-title-anim {
-        opacity: 0;
-        transform: translateY(15px);
-        animation: shopifyEntrance 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
-    }
-
-    .hp-welcome-anim {
-        font-family: 'Assistant', sans-serif;
-        font-size: 16px;
-        color: var(--mahal-green);
-        font-weight: 500;
-        margin-top: 8px;
-        margin-bottom: 32px;
-        opacity: 0;
-        transform: translateY(10px);
-        animation: shopifyEntrance 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
-        animation-delay: 0.3s;
-    }
-
-    @keyframes shopifyEntrance {
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
+    .hp-feature-desc { font-size: 12px; color: var(--mahal-muted); margin: 0; }
 </style>
+
 
 
 

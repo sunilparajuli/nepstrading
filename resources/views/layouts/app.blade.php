@@ -156,6 +156,27 @@
             line-height: 1.2;
         }
 
+        /* Global Entrance Animations */
+        .hp-title-anim {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: shopifyEntrance 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        }
+
+        .hp-subtitle-anim, .hp-welcome-anim {
+            opacity: 0;
+            transform: translateY(15px);
+            animation: shopifyEntrance 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+            animation-delay: 0.2s;
+        }
+
+        @keyframes shopifyEntrance {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
         .m-navLink, .s-navBar {
             font-family: 'Inter', sans-serif;
             font-weight: 500;
